@@ -1,48 +1,19 @@
 use ratatui::{
-    widgets::{ListState}
+    widgets::{TableState}
 };
 
-#[derive(Debug, Default)]
-pub struct Cue {
-    number: i32,
-    pub name: String,
-    duration: i32,
-    follow: FollowState
-}
+
+use crate::model::{
+    cue::{Cue},
+    editor::{RunningState}
+};
 
 #[derive(Debug, Default)]
 pub struct CueStack {
     // cue_count: i16,
     pub cues: Vec<Cue>,
-    pub current_cue: ListState,
+    pub current_cue: TableState,
     pub running_state: RunningState,
-}
-
-#[derive(Debug, Default, PartialEq)]
-pub enum RunningState {
-    #[default]
-    Running,
-    Done,
-}
-
-
-#[derive(Debug, Default, PartialEq, Eq)]
-pub enum FollowState {
-    #[default]
-    None,
-    Follow,
-    Continue
-}
-
-impl Cue {
-    pub fn new(number: i32, name: String, duration: i32, follow: FollowState) -> Cue {
-        Cue {
-            number,
-            name,
-            duration,
-            follow
-        }
-    }
 }
 
 impl CueStack {
@@ -55,7 +26,7 @@ impl CueStack {
         self.cues = items;
         // We reset the state as the associated items have changed. This effectively reset
         // the selection as well as the stored offset.
-        self.current_cue = ListState::default();
+        self.current_cue = TableState::default();
     }
 
     // Select the next item. This will not be reflected until the widget is drawn in the

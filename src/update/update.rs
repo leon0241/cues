@@ -1,5 +1,8 @@
-use crate::model::model::{CueStack, Cue, FollowState};
-use crate::model::editor::Mode;
+use crate::model::{
+    editor::{Mode},
+    cuestack::{CueStack},
+    cue::{Cue, FollowState}
+};
 
 use std::time::Duration;
 use ratatui::crossterm::event::{self, Event, KeyCode};
@@ -32,7 +35,7 @@ pub fn update(model: &mut CueStack, msg: Message) -> (Mode, Option<Message>) {
             model.delete_cue();
         }
         Message::Quit => {
-            model.running_state = crate::model::model::RunningState::Done
+            model.running_state = crate::model::editor::RunningState::Done
         }
     }
 

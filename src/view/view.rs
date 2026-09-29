@@ -1,25 +1,37 @@
-use crate::model::model::{CueStack};
+use crate::model::cuestack::CueStack;
 
 use ratatui::{
-    layout::Alignment,
-    style::{Color, Style},
-    widgets::{Block, BorderType, Borders, Paragraph, ListItem, List},
+    layout::{Constraint, Rect, Alignment},
+    style::{Color, Style, Stylize},
+    widgets::{Block, BorderType, Borders, Paragraph, Row, Table, TableState},
     Frame,
 };
 
 pub fn view(model: &mut CueStack, frame: &mut Frame) {
     // Vec of ListItems (which comes from a decompiled list of Cues)
-    let items: Vec<ListItem> = model
+    let rows: Vec<Row> = model
         .cues // Cues of the model
         .iter() // Iterator across cues
-        .map(|i| ListItem::new(i.name.as_str())) 
+        .map(|i| i.get_row()) 
         .collect(); //maps to string name and transforms an iterator back to collection
 
+    let header: Row<'_>  = Row::new(["Number", "Name", "Duration"])
+        .style(Style::new().bold())
+        .bottom_margin(1);
+
+
     // The `List` widget is then built with those items.
-    let list = List::new(items).highlight_symbol(">>");
+    let widths = [
+        Constraint::Percentage(10),
+        Constraint::Percentage(50),
+        Constraint::Percentage(40),
+    ];
 
+    let table = Table::new(rows, widths)
+        .header(header)
+        .block(Block::new().title("Table"))
+        .row_highlight_style(Style::new().reversed())
+        .highlight_symbol(">>");
 
-    // Finally the widget is rendered using the associated state. `events.state` is
-    // effectively the only thing that we will "remember" from this draw call.
-    frame.render_stateful_widget(list, frame.area(), &mut model.current_cue);
+    frame.render_stateful_widget(table, frame.area(), &mut model.current_cue);
 }

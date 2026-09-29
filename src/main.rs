@@ -7,8 +7,9 @@ pub mod view;
 // pub mod util;
 
 use model::{
-    model::{CueStack, RunningState, Cue, FollowState},
-    editor::{Editor, Mode}
+    cuestack::{CueStack},
+    cue::{Cue, FollowState},
+    editor::{Editor, Mode, RunningState}
 };
 
 use update::update::{

@@ -9,6 +9,13 @@ pub enum Mode {
 }
 
 #[derive(Debug, Default, PartialEq)]
+pub enum RunningState {
+    #[default]
+    Running,
+    Done,
+}
+
+#[derive(Debug, Default, PartialEq)]
 pub struct Editor {
     mode: Mode,
 }
