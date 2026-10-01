@@ -2,9 +2,10 @@ use ratatui::{
     widgets::{TableState}
 };
 
+use color_eyre::eyre::eyre;
 
 use crate::model::{
-    cue::{Cue},
+    cue::{Cue, CueType, AudioFile},
     editor::{RunningState}
 };
 
@@ -61,7 +62,7 @@ impl CueStack {
         self.current_cue.select(Some(i));
     }
 
-    // Unselect the currently selected item if any. The implementation of `ListState` makes
+    // Unselect the currently selected item if any. The implementation of `TableState` makes
     // sure that the stored offset is also reset.
     pub fn unselect(&mut self) {
         self.current_cue.select(None);
@@ -75,7 +76,27 @@ impl CueStack {
         self.cues.push(new_cue)
     }
 
-    pub fn delete_cue(&self){
-        unimplemented!();
+    // Delete Current Cue
+    pub fn delete_cue(&mut self) -> color_eyre::Result<()> {
+        let i: usize = self.current_cue.selected().ok_or_else(|| eyre!("no cue selected"))?;
+
+        self.cues.remove(i);
+        Ok(())
+    }
+
+    pub fn get_current_type(&self) -> color_eyre::Result<CueType> {
+        let i: usize = self.current_cue.selected().ok_or_else(|| eyre!("no cue selected"))?;
+
+        let cue: &Cue = self.cues.get(i).ok_or_else( || eyre!("index out of range"))?;
+
+        Ok(cue.get_type())
+    }
+
+    pub fn get_audio_file(&self) -> color_eyre::Result<Option<AudioFile>> {
+        let i: usize = self.current_cue.selected().ok_or_else(|| eyre!("no cue selected"))?;
+
+        let cue: &Cue = self.cues.get(i).ok_or_else( || eyre!("index out of range"))?;
+
+        Ok(cue.get_audio_file())
     }
 }

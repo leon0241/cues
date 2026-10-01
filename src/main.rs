@@ -8,17 +8,16 @@ pub mod view;
 
 use model::{
     cuestack::{CueStack},
-    cue::{Cue, FollowState},
     editor::{Editor, Mode, RunningState}
 };
 
 use update::update::{
+    init_cues,
     update,
     handle_event
 };
 
 use view::{
-    view::view,
     terminal::Tui,
 };
 
@@ -30,41 +29,54 @@ use color_eyre::Result;
 
 use cli_log::init_cli_log;
 
+use update::update::play_audio;
+
 
 fn main() -> Result<()>{
+    // Color_eyre error handling
+    color_eyre::install()?;
 
-    init_cli_log!();
+    play_audio();
 
+    // let tui: Tui = create_terminal()?;
+    //
+    // _ = run_loop(tui);
+
+    Ok(())
+}
+
+fn create_terminal() -> color_eyre::Result<Tui> {
+    let backend: CrosstermBackend<std::io::Stdout> = CrosstermBackend::new(std::io::stdout());
+    let terminal: Terminal<CrosstermBackend<std::io::Stdout>> = Terminal::new(backend)?;
+
+    let tui = Tui::new(terminal);
+    tui.init_terminal();
+
+    Ok(tui)
+}
+
+fn run_loop(mut tui: Tui) -> color_eyre::Result<()> {
     let mut model = CueStack::new();
     let mut editor = Editor::new();
 
-    let backend = CrosstermBackend::new(std::io::stdout());
-    let terminal = Terminal::new(backend)?;
-
-    let mut tui = Tui::new(terminal).init_terminal()?;
-
-    model.set_items(
-        vec![
-            Cue::new(1, String::from("test"), 1, FollowState::None),
-            Cue::new(2, String::from("test2"), 1, FollowState::None),
-        ]
-    );
+    init_cues(&mut model);
 
     while model.running_state != RunningState::Done {
-        tui.draw(|f| view(&mut model, f))?;
+        // Draw (all logic in the View files)
+        tui.draw(&mut model)?; // Calls view
 
         // Handle events and map to a Message
         let mut current_msg = handle_event(&model)?;
+        // Start on Normal mode (default)
         let mut current_mode = editor.get_mode();
 
         // Inside Normal Mode
         if current_mode == Mode::Normal {
             // Process events
             while current_msg.is_some() {
-                (current_mode, current_msg) = update(&mut model, current_msg.unwrap());
+                (current_mode, current_msg) = update(&mut model, current_msg.unwrap())?;
             }
         }
     }
-
     Ok(())
 }

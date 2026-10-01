@@ -15,23 +15,28 @@ pub fn view(model: &mut CueStack, frame: &mut Frame) {
         .map(|i| i.get_row()) 
         .collect(); //maps to string name and transforms an iterator back to collection
 
-    let header: Row<'_>  = Row::new(["Number", "Name", "Duration"])
+    let table: Table = init_table(rows);
+
+    frame.render_stateful_widget(table, frame.area(), &mut model.current_cue);
+}
+
+pub fn init_table(rows: Vec<Row>) -> Table {
+    // Setting Header
+    let header: Row = Row::new(["Number", "Name", "Duration"])
         .style(Style::new().bold())
         .bottom_margin(1);
 
-
-    // The `List` widget is then built with those items.
-    let widths = [
+    // Setting Column Widths
+    let widths: [Constraint; 3] = [
         Constraint::Percentage(10),
         Constraint::Percentage(50),
         Constraint::Percentage(40),
     ];
 
-    let table = Table::new(rows, widths)
+    // Creating New Table
+    Table::new(rows, widths)
         .header(header)
-        .block(Block::new().title("Table"))
+        .block(Block::new().title("Cue Stack"))
         .row_highlight_style(Style::new().reversed())
-        .highlight_symbol(">>");
-
-    frame.render_stateful_widget(table, frame.area(), &mut model.current_cue);
+        .highlight_symbol(">>")
 }
