@@ -18,18 +18,25 @@ pub enum Message {
     NewCue,
     DeleteCue,
     PlayCue,
+    PauseCue,
+    StopCue,
+    FadeStopCue,
 }
 
-pub fn init_cues(model: &mut CueStack) {
-    let file1 = AudioFile::new(String::from("funkytown"), String::from("project/audio/test.wav"));
+pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
+    let file1 = AudioFile::new(String::from("funkytown"), String::from("project/audio/test.wav"), &model.handler)?;
+    let file2 = AudioFile::new(String::from("boom"), String::from("project/audio/boom.wav"), &model.handler)?;
 
     model.set_items(
         vec![
             Cue::new(1, String::from("test"), CueType::Audio, 1, FollowState::None, None),
             Cue::new(2, String::from("file"), CueType::Audio, 1, FollowState::None, Some(file1)),
+            Cue::new(2, String::from("boom"), CueType::Audio, 1, FollowState::None, Some(file2)),
             Cue::new(3, String::from("test2"), CueType::Audio, 1, FollowState::None, None),
         ]
-    )
+    );
+
+    Ok(())
 }
 
 pub fn update(model: &mut CueStack, msg: Message) -> color_eyre::Result<(Mode, Option<Message>)> {
@@ -66,11 +73,7 @@ pub fn update(model: &mut CueStack, msg: Message) -> color_eyre::Result<(Mode, O
 
             match cue_type {
                 CueType::Audio => {
-                    let audiofile = model.get_audio_file()?;
-                    if let Some(i) = audiofile {
-                        // play_audio(i);
-                        model.handler.play_file(i);
-                    }
+                    model.current_cue_action(Message::PlayCue)?;
                 },
                 CueType::Stop => {
 
@@ -80,6 +83,31 @@ pub fn update(model: &mut CueStack, msg: Message) -> color_eyre::Result<(Mode, O
             };
             model.next();
         }
+        Message::PauseCue => {
+            let cue_type = model.get_current_type()?;
+
+            if let CueType::Audio = cue_type {
+                model.current_cue_action(Message::PauseCue)?;
+            };
+            model.next();
+        }
+        Message::StopCue => {
+            let cue_type = model.get_current_type()?;
+
+            if let CueType::Audio = cue_type {
+                model.current_cue_action(Message::StopCue)?;
+            };
+            model.next();
+        }
+        Message::FadeStopCue => {
+            let cue_type = model.get_current_type()?;
+
+            if let CueType::Audio = cue_type {
+                model.current_cue_action(Message::FadeStopCue)?;
+            };
+            model.next();
+        }
+        _ => { }
     }
 
     Ok((Mode::Insert, None))
@@ -105,6 +133,9 @@ fn handle_key(key: event::KeyEvent) -> Option<Message> {
         KeyCode::Char('d') => Some(Message::DeleteCue),
         KeyCode::Char('q') => Some(Message::Quit),
         KeyCode::Char(' ') => Some(Message::PlayCue),
+        KeyCode::Char('p') => Some(Message::PauseCue),
+        KeyCode::Char('X') => Some(Message::StopCue),
+        KeyCode::Char('x') => Some(Message::FadeStopCue),
         _ => None,
     }
 }

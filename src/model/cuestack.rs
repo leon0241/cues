@@ -4,6 +4,7 @@ use ratatui::{
 
 use color_eyre::eyre::eyre;
 
+
 use crate::model::{
     cue::{Cue, CueType},
     editor::{RunningState}
@@ -11,7 +12,9 @@ use crate::model::{
 
 use crate::model::audio_config::AudioDevice;
 
-#[derive(Debug, Default)]
+use crate::update::update::Message;
+
+#[derive(Default)]
 pub struct CueStack {
     // cue_count: i16,
     pub cues: Vec<Cue>,
@@ -87,19 +90,33 @@ impl CueStack {
         Ok(())
     }
 
+    pub fn current_cue_action(&mut self, selection: Message) -> color_eyre::Result<()> {
+        let i: usize = self.current_cue.selected().ok_or_else(|| eyre!("no cue selected"))?;
+
+        match selection {
+            Message::PlayCue => {
+                self.cues[i].play_cue();
+            }
+            Message::PauseCue => {
+                self.cues[i].pause();
+            }
+            Message::StopCue => {
+                self.cues[i].stop();
+            }
+            Message::FadeStopCue => {
+                self.cues[i].fade_stop();
+            }
+            _ => { }
+        }
+
+        Ok(())
+    }
+
     pub fn get_current_type(&self) -> color_eyre::Result<CueType> {
         let i: usize = self.current_cue.selected().ok_or_else(|| eyre!("no cue selected"))?;
 
         let cue: &Cue = self.cues.get(i).ok_or_else( || eyre!("index out of range"))?;
 
         Ok(cue.get_type())
-    }
-
-    pub fn get_audio_file(&self) -> color_eyre::Result<Option<std::fs::File>> {
-        let i: usize = self.current_cue.selected().ok_or_else(|| eyre!("no cue selected"))?;
-
-        let cue: &Cue = self.cues.get(i).ok_or_else( || eyre!("index out of range"))?;
-
-        Ok(cue.get_audio_file())
     }
 }

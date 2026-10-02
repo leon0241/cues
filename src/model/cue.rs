@@ -1,9 +1,12 @@
 use ratatui::widgets::Row;
+use rodio::{Decoder, Player};
 
-use std::fs::File;
+use std::{fs::File, io::Cursor, sync::Arc};
+
+use crate::model::audio_config::AudioDevice;
 
 #[allow(dead_code)]
-#[derive(Debug, Default)]
+// #[derive(Debug, Default)]
 pub struct Cue {
     name: String,
     number: i32,
@@ -35,19 +38,43 @@ pub enum CueType {
 }
 
 #[allow(dead_code)]
-#[derive(Debug)]
+// #[derive(Debug)]
 pub struct AudioFile {
     name: String,
     file_path: String,
+    bytes: Arc<[u8]>,
+    player: Player
 }
 
 impl AudioFile {
-    pub fn new(name: String, file_path: String) -> Self{
-        Self {
+    pub fn new(name: String, file_path: String, mixer: &AudioDevice) -> color_eyre::Result<Self> {
+        let bytes = std::fs::read(&file_path)?.into();
+
+        let player = Player::connect_new(mixer.sink.mixer());
+
+        Ok(Self {
             name,
-            file_path
-        }
+            file_path,
+            bytes,
+            player
+        })
     }
+
+    pub fn get_player(&self) -> &Player {
+        &self.player
+    }
+
+    pub fn play_file(&self) {
+
+        // Decode that sound file into a source
+        // let source = Decoder::try_from(self.file.try_clone().expect("file not available")).unwrap();
+        let source = Decoder::try_from(Cursor::new(self.bytes.clone())).unwrap();
+
+        self.player.append(source);
+        // self.controller.add(source);
+    }
+
+
 }
 
 impl Cue {
@@ -79,15 +106,41 @@ impl Cue {
         self.name.clone()
     }
 
-    pub fn get_audio_file(&self) -> Option<File> {
-        match self.file {
-            Some(ref i) => {
-                let file_path = i.file_path.clone();
-                Some(File::open(file_path).unwrap())
-            },
-            None => { None }
+    pub fn player(&self) -> &Player {
+        self.file.as_ref().unwrap().get_player()
+    }
+
+    pub fn play_cue(&self) -> color_eyre::Result<()> {
+        if self.player().empty() && let Some(ref i) = self.file {
+            i.play_file()
+        }
+        Ok(())
+    }
+
+    pub fn pause(&self) {
+        if self.player().is_paused() {
+            self.player().play()
+        } else {
+            self.player().pause();
         }
     }
+
+    pub fn stop(&self) {
+        self.player().stop();
+    }
+
+    pub fn fade_stop(&self) {
+        let vol = self.player().volume();
+
+        for t in (0..100).rev() {
+            println!("test");
+            self.player().set_volume(vol / 100_f32 * t as f32);
+            std::thread::sleep(std::time::Duration::from_millis(30));
+        }
+
+        self.player().stop();
+    }
+
 
     fn follow_state_symbol(&self) -> String {
         match self.follow {

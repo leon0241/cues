@@ -1,12 +1,16 @@
 use std::fs::File;
+use std::num::NonZero;
 
-// use rodio::mixer::{self, Mixer, MixerSource};
+use rodio::mixer::{self, Mixer, MixerSource};
 // use rodio::{Player, Decoder, MixerDeviceSink, source::Source};
-use rodio::{Decoder, MixerDeviceSink};
+use rodio::{Player, Decoder, MixerDeviceSink};
 
-#[derive(Debug)]
+// #[derive(Debug)]
 pub struct AudioDevice {
-    handle: MixerDeviceSink,
+    pub sink: MixerDeviceSink,
+}
+pub struct AudioPlayer {
+    player: Player,
 }
 
 impl Default for AudioDevice {
@@ -17,17 +21,10 @@ impl Default for AudioDevice {
 
 impl AudioDevice {
     pub fn new() -> Self {
-        let handle = rodio::DeviceSinkBuilder::
+        let sink = rodio::DeviceSinkBuilder::
             open_default_sink()
             .expect("open default audio stream");
 
-        Self { handle }
-    }
-
-    pub fn play_file(&self, file: File) {
-        // Decode that sound file into a source
-        let source = Decoder::try_from(file).unwrap();
-
-        self.handle.mixer().add(source);
+        Self { sink }
     }
 }
