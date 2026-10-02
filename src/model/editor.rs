@@ -1,5 +1,3 @@
-use color_eyre::Result;
-
 #[derive(Debug, Default, PartialEq, Copy, Clone)]
 pub enum Mode {
     #[default]

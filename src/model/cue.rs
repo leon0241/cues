@@ -1,5 +1,7 @@
 use ratatui::widgets::Row;
 
+use std::fs::File;
+
 #[allow(dead_code)]
 #[derive(Debug, Default)]
 pub struct Cue {
@@ -33,15 +35,23 @@ pub enum CueType {
 }
 
 #[allow(dead_code)]
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct AudioFile {
     name: String,
     file_path: String,
-    duration: i32,
+}
+
+impl AudioFile {
+    pub fn new(name: String, file_path: String) -> Self{
+        Self {
+            name,
+            file_path
+        }
+    }
 }
 
 impl Cue {
-    pub fn new(number: i32, name: String, cue_type: CueType, duration: i32, follow: FollowState) -> Cue {
+    pub fn new(number: i32, name: String, cue_type: CueType, duration: i32, follow: FollowState, file: Option<AudioFile>) -> Cue {
         Cue {
             number,
             name,
@@ -49,7 +59,7 @@ impl Cue {
             follow,
             cue_type,
             // colour: None,
-            file: None
+            file
         }
     }
 
@@ -69,8 +79,14 @@ impl Cue {
         self.name.clone()
     }
 
-    pub fn get_audio_file(&self) -> Option<AudioFile> {
-        self.file.clone()
+    pub fn get_audio_file(&self) -> Option<File> {
+        match self.file {
+            Some(ref i) => {
+                let file_path = i.file_path.clone();
+                Some(File::open(file_path).unwrap())
+            },
+            None => { None }
+        }
     }
 
     fn follow_state_symbol(&self) -> String {

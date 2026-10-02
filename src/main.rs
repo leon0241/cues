@@ -21,26 +21,17 @@ use view::{
     terminal::Tui,
 };
 
-// use util::logging::initialize_logging;
-
 use ratatui::{backend::CrosstermBackend, Terminal};
 
 use color_eyre::Result;
-
-use cli_log::init_cli_log;
-
-use update::update::play_audio;
-
 
 fn main() -> Result<()>{
     // Color_eyre error handling
     color_eyre::install()?;
 
-    play_audio();
+    let tui: Tui = create_terminal()?;
 
-    // let tui: Tui = create_terminal()?;
-    //
-    // _ = run_loop(tui);
+    _ = run_loop(tui);
 
     Ok(())
 }
@@ -50,7 +41,7 @@ fn create_terminal() -> color_eyre::Result<Tui> {
     let terminal: Terminal<CrosstermBackend<std::io::Stdout>> = Terminal::new(backend)?;
 
     let tui = Tui::new(terminal);
-    tui.init_terminal();
+    _ = tui.init_terminal();
 
     Ok(tui)
 }

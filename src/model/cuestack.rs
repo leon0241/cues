@@ -5,9 +5,11 @@ use ratatui::{
 use color_eyre::eyre::eyre;
 
 use crate::model::{
-    cue::{Cue, CueType, AudioFile},
+    cue::{Cue, CueType},
     editor::{RunningState}
 };
+
+use crate::model::audio_config::AudioDevice;
 
 #[derive(Debug, Default)]
 pub struct CueStack {
@@ -15,6 +17,7 @@ pub struct CueStack {
     pub cues: Vec<Cue>,
     pub current_cue: TableState,
     pub running_state: RunningState,
+    pub handler: AudioDevice
 }
 
 impl CueStack {
@@ -92,7 +95,7 @@ impl CueStack {
         Ok(cue.get_type())
     }
 
-    pub fn get_audio_file(&self) -> color_eyre::Result<Option<AudioFile>> {
+    pub fn get_audio_file(&self) -> color_eyre::Result<Option<std::fs::File>> {
         let i: usize = self.current_cue.selected().ok_or_else(|| eyre!("no cue selected"))?;
 
         let cue: &Cue = self.cues.get(i).ok_or_else( || eyre!("index out of range"))?;
