@@ -130,6 +130,9 @@ impl Cue {
     }
 
     pub fn play_cue(&self) -> color_eyre::Result<()> {
+        // Arc reference to now_playing. Can be read for parallel changes during a fade
+        let now_playing: Arc<AtomicU64> = self.now_playing();
+
         if self.player().empty() && let Some(ref i) = self.file {
             i.play_file()
         }
@@ -149,23 +152,34 @@ impl Cue {
     }
 
     pub fn fade_stop(&self, time: f32) {
-        let player = self.player_arc(); // e.g. Arc<Player>
-        let now_playing = self.now_playing();
+        // Arc reference to the player (so that open thread can continue after function)
+        let player: Arc<Player> = self.player_arc();
+
+        // Arc reference to now_playing. Can be read for parallel changes during a fade
+        let now_playing: Arc<AtomicU64> = self.now_playing();
+
+        // Current volume
         let vol = player.volume();
 
+        // Either 50 * step count, or 100 whichever is bigger.
+        // Keep 100 steps for a small fade time, but ensure enough steps for a longer one
         let count = ((time * 50.0) as i32).max(100);
-        let step = std::time::Duration::from_secs_f32(time / count as f32);
 
+        // Number of steps over the time (time to sleep between steps)
+        let dur = std::time::Duration::from_secs_f32(time / count as f32);
+
+        // Fetch-add one to the current ID and increase by one to match on this thread.
+        // Subsequent threads increases the atomic, therefore losing eq on the original
         let now_playing_id = now_playing.fetch_add(1, Ordering::AcqRel) + 1;
         
         // Fade over a new thread
         std::thread::spawn(move || {
-            // self.now_playing().store(false, Ordering::Release);
+            // max > 0 for loop
             for t in (0..count).rev() {
                 // If ID is the same as atomic bool, nothing has overwritten it.
                 if now_playing_id == now_playing.load(Ordering::Acquire) {
                     player.set_volume(vol * t as f32 / count as f32);
-                    std::thread::sleep(step);
+                    std::thread::sleep(dur);
                 }
                 // If ID is different from the atomic bool, the function has been called again.
                 // Stop cue
@@ -173,8 +187,11 @@ impl Cue {
                     break;
                 }
             }
+            //Store 0 on now_playing (as operation has finished)
             now_playing.store(0, Ordering::Release);
+            //Stop player
             player.stop();
+            //Reset volume
             player.set_volume(1.0);
         });
     }
