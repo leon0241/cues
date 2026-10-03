@@ -95,7 +95,7 @@ impl CueStack {
 
         match selection {
             Message::PlayCue => {
-                self.cues[i].play_cue();
+                self.cues[i].play_cue()?;
             }
             Message::PauseCue => {
                 self.cues[i].pause();
@@ -104,7 +104,7 @@ impl CueStack {
                 self.cues[i].stop();
             }
             Message::FadeStopCue => {
-                self.cues[i].fade_stop();
+                self.cues[i].fade_stop(3_f32);
             }
             _ => { }
         }

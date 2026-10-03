@@ -24,8 +24,16 @@ pub enum Message {
 }
 
 pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
-    let file1 = AudioFile::new(String::from("funkytown"), String::from("project/audio/test.wav"), &model.handler)?;
-    let file2 = AudioFile::new(String::from("boom"), String::from("project/audio/boom.wav"), &model.handler)?;
+    let file1: AudioFile = AudioFile::new(
+        String::from("funkytown"),
+        String::from("project/audio/test.wav"),
+        &model.handler
+    )?;
+    let file2: AudioFile = AudioFile::new(
+        String::from("boom"),
+        String::from("project/audio/boom.wav"),
+        &model.handler
+    )?;
 
     model.set_items(
         vec![

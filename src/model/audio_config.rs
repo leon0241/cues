@@ -9,9 +9,6 @@ use rodio::{Player, Decoder, MixerDeviceSink};
 pub struct AudioDevice {
     pub sink: MixerDeviceSink,
 }
-pub struct AudioPlayer {
-    player: Player,
-}
 
 impl Default for AudioDevice {
     fn default() -> Self {
@@ -26,5 +23,9 @@ impl AudioDevice {
             .expect("open default audio stream");
 
         Self { sink }
+    }
+
+    pub fn change_device() {
+        unimplemented!();
     }
 }

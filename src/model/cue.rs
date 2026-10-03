@@ -1,7 +1,7 @@
 use ratatui::widgets::Row;
-use rodio::{Decoder, Player};
+use rodio::{Decoder, Player, Source};
 
-use std::{fs::File, io::Cursor, sync::Arc};
+use std::{cmp::max, fs::File, io::Cursor, sync::{Arc, atomic::{AtomicU64, Ordering}}};
 
 use crate::model::audio_config::AudioDevice;
 
@@ -43,20 +43,22 @@ pub struct AudioFile {
     name: String,
     file_path: String,
     bytes: Arc<[u8]>,
-    player: Player
+    player: Arc<Player>,
+    now_playing: Arc<AtomicU64>,
 }
 
 impl AudioFile {
     pub fn new(name: String, file_path: String, mixer: &AudioDevice) -> color_eyre::Result<Self> {
         let bytes = std::fs::read(&file_path)?.into();
 
-        let player = Player::connect_new(mixer.sink.mixer());
+        let player: Arc<Player> = Arc::new(Player::connect_new(mixer.sink.mixer()));
 
         Ok(Self {
             name,
             file_path,
             bytes,
-            player
+            player,
+            now_playing: Arc::new(AtomicU64::new(0))
         })
     }
 
@@ -64,14 +66,21 @@ impl AudioFile {
         &self.player
     }
 
+    pub fn get_player_arc(&self) -> Arc<Player> {
+        Arc::clone(&self.player)
+    }
+
+    pub fn now_playing(&self) -> Arc<AtomicU64> {
+        Arc::clone(&self.now_playing)
+    }
+
     pub fn play_file(&self) {
 
         // Decode that sound file into a source
         // let source = Decoder::try_from(self.file.try_clone().expect("file not available")).unwrap();
-        let source = Decoder::try_from(Cursor::new(self.bytes.clone())).unwrap();
+        let source: Decoder<Cursor<Arc<[u8]>>> = Decoder::try_from(Cursor::new(self.bytes.clone())).unwrap();
 
         self.player.append(source);
-        // self.controller.add(source);
     }
 
 
@@ -110,6 +119,16 @@ impl Cue {
         self.file.as_ref().unwrap().get_player()
     }
 
+    // Async capable reference
+    pub fn player_arc(&self) -> Arc<Player> {
+        self.file.as_ref().unwrap().get_player_arc()
+    }
+
+    // Async capable reference
+    pub fn now_playing(&self) -> Arc<AtomicU64> {
+        self.file.as_ref().unwrap().now_playing()
+    }
+
     pub fn play_cue(&self) -> color_eyre::Result<()> {
         if self.player().empty() && let Some(ref i) = self.file {
             i.play_file()
@@ -129,16 +148,35 @@ impl Cue {
         self.player().stop();
     }
 
-    pub fn fade_stop(&self) {
-        let vol = self.player().volume();
+    pub fn fade_stop(&self, time: f32) {
+        let player = self.player_arc(); // e.g. Arc<Player>
+        let now_playing = self.now_playing();
+        let vol = player.volume();
 
-        for t in (0..100).rev() {
-            println!("test");
-            self.player().set_volume(vol / 100_f32 * t as f32);
-            std::thread::sleep(std::time::Duration::from_millis(30));
-        }
+        let count = ((time * 50.0) as i32).max(100);
+        let step = std::time::Duration::from_secs_f32(time / count as f32);
 
-        self.player().stop();
+        let now_playing_id = now_playing.fetch_add(1, Ordering::AcqRel) + 1;
+        
+        // Fade over a new thread
+        std::thread::spawn(move || {
+            // self.now_playing().store(false, Ordering::Release);
+            for t in (0..count).rev() {
+                // If ID is the same as atomic bool, nothing has overwritten it.
+                if now_playing_id == now_playing.load(Ordering::Acquire) {
+                    player.set_volume(vol * t as f32 / count as f32);
+                    std::thread::sleep(step);
+                }
+                // If ID is different from the atomic bool, the function has been called again.
+                // Stop cue
+                else {
+                    break;
+                }
+            }
+            now_playing.store(0, Ordering::Release);
+            player.stop();
+            player.set_volume(1.0);
+        });
     }
 
 
