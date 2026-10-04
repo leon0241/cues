@@ -1,13 +1,16 @@
 use crate::model::{
     editor::{Mode},
     cuestack::{CueStack},
-    cue::{Cue, FollowState, CueType}
+    cues::{
+        cue::{Cue, FollowState, CueType},
+        audio_cue::{AudioCue}
+    }
 };
 
 use std::time::Duration;
 use ratatui::crossterm::event::{self, Event, KeyCode};
 
-use crate::model::audio_file::AudioFile;
+use crate::model::cues::audio_file::AudioFile;
 
 #[derive(Debug)]
 pub enum Message {
@@ -37,10 +40,10 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
 
     model.set_items(
         vec![
-            Cue::new(1, String::from("test"), CueType::Audio, 1, FollowState::None, None),
-            Cue::new(2, String::from("file"), CueType::Audio, 1, FollowState::None, Some(file1)),
-            Cue::new(2, String::from("boom"), CueType::Audio, 1, FollowState::None, Some(file2)),
-            Cue::new(3, String::from("test2"), CueType::Audio, 1, FollowState::None, None),
+            Box::new(AudioCue::new(1, String::from("test"), 1, FollowState::None, None)),
+            Box::new(AudioCue::new(2, String::from("file"), 1, FollowState::None, Some(file1))),
+            Box::new(AudioCue::new(2, String::from("boom"), 1, FollowState::None, Some(file2))),
+            Box::new(AudioCue::new(3, String::from("test2"), 1, FollowState::None, None)),
         ]
     );
 
@@ -60,14 +63,13 @@ pub fn update(model: &mut CueStack, msg: Message) -> color_eyre::Result<(Mode, O
             model.update_cue();
         }
         Message::NewCue => {
-            model.new_cue(Cue::new(
+            model.new_cue(Box::new(AudioCue::new(
                     1,
                     String::from("test"),
-                    CueType::Audio,
                     1,
                     FollowState::None,
                     None
-            ));
+            )));
         }
         Message::DeleteCue => {
             model.delete_cue()?;

@@ -32,7 +32,6 @@ pub enum CueType {
     Network,
     Group
 }
-
 pub trait Cue {
     // fn new( &self ) -> Box<dyn Cue>;
     /// Returns a table row for TUI
@@ -53,19 +52,19 @@ pub trait Cue {
     fn get_icon(&self) -> &String;
 
     fn set_icon(&self);
-}
-
-pub trait Target {
-    fn pause_cue(&self) -> bool;
-
-    fn stop_cue(&self);
-
-    fn fade_stop_cue(&self, time: f32);
-}
 
 
-pub trait Modifier {
-    fn get_target(&self) -> i32;
+    // Target Methods
 
-    fn set_target(&self) -> i32;
+    fn pause_cue(&self) -> Option<bool>;
+
+    fn stop_cue(&self) -> Option<bool>;
+
+    fn fade_stop_cue(&self, time: f32) -> Option<bool>;
+
+    // Modifier Methods
+
+    fn get_target(&self) -> Option<f32>;
+
+    fn set_target(&self, target: f32) -> Option<f32>;
 }

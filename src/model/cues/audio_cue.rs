@@ -3,7 +3,7 @@ use std::sync::{Arc, atomic::{AtomicU64, Ordering}};
 use ratatui::widgets::Row;
 use rodio::Player;
 
-use crate::model::cues::{audio_file::AudioFile, cue::{Cue, CueColumn, CueType, FollowState, Target, Modifier}};
+use crate::model::cues::{audio_file::AudioFile, cue::{Cue, CueColumn, CueType, FollowState}};
 
 pub struct AudioCue {
     name: String,
@@ -66,7 +66,7 @@ impl Cue for AudioCue {
         }
     }
 
-    fn edit_cell_value(&mut self, column: super::cue::CueColumn, value: String) {
+    fn edit_cell_value(&mut self, column: CueColumn, value: String) {
         if column == CueColumn::Playing {
             self.icon = value
         };
@@ -79,29 +79,27 @@ impl Cue for AudioCue {
     fn set_icon(&self) {
         todo!()
     }
-}
 
-impl Target for AudioCue {
     /// Pauses a cue. Does nothing if there is no cue stored or if no cue is playing.
-    fn pause_cue(&self) -> bool {
+    fn pause_cue(&self) -> Option<bool> {
         // if not currently playing then pause shouldn't do anythin
         if self.now_playing().unwrap().load(Ordering::Acquire) == 0 {
-            false
+            Some(false)
         }
         else if self.player().is_paused() {
             self.player().play();
-            false
+            Some(false)
         } else {
             self.player().pause();
-            true
+            Some(true)
         }
     }
 
     /// Stops a cue. Does nothing if there is no cue stored or if no cue is playing.
-    fn stop_cue(&self) {
+    fn stop_cue(&self) -> Option<bool> {
         // if not currently playing then no need to do anything
         if self.now_playing().unwrap().load(Ordering::Acquire) == 0 {
-            return
+            return Some(false)
         }
 
         //Store 0 on now_playing (as operation has finished)
@@ -110,10 +108,12 @@ impl Target for AudioCue {
         self.player_arc().stop();
         //Reset volume
         self.player_arc().set_volume(1.0);
+
+        Some(true)
     }
 
     /// Fade + Stops a cue.
-    fn fade_stop_cue(&self, time: f32) {
+    fn fade_stop_cue(&self, time: f32) -> Option<bool> {
         // Arc reference to the player (so that open thread can continue after function)
         let player: Arc<Player> = self.player_arc();
 
@@ -157,19 +157,25 @@ impl Target for AudioCue {
             //Reset volume
             player.set_volume(1.0);
         });
+
+        Some(true)
     }
+
+    fn get_target(&self) -> Option<f32> { None }
+
+    fn set_target(&self) -> Option<f32> { None }
 }
 
 impl AudioCue {
-    fn new(number: i32, name: String, cue_type: CueType, duration: i32,
-        follow: FollowState, file: Option<AudioFile>, _target: Option<i32>) -> Self {
+    pub fn new(number: i32, name: String, duration: i32,
+        follow: FollowState, file: Option<AudioFile>) -> Self {
 
         Self {
             number,
             name,
             duration,
             follow,
-            cue_type,
+            cue_type: CueType::Audio,
             // colour: None,
             file,
             icon: String::new(),

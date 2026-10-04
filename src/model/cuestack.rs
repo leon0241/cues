@@ -5,10 +5,8 @@ use color_eyre::eyre::eyre;
 
 use crate::model::{
     cues::{
-        cue::{Cue, CueType, CueColumn},
-        audio_cue::{AudioCue}
-    }
-    editor::{RunningState}
+        audio_cue::AudioCue, cue::{Cue, CueColumn, CueType}
+    }, editor::RunningState
 };
 
 use crate::model::audio_config::AudioDevice;
@@ -101,33 +99,37 @@ impl CueStack {
         Ok(current_cue.get_type())
     }
 
-
-
     pub fn current_cue_action(&mut self, selection: Message) -> color_eyre::Result<()> {
         let i: usize = self.current_cue.selected().ok_or_else(|| eyre!("no cue selected"))?;
 
-        let current_cue: &Box<dyn Cue> = self.cues.get(i)
-            .ok_or_else( || eyre!("index out of range"))?;
+        let current_cue: &mut Box<dyn Cue> = &mut self.cues[i];
 
         match selection {
             Message::PlayCue => {
-                self.cues[i].play_cue()?;
-                self.cues[i].edit_cell_value(CueColumn::Playing, String::from(""))
+                current_cue.play_cue()?;
+                current_cue.edit_cell_value(CueColumn::Playing, String::from(""))
             }
             Message::PauseCue => {
-                if self.cues[i].pause() {
-                    self.cues[i].edit_cell_value(CueColumn::Playing, String::from(""))
+                // If pause is implemented
+                if let Some(_i) = current_cue.pause_cue() {
+                    current_cue.edit_cell_value(CueColumn::Playing, String::from(""))
                 }
                 else {
-                    self.cues[i].edit_cell_value(CueColumn::Playing, String::from(""))
+                    current_cue.edit_cell_value(CueColumn::Playing, String::from(""))
                 }
             }
             Message::StopCue => {
-                self.cues[i].stop();
+                // If Stop is implemented
+                if let Some(_i) = current_cue.stop_cue() {
+                    current_cue.edit_cell_value(CueColumn::Playing, String::from(""))
+                }
+                
             }
             Message::FadeStopCue => {
-                self.cues[i].fade_stop(3_f32);
-                self.cues[i].edit_cell_value(CueColumn::Playing, String::from(""))
+                // If F+S is implemented
+                if let Some(_i) = current_cue.fade_stop_cue(3_f32) {
+                    current_cue.edit_cell_value(CueColumn::Playing, String::from(""))
+                }
             }
             _ => { }
         }
