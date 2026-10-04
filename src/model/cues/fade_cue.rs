@@ -1,4 +1,4 @@
-use std::sync::{Arc, atomic::{AtomicU64, Ordering}};
+use std::sync::{Arc};
 
 use ratatui::widgets::Row;
 use rodio::Player;
@@ -9,12 +9,12 @@ pub struct FadeCue {
     name: String,
     number: f32,
     cue_type: CueType,
-    duration: i32,
+    duration: f32,
     follow: FollowState,
     // colour: Option<String>,
     file: Option<AudioFile>,
     icon: String,
-    target: f32
+    target: Option<f32>
 }
 
 #[allow(dead_code)]
@@ -89,7 +89,7 @@ impl Cue for FadeCue {
 }
 
 impl FadeCue {
-    pub fn new(number: i32, name: String, duration: i32,
+    pub fn new(number: f32, name: String, duration: f32,
         follow: FollowState, target: Option<f32>) -> Self {
 
         Self {

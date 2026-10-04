@@ -40,10 +40,10 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
 
     model.set_items(
         vec![
-            Box::new(AudioCue::new(1, String::from("test"), 1, FollowState::None, None)),
-            Box::new(AudioCue::new(2, String::from("file"), 1, FollowState::None, Some(file1))),
-            Box::new(AudioCue::new(2, String::from("boom"), 1, FollowState::None, Some(file2))),
-            Box::new(AudioCue::new(3, String::from("test2"), 1, FollowState::None, None)),
+            Box::new(AudioCue::new(1_f32, String::from("test"), 1_f32, FollowState::None, None)),
+            Box::new(AudioCue::new(2_f32, String::from("file"), 1_f32, FollowState::None, Some(file1))),
+            Box::new(AudioCue::new(2_f32, String::from("boom"), 1_f32, FollowState::None, Some(file2))),
+            Box::new(AudioCue::new(3_f32, String::from("test2"), 1_f32, FollowState::None, None)),
         ]
     );
 
@@ -64,9 +64,9 @@ pub fn update(model: &mut CueStack, msg: Message) -> color_eyre::Result<(Mode, O
         }
         Message::NewCue => {
             model.new_cue(Box::new(AudioCue::new(
-                    1,
+                    1_f32,
                     String::from("test"),
-                    1,
+                    1_f32,
                     FollowState::None,
                     None
             )));

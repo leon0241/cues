@@ -7,9 +7,9 @@ use crate::model::cues::{audio_file::AudioFile, cue::{Cue, CueColumn, CueType, F
 
 pub struct AudioCue {
     name: String,
-    number: i32,
+    number: f32,
     cue_type: CueType,
-    duration: i32,
+    duration: f32,
     follow: FollowState,
     // colour: Option<String>,
     file: Option<AudioFile>,
@@ -163,11 +163,11 @@ impl Cue for AudioCue {
 
     fn get_target(&self) -> Option<f32> { None }
 
-    fn set_target(&self) -> Option<f32> { None }
+    fn set_target(&self, _target: f32) -> Option<f32> { None }
 }
 
 impl AudioCue {
-    pub fn new(number: i32, name: String, duration: i32,
+    pub fn new(number: f32, name: String, duration: f32,
         follow: FollowState, file: Option<AudioFile>) -> Self {
 
         Self {
