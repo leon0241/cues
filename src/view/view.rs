@@ -22,14 +22,15 @@ pub fn view(model: &mut CueStack, frame: &mut Frame) {
 
 pub fn init_table(rows: Vec<Row>) -> Table {
     // Setting Header
-    let header: Row = Row::new(["Number", "Name", "Duration"])
+    let header: Row = Row::new(["P", "Number", "Name", "Duration"])
         .style(Style::new().bold())
         .bottom_margin(1);
 
     // Setting Column Widths
-    let widths: [Constraint; 3] = [
+    let widths: [Constraint; 4] = [
+        Constraint::Percentage(5),
         Constraint::Percentage(10),
-        Constraint::Percentage(50),
+        Constraint::Percentage(45),
         Constraint::Percentage(40),
     ];
 

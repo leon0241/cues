@@ -47,8 +47,8 @@ fn create_terminal() -> color_eyre::Result<Tui> {
 }
 
 fn run_loop(mut tui: Tui) -> color_eyre::Result<()> {
-    let mut model = CueStack::new();
-    let mut editor = Editor::new();
+    let mut model: CueStack = CueStack::new();
+    let mut editor: Editor = Editor::new();
 
     init_cues(&mut model);
 

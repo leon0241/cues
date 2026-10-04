@@ -7,7 +7,7 @@ use crate::model::{
 use std::time::Duration;
 use ratatui::crossterm::event::{self, Event, KeyCode};
 
-use crate::model::cue::AudioFile;
+use crate::model::audio_file::AudioFile;
 
 #[derive(Debug)]
 pub enum Message {

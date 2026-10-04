@@ -1,12 +1,13 @@
-use ratatui::{
-    widgets::{TableState}
-};
+use ratatui::widgets::{Cell, TableState};
 
 use color_eyre::eyre::eyre;
 
 
 use crate::model::{
-    cue::{Cue, CueType},
+    cues::{
+        cue::{Cue, CueType, CueColumn},
+        audio_cue::{AudioCue}
+    }
     editor::{RunningState}
 };
 
@@ -17,7 +18,7 @@ use crate::update::update::Message;
 #[derive(Default)]
 pub struct CueStack {
     // cue_count: i16,
-    pub cues: Vec<Cue>,
+    pub cues: Vec<Box<dyn Cue>>,
     pub current_cue: TableState,
     pub running_state: RunningState,
     pub handler: AudioDevice
@@ -29,7 +30,7 @@ impl CueStack {
         Self::default()
     }
 
-    pub fn set_items(&mut self, items: Vec<Cue>) {
+    pub fn set_items(&mut self, items: Vec<Box<dyn Cue>>) {
         self.cues = items;
         // We reset the state as the associated items have changed. This effectively reset
         // the selection as well as the stored offset.
@@ -78,7 +79,7 @@ impl CueStack {
         unimplemented!();
     }
 
-    pub fn new_cue(&mut self, new_cue: Cue){
+    pub fn new_cue(&mut self, new_cue: Box<dyn Cue>){
         self.cues.push(new_cue)
     }
 
@@ -90,33 +91,47 @@ impl CueStack {
         Ok(())
     }
 
+    pub fn get_current_type(&self) -> color_eyre::Result<CueType> {
+        let i: usize = self.current_cue.selected()
+            .ok_or_else(|| eyre!("no cue selected"))?;
+
+        let current_cue: &Box<dyn Cue> = self.cues.get(i)
+            .ok_or_else( || eyre!("index out of range"))?;
+
+        Ok(current_cue.get_type())
+    }
+
+
+
     pub fn current_cue_action(&mut self, selection: Message) -> color_eyre::Result<()> {
         let i: usize = self.current_cue.selected().ok_or_else(|| eyre!("no cue selected"))?;
+
+        let current_cue: &Box<dyn Cue> = self.cues.get(i)
+            .ok_or_else( || eyre!("index out of range"))?;
 
         match selection {
             Message::PlayCue => {
                 self.cues[i].play_cue()?;
+                self.cues[i].edit_cell_value(CueColumn::Playing, String::from(""))
             }
             Message::PauseCue => {
-                self.cues[i].pause();
+                if self.cues[i].pause() {
+                    self.cues[i].edit_cell_value(CueColumn::Playing, String::from(""))
+                }
+                else {
+                    self.cues[i].edit_cell_value(CueColumn::Playing, String::from(""))
+                }
             }
             Message::StopCue => {
                 self.cues[i].stop();
             }
             Message::FadeStopCue => {
                 self.cues[i].fade_stop(3_f32);
+                self.cues[i].edit_cell_value(CueColumn::Playing, String::from(""))
             }
             _ => { }
         }
 
         Ok(())
-    }
-
-    pub fn get_current_type(&self) -> color_eyre::Result<CueType> {
-        let i: usize = self.current_cue.selected().ok_or_else(|| eyre!("no cue selected"))?;
-
-        let cue: &Cue = self.cues.get(i).ok_or_else( || eyre!("index out of range"))?;
-
-        Ok(cue.get_type())
     }
 }
