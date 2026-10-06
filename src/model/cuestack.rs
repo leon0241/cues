@@ -1,11 +1,11 @@
-use ratatui::widgets::{Cell, TableState};
+use ratatui::widgets::TableState;
 
 use color_eyre::eyre::eyre;
 
 
 use crate::model::{
     cues::{
-        audio_cue::AudioCue, cue::{Cue, CueColumn, CueType}
+        cue::{Cue, CueColumn}, cue_base::CueType,
     }, editor::RunningState
 };
 
@@ -158,18 +158,15 @@ impl CueStack {
 
         match (matches.next(), matches.next()) {
             (None, _) => {
-                println!("1");
                 // zero matches
                 Ok(())
             }
             (Some(i), None) => {
                 // println!("2");
-                println!("{}", i);
                 // exactly one match
                 self.cue_action(i, selection)
             }
             (Some(first), Some(second)) => {
-                println!("3");
                 // two or more matches (first and second are the first two indices)
                 Ok(())
             }

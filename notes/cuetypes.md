@@ -105,3 +105,18 @@ Fade {
 - Integrated Fade
     - Set Start Fade
     - Set End Fade
+
+
+HasCueBase - Trait with `get_base` and `set_base` accessible
+-> `<T: HasCueBase> CueVals` - Implement base methods
+-> `Cue: CueVals` - Ensure Cue has all of `CueVals` methods
+    while giving overridable methods
+-> `Cue for AudioCue` - Overrides for Cue: CueVals
+
+A
+
+Combination of
+CueVals (fixed methods)
+Cue (overridable methods)
+AudioCueFn (Audio methods)
+AudioCue (AudioCue methods)

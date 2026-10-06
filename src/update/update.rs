@@ -2,7 +2,7 @@ use crate::model::{
     editor::{Mode},
     cuestack::{CueStack},
     cues::{
-        cue::{Cue, FollowState, CueType},
+        cue_base::{CueType, FollowState},
         audio_cue::{AudioCue},
         fade_cue::{FadeCue}
     }
