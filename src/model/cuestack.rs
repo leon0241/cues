@@ -99,10 +99,10 @@ impl CueStack {
         Ok(current_cue.get_type())
     }
 
-    pub fn current_cue_action(&mut self, selection: Message) -> color_eyre::Result<()> {
-        let i: usize = self.current_cue.selected().ok_or_else(|| eyre!("no cue selected"))?;
+    fn cue_action(&mut self, i: usize, selection: Message) -> color_eyre::Result<()> {
 
         let current_cue: &mut Box<dyn Cue> = &mut self.cues[i];
+
 
         match selection {
             Message::PlayCue => {
@@ -136,4 +136,45 @@ impl CueStack {
 
         Ok(())
     }
+
+    pub fn current_cue_action(&mut self, selection: Message) -> color_eyre::Result<()> {
+        let i: usize = self.current_cue.selected().ok_or_else(|| eyre!("no cue selected"))?;
+
+        self.cue_action(i, selection)
+    }
+
+    pub fn get_current_cue_target(&self) -> color_eyre::Result<Option<f32>> {
+        let i: usize = self.current_cue.selected().ok_or_else(|| eyre!("no cue selected"))?;
+
+        Ok(self.cues[i].get_target())
+    }
+
+    pub fn choose_cue_action(&mut self, target: f32, selection: Message) -> color_eyre::Result<()> {
+        // Get all matches for a cue target
+        let mut matches = self.cues.iter()
+            .enumerate()
+            .filter(|x| x.1.get_number() == target)
+            .map(|(i, _)| i);
+
+        match (matches.next(), matches.next()) {
+            (None, _) => {
+                println!("1");
+                // zero matches
+                Ok(())
+            }
+            (Some(i), None) => {
+                // println!("2");
+                println!("{}", i);
+                // exactly one match
+                self.cue_action(i, selection)
+            }
+            (Some(first), Some(second)) => {
+                println!("3");
+                // two or more matches (first and second are the first two indices)
+                Ok(())
+            }
+        };
+        Ok(())
+    }
+
 }

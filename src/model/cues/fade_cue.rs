@@ -12,7 +12,6 @@ pub struct FadeCue {
     duration: f32,
     follow: FollowState,
     // colour: Option<String>,
-    file: Option<AudioFile>,
     icon: String,
     target: Option<f32>
 }
@@ -42,7 +41,7 @@ impl Cue for FadeCue {
         self.name.clone()
     }
 
-    fn set_name(&self) -> String {
+    fn set_name(&mut self) -> String {
         todo!()
     }
 
@@ -70,7 +69,7 @@ impl Cue for FadeCue {
         todo!()
     }
 
-    fn set_icon(&self) {
+    fn set_icon(&mut self) {
         todo!()
     }
 
@@ -83,9 +82,19 @@ impl Cue for FadeCue {
     /// Fade + Stops a cue.
     fn fade_stop_cue(&self, _time: f32) -> Option<bool> { None }
 
-    fn get_target(&self) -> Option<f32> { None }
+    fn get_target(&self) -> Option<f32> {
+        self.target
+    }
 
-    fn set_target(&self, target: f32) -> Option<f32> { None }
+    fn set_target(&mut self, target: f32) {
+        self.target = Some(target)
+    }
+
+    fn get_number(&self) -> f32 {
+        self.number
+    }
+
+    fn set_number(&mut self) { }
 }
 
 impl FadeCue {
@@ -99,25 +108,8 @@ impl FadeCue {
             follow,
             cue_type: CueType::Fade,
             // colour: None,
-            file: None,
             icon: String::new(),
             target
         }
     }
-
-    /// Absolute reference to player
-    pub fn player(&self) -> &Player {
-        self.file.as_ref().unwrap().get_player()
-    }
-
-    /// Async capable reference to player
-    pub fn player_arc(&self) -> Arc<Player> {
-        self.file.as_ref().unwrap().get_player_arc()
-    }
-
-    /// Async capable reference to status Atomic U64
-    pub fn now_playing(&self) -> Option<Arc<std::sync::atomic::AtomicU64>> {
-        self.file.as_ref().map(|file| file.get_playing())
-    }
-
 }

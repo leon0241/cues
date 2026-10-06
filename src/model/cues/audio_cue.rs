@@ -48,7 +48,7 @@ impl Cue for AudioCue {
         self.name.clone()
     }
 
-    fn set_name(&self) -> String {
+    fn set_name(&mut self) -> String {
         todo!()
     }
 
@@ -76,7 +76,7 @@ impl Cue for AudioCue {
         todo!()
     }
 
-    fn set_icon(&self) {
+    fn set_icon(&mut self) {
         todo!()
     }
 
@@ -163,7 +163,13 @@ impl Cue for AudioCue {
 
     fn get_target(&self) -> Option<f32> { None }
 
-    fn set_target(&self, _target: f32) -> Option<f32> { None }
+    fn set_target(&mut self, _target: f32) { }
+
+    fn get_number(&self) -> f32 {
+        self.number
+    }
+
+    fn set_number(&mut self) { }
 }
 
 impl AudioCue {

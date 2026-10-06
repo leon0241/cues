@@ -1,8 +1,4 @@
-use std::any::Any;
-
 use ratatui::widgets::Row;
-
-use crate::model::cues::audio_file::AudioFile;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum CueColumn {
@@ -43,7 +39,11 @@ pub trait Cue {
 
     fn get_name(&self) -> String;
 
-    fn set_name(&self) -> String;
+    fn set_name(&mut self) -> String;
+
+    fn get_number(&self) -> f32;
+
+    fn set_number(&mut self);
 
     fn follow_state(&self) -> String;
 
@@ -51,7 +51,7 @@ pub trait Cue {
 
     fn get_icon(&self) -> &String;
 
-    fn set_icon(&self);
+    fn set_icon(&mut self);
 
 
     // Target Methods
@@ -66,5 +66,5 @@ pub trait Cue {
 
     fn get_target(&self) -> Option<f32>;
 
-    fn set_target(&self, target: f32) -> Option<f32>;
+    fn set_target(&mut self, target: f32);
 }

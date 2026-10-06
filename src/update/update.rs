@@ -3,7 +3,8 @@ use crate::model::{
     cuestack::{CueStack},
     cues::{
         cue::{Cue, FollowState, CueType},
-        audio_cue::{AudioCue}
+        audio_cue::{AudioCue},
+        fade_cue::{FadeCue}
     }
 };
 
@@ -42,7 +43,8 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
         vec![
             Box::new(AudioCue::new(1_f32, String::from("test"), 1_f32, FollowState::None, None)),
             Box::new(AudioCue::new(2_f32, String::from("file"), 1_f32, FollowState::None, Some(file1))),
-            Box::new(AudioCue::new(2_f32, String::from("boom"), 1_f32, FollowState::None, Some(file2))),
+            Box::new(AudioCue::new(2.5_f32, String::from("boom"), 1_f32, FollowState::None, Some(file2))),
+            Box::new(FadeCue::new(3_f32, String::from("fade"), 1_f32, FollowState::None, Some(2_f32))),
             Box::new(AudioCue::new(3_f32, String::from("test2"), 1_f32, FollowState::None, None)),
         ]
     );
@@ -85,8 +87,12 @@ pub fn update(model: &mut CueStack, msg: Message) -> color_eyre::Result<(Mode, O
                 CueType::Audio => {
                     model.current_cue_action(Message::PlayCue)?;
                 },
-                CueType::Stop => {
-
+                CueType::Fade => {
+                    let target: Option<f32> = model.get_current_cue_target()?;
+                    if let Some(i) = target {
+                        model.choose_cue_action(i, Message::StopCue)?;
+                    }
+                    
                 },
                 // TODO: the rest of these cases
                 _ => {  }
