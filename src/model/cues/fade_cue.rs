@@ -17,62 +17,7 @@ pub struct FadeCue {
 }
 
 #[allow(dead_code)]
-impl Cue for FadeCue {
-    fn get_row(&self) -> ratatui::widgets::Row<'_>  {
-        Row::new(vec![
-            self.icon.clone(),
-            self.number.to_string(),
-            self.name.clone(),
-            self.duration.to_string()
-        ])
-    }
-
-    /// Plays a cue. Does nothing if there is no cue stored.
-    fn play_cue(&self) -> color_eyre::Result<()> {
-        unimplemented!()
-    }
-
-
-    fn get_type(&self) -> CueType {
-        self.cue_type
-    }
-
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
-
-    fn set_name(&mut self) -> String {
-        todo!()
-    }
-
-    fn follow_state(&self) -> String {
-        match self.follow {
-            FollowState::Follow => {
-                String::from("F")
-            }
-            FollowState::Continue => {
-                String::from("C")
-            }
-            FollowState::None => {
-                String::from("")
-            }
-        }
-    }
-
-    fn edit_cell_value(&mut self, column: CueColumn, value: String) {
-        if column == CueColumn::Playing {
-            self.icon = value
-        };
-    }
-
-    fn get_icon(&self) -> &String {
-        todo!()
-    }
-
-    fn set_icon(&mut self) {
-        todo!()
-    }
-
+impl FadeCue {
     /// Pauses a cue. Does nothing if there is no cue stored or if no cue is playing.
     fn pause_cue(&self) -> Option<bool> { None }
 
