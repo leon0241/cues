@@ -27,12 +27,13 @@ impl Cue for FadeCue {
     }
 
     fn set_target(&mut self, target: f32) {
-        self.target = Some(target)
+        self.target = Some(target);
     }
 }
 
 impl FadeCue {
-    pub fn new(number: f32, name: String, duration: f32,
+    #[must_use]
+    pub const fn new(number: f32, name: String, duration: f32,
         follow: FollowState, target: Option<f32>) -> Self {
 
         Self {

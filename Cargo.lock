@@ -462,6 +462,7 @@ dependencies = [
  "cli-log",
  "color-eyre",
  "directories",
+ "num-traits",
  "ratatui",
  "ringbuf",
  "rodio",

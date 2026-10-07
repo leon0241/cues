@@ -48,9 +48,11 @@ fn create_terminal() -> color_eyre::Result<Tui> {
 
 fn run_loop(mut tui: Tui) -> color_eyre::Result<()> {
     let mut model: CueStack = CueStack::new();
+    model.set_default_sink()?;
+    // maybe put mut back with insert/normal
     let mut editor: Editor = Editor::new();
 
-    init_cues(&mut model);
+    init_cues(&mut model)?;
 
     while model.running_state != RunningState::Done {
         // Draw (all logic in the View files)
@@ -61,11 +63,12 @@ fn run_loop(mut tui: Tui) -> color_eyre::Result<()> {
         // Start on Normal mode (default)
         let mut current_mode = editor.get_mode();
 
+
         // Inside Normal Mode
         if current_mode == Mode::Normal {
             // Process events
-            while current_msg.is_some() {
-                (current_mode, current_msg) = update(&mut model, current_msg.unwrap())?;
+            while let Some(message) = current_msg {
+                (current_mode, current_msg) = update(&mut model, &message)?;
             }
         }
     }

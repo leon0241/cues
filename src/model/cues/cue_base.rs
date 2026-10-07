@@ -44,11 +44,23 @@ pub struct CueBase {
     pub parent: Option<TargetCue>
 } 
 
-impl CueBase {
-    pub fn new(number: f32, name: String, duration: f32,
-        follow: FollowState, cue_type: CueType) -> Self {
+impl Default for CueBase {
+    fn default() -> Self {
+        Self::new(
+            0_f32,
+            String::new(),
+            0_f32,
+            FollowState::None,
+            CueType::Audio,
+        )
+    }
+}
 
-        CueBase {
+impl CueBase {
+    #[must_use]
+    pub const fn new(number: f32, name: String, duration: f32,
+        follow: FollowState, cue_type: CueType) -> Self {
+        Self {
             number,
             name,
             duration,

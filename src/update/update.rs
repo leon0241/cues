@@ -27,6 +27,9 @@ pub enum Message {
     FadeStopCue,
 }
 
+/// # Errors
+///
+/// Will return `Err` if something went wrong in the files
 pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
     let file1: AudioFile = AudioFile::new(
         String::from("funkytown"),
@@ -52,17 +55,20 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
     Ok(())
 }
 
-pub fn update(model: &mut CueStack, msg: Message) -> color_eyre::Result<(Mode, Option<Message>)> {
+/// # Errors
+///
+/// Will return `Err` if cannot handle a key
+pub fn update(model: &mut CueStack, msg: &Message) -> color_eyre::Result<(Mode, Option<Message>)> {
     // TODO: check all these guys for errors
     match msg {
         Message::PrevCue => {
-            model.previous();
+            model.go_previous()?;
         }
         Message::NextCue => {
-            model.next();
+            model.go_next()?;
         }
         Message::ModifyCue => {
-            model.update_cue();
+            // model.update_cue();
         }
         Message::NewCue => {
             model.new_cue(Box::new(AudioCue::new(
@@ -77,7 +83,7 @@ pub fn update(model: &mut CueStack, msg: Message) -> color_eyre::Result<(Mode, O
             model.delete_cue()?;
         }
         Message::Quit => {
-            model.running_state = crate::model::editor::RunningState::Done
+            model.running_state = crate::model::editor::RunningState::Done;
         }
 
         Message::PlayCue => {
@@ -85,51 +91,54 @@ pub fn update(model: &mut CueStack, msg: Message) -> color_eyre::Result<(Mode, O
 
             match cue_type {
                 CueType::Audio => {
-                    model.current_cue_action(Message::PlayCue)?;
+                    model.current_cue_action(&Message::PlayCue)?;
                 },
                 CueType::Fade => {
                     let target: Option<f32> = model.get_current_cue_target()?;
                     if let Some(i) = target {
-                        model.choose_cue_action(i, Message::StopCue)?;
+                        model.choose_cue_action(i, &Message::StopCue)?;
                     }
                     
                 },
                 // TODO: the rest of these cases
-                _ => {  }
-            };
-            model.next();
+                // _ => {  }
+            }
+            model.go_next()?;
         }
         Message::PauseCue => {
             let cue_type = model.get_current_type()?;
 
-            if let CueType::Audio = cue_type {
-                model.current_cue_action(Message::PauseCue)?;
-            };
-            model.next();
+            if CueType::Audio == cue_type {
+                model.current_cue_action(&Message::PauseCue)?;
+            }
+            model.go_next()?;
         }
         Message::StopCue => {
             let cue_type = model.get_current_type()?;
 
-            if let CueType::Audio = cue_type {
-                model.current_cue_action(Message::StopCue)?;
-            };
-            model.next();
+            if CueType::Audio == cue_type {
+                model.current_cue_action(&Message::StopCue)?;
+            }
+            model.go_next()?;
         }
         Message::FadeStopCue => {
             let cue_type = model.get_current_type()?;
 
-            if let CueType::Audio = cue_type {
-                model.current_cue_action(Message::FadeStopCue)?;
-            };
-            model.next();
+            if CueType::Audio == cue_type {
+                model.current_cue_action(&Message::FadeStopCue)?;
+            }
+            model.go_next()?;
         }
-        _ => { }
+        // _ => { }
     }
 
     Ok((Mode::Insert, None))
 }
 
 
+/// # Errors
+///
+/// Will return `Err` if cannot handle a key
 pub fn handle_event(_: &CueStack) -> color_eyre::Result<Option<Message>> {
     if event::poll(Duration::from_millis(250))?
         && let Event::Key(key) = event::read()?
@@ -140,7 +149,7 @@ pub fn handle_event(_: &CueStack) -> color_eyre::Result<Option<Message>> {
     Ok(None)
 }
 
-fn handle_key(key: event::KeyEvent) -> Option<Message> {
+const fn handle_key(key: event::KeyEvent) -> Option<Message> {
     match key.code {
         KeyCode::Char('k') => Some(Message::PrevCue),
         KeyCode::Char('j') => Some(Message::NextCue),

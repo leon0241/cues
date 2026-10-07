@@ -1,10 +1,6 @@
-use std::sync::{Arc, atomic::{AtomicU64, Ordering}};
-
-use crate::model::cues::{audio_file::AudioFile, cue_base::{CueType, FollowState}};
-use crate::model::cues::cue_base::{HasCueBase};
+use crate::model::cues::cue_base::{CueType, FollowState, HasCueBase};
 
 use ratatui::widgets::Row;
-use rodio::Player;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum CueColumn {
@@ -41,18 +37,21 @@ pub trait CueVals {
     fn get_follow_state(&self) -> String;
 
     /// Set Follow State of a cue
-    fn set_follow_state(&self) -> String;
+    fn set_follow_state(&mut self, state: FollowState);
 
     /// Get (Playing Status) icon of a cue
-    fn get_icon(&self) -> &String;
+    fn get_icon(&self) -> String;
 
     /// Set (Playing Status) icon of a cue
-    fn set_icon(&mut self);
+    fn set_icon(&mut self, icon: String);
 
     /// Edit value of a cell
     fn edit_cell_value(&mut self, column: CueColumn, value: String);
 }
 pub trait Cue: CueVals {
+    /// # Errors
+    ///
+    /// Will return `Err` if cue cannot be played
     fn play_cue(&self) -> color_eyre::Result<()> {
         Ok(())
     }
@@ -65,6 +64,7 @@ pub trait Cue: CueVals {
         None
     }
 
+    #[allow(unused_variables)]
     fn fade_stop_cue(&self, time: f32) -> Option<bool> {
         None
     }
@@ -73,6 +73,7 @@ pub trait Cue: CueVals {
         None
     }
 
+    #[allow(unused_variables)]
     fn set_target(&mut self, target: f32) { }
 }
 
@@ -106,26 +107,26 @@ impl <T: HasCueBase> CueVals for T {
                 String::from("C")
             }
             FollowState::None => {
-                String::from("")
+                String::new()
             }
         }
     }
 
-    fn set_follow_state(&self) -> String {
-        todo!()
+    fn set_follow_state(&mut self, state: FollowState) {
+        self.set_base().follow = state;
     }
 
-    fn get_icon(&self) -> &String {
-        todo!()
+    fn get_icon(&self) -> String {
+        self.get_base().icon.clone()
     }
 
-    fn set_icon(&mut self) {
-        todo!()
+    fn set_icon(&mut self, icon: String) {
+        self.set_base().icon = icon;
     }
 
     fn edit_cell_value(&mut self, column: CueColumn, value: String) {
         if column == CueColumn::Playing {
-            self.set_base().icon = value
-        };
+            self.set_base().icon = value;
+        }
     }
 }

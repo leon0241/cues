@@ -1,26 +1,24 @@
 use rodio::{MixerDeviceSink};
 
-// #[derive(Debug)]
+#[derive(Default)]
 pub struct AudioDevice {
-    pub sink: MixerDeviceSink,
-}
-
-impl Default for AudioDevice {
-    fn default() -> Self {
-        Self::new()
-    }
+    // Default: None
+    pub sink: Option<MixerDeviceSink>,
 }
 
 impl AudioDevice {
-    pub fn new() -> Self {
-        let sink = rodio::DeviceSinkBuilder::
-            open_default_sink()
-            .expect("open default audio stream");
+    /// # Errors
+    ///
+    /// Will return `Err` if no default sink
+    pub fn set_default_sink(&mut self) -> color_eyre::Result<()> {
+        // MixerSinkError if there is any
+        self.sink = Some(rodio::DeviceSinkBuilder::
+            open_default_sink()?);
 
-        Self { sink }
+        Ok(())
     }
-
-    pub fn change_device() {
-        unimplemented!();
-    }
+    //
+    // pub fn change_device() {
+    //     unimplemented!();
+    // }
 }

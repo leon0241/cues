@@ -20,6 +20,7 @@ pub fn view(model: &mut CueStack, frame: &mut Frame) {
     frame.render_stateful_widget(table, frame.area(), &mut model.current_cue);
 }
 
+#[must_use]
 pub fn init_table(rows: Vec<Row>) -> Table {
     // Setting Header
     let header: Row = Row::new(["P", "Number", "Name", "Duration"])
