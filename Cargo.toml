@@ -13,6 +13,7 @@ cli-log = "2.1.1"
 ringbuf = "0.5.2"
 rodio = "0.22.2"
 num-traits = "0.2.19"
+notify = "8.2.0"
 
 # DON'T PANIC! https://www.namtao.com/rust-dont-panic/
 [lints.clippy]

@@ -43,3 +43,24 @@ impl FadeCue {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fade_cue_props() {
+        let new_fade_cue: FadeCue = FadeCue::new(
+            1.0,
+            String::from("Test"),
+            1.0,
+            FollowState::None,
+            Some(5.2)
+            );
+        // assert_eq!(new_fade_cue.get_base().number, 1.0);
+        assert_eq!(new_fade_cue.get_base().name, "Test");
+        // assert_eq!(new_fade_cue.get_base().duration, 1.0);
+        assert_eq!(new_fade_cue.get_base().follow, FollowState::None);
+        // assert_eq!(new_fade_cue.get_target().unwrap(), 5.2);
+    }
+}

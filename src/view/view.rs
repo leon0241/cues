@@ -1,9 +1,9 @@
 use crate::model::cuestack::CueStack;
 
 use ratatui::{
-    layout::{Constraint, Rect, Alignment},
-    style::{Color, Style, Stylize},
-    widgets::{Block, BorderType, Borders, Paragraph, Row, Table, TableState},
+    layout::{Constraint},
+    style::{Style},
+    widgets::{Block, Row, Table},
     Frame,
 };
 

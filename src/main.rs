@@ -11,10 +11,9 @@ use model::{
     editor::{Editor, Mode, RunningState}
 };
 
-use update::update::{
-    init_cues,
-    update,
-    handle_event
+use update::{
+    update::{ init_cues, update, },
+    keymaps::{ handle_event }
 };
 
 use view::{
@@ -50,7 +49,8 @@ fn run_loop(mut tui: Tui) -> color_eyre::Result<()> {
     let mut model: CueStack = CueStack::new();
     model.set_default_sink()?;
     // maybe put mut back with insert/normal
-    let mut editor: Editor = Editor::new();
+
+    let editor: Editor = Editor::new();
 
     init_cues(&mut model)?;
 
@@ -58,11 +58,10 @@ fn run_loop(mut tui: Tui) -> color_eyre::Result<()> {
         // Draw (all logic in the View files)
         tui.draw(&mut model)?; // Calls view
 
-        // Handle events and map to a Message
-        let mut current_msg = handle_event(&model)?;
         // Start on Normal mode (default)
         let mut current_mode = editor.get_mode();
-
+        // Handle events and map to a Message
+        let mut current_msg = handle_event(&model, current_mode)?;
 
         // Inside Normal Mode
         if current_mode == Mode::Normal {

@@ -3,15 +3,15 @@ use ratatui::widgets::TableState;
 use color_eyre::eyre::eyre;
 
 
-use crate::model::{
+use crate::{model::{
     cues::{
         cue::{Cue, CueColumn}, cue_base::CueType,
     }, editor::RunningState
-};
+}, update::keymaps::PlaybackCmd};
 
 use crate::model::audio_config::AudioDevice;
 
-use crate::update::update::Message;
+use crate::update::keymaps::Message;
 
 #[derive(Default)]
 pub struct CueStack {
@@ -28,6 +28,9 @@ impl CueStack {
         Self::default()
     }
 
+    /// # Errors
+    ///
+    /// Will return `Err` if cannot find a default sink
     pub fn set_default_sink(&mut self) -> color_eyre::Result<()> {
         self.handler.set_default_sink()
     }
@@ -37,6 +40,14 @@ impl CueStack {
         // We reset the state as the associated items have changed. This effectively reset
         // the selection as well as the stored offset.
         self.current_cue = TableState::default();
+    }
+
+
+    /// # Errors
+    ///
+    /// Will return `Err` if it can't i guess
+    pub const fn go_left(&mut self) -> color_eyre::Result<()>  {
+        Ok(())
     }
 
     // Select the next item. This will not be reflected until the widget is drawn in the
@@ -89,6 +100,14 @@ impl CueStack {
         Ok(())
     }
 
+
+    /// # Errors
+    ///
+    /// Will return `Err` if it can't i guess
+    pub const fn go_right(&mut self) -> color_eyre::Result<()>  {
+        Ok(())
+    }
+
     // Unselect the currently selected item if any. The implementation of `TableState` makes
     // sure that the stored offset is also reset.
     pub const fn unselect(&mut self) {
@@ -132,7 +151,7 @@ impl CueStack {
         Ok(current_cue.get_type())
     }
 
-    fn cue_action(&mut self, i: usize, selection: &Message) -> color_eyre::Result<()> {
+    fn cue_action(&mut self, i: usize, selection: &PlaybackCmd) -> color_eyre::Result<()> {
 
         let current_cue: &mut Box<dyn Cue> = 
             self.cues
@@ -141,11 +160,11 @@ impl CueStack {
 
 
         match selection {
-            Message::PlayCue => {
+            PlaybackCmd::PlayCue => {
                 current_cue.play_cue()?;
                 current_cue.edit_cell_value(CueColumn::Playing, String::from(""));
             }
-            Message::PauseCue => {
+            PlaybackCmd::PauseCue => {
                 // If pause is implemented
                 match current_cue.pause_cue() {
                     // Unpaused -> Paused
@@ -160,14 +179,14 @@ impl CueStack {
                     _ => {}
                 }
             }
-            Message::StopCue => {
+            PlaybackCmd::StopCue => {
                 // If Stop is implemented
                 if let Some(_i) = current_cue.stop_cue() {
                     current_cue.edit_cell_value(CueColumn::Playing, String::from(""));
                 }
                 
             }
-            Message::FadeStopCue => {
+            PlaybackCmd::FadeStopCue => {
                 // If F+S is implemented
                 if let Some(_i) = current_cue.fade_stop_cue(3_f32) {
                     current_cue.edit_cell_value(CueColumn::Playing, String::from(""));
@@ -184,7 +203,7 @@ impl CueStack {
     /// # Errors
     ///
     /// Will return `Err` if no cue is selected
-    pub fn current_cue_action(&mut self, selection: &Message) -> color_eyre::Result<()> {
+    pub fn current_cue_action(&mut self, selection: &PlaybackCmd) -> color_eyre::Result<()> {
         let i: usize = self.current_cue.selected().ok_or_else(|| eyre!("no cue selected"))?;
 
         self.cue_action(i, selection)
@@ -211,27 +230,28 @@ impl CueStack {
     /// # Errors
     ///
     /// Will return `Err` if no cue is selected
-    pub fn choose_cue_action(&mut self, target: f32, selection: &Message) -> color_eyre::Result<()> {
+    pub fn choose_cue_action(&mut self, target: f32, selection: &PlaybackCmd) -> color_eyre::Result<()> {
         // Get all matches for a cue target
         let mut matches = self.cues.iter()
             .enumerate()
-            .filter(|x| x.1.get_number() - target < 0.001)
+            .filter(|x| (x.1.get_number() - target).abs() < 0.001)
             .map(|(i, _)| i);
 
-        let _ = match (matches.next(), matches.next()) {
+        match (matches.next(), matches.next()) {
             (None, _) => {
                 // zero matches
-                Ok(())
-            }
+                println!("a");
+           }
             (Some(i), None) => {
                 // exactly one match
-                self.cue_action(i, selection)
+                self.cue_action(i, selection)?;
+                println!("b");
             }
             (Some(_first), Some(_second)) => {
                 // two or more matches (first and second are the first two indices)
-                Ok(())
+                println!("c");
             }
-        };
+        }
         Ok(())
     }
 
