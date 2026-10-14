@@ -16,6 +16,7 @@ pub enum RunningState {
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Editor {
     mode: Mode,
+    running_state: RunningState,
 }
 
 impl Editor {
@@ -30,7 +31,35 @@ impl Editor {
     }
 
     #[must_use]
+    pub fn get_mode_str(&self) -> String {
+        match self.mode {
+            Mode::Normal => {
+                String::from("Normal")
+            }
+            Mode::Insert => {
+                String::from("Insert")
+            }
+            Mode::Visual => {
+                String::from("Visual")
+            }
+        }
+    }
+
+    pub const fn set_mode(&mut self, mode: Mode) {
+        self.mode = mode;
+    }
+
+    #[must_use]
     pub fn is_normal(&self) -> bool {
         self.mode == Mode::Normal
+    }
+
+    pub const fn set_running_state(&mut self, running_state: RunningState) {
+        self.running_state = running_state;
+    }
+
+    #[must_use]
+    pub const fn running_state(&self) -> &RunningState {
+        &self.running_state
     }
 }

@@ -1,15 +1,13 @@
-use crate::model::cuestack::CueStack;
+use crate::model::{cuestack::CueStack, editor::Editor, full_model::Model};
 
 use ratatui::{
-    layout::{Constraint},
-    style::{Style},
-    widgets::{Block, Row, Table},
-    Frame,
+    Frame, layout::{Alignment, Constraint}, style::{Color, Style}, widgets::{Block, Paragraph, Row, Table},
 };
 
-pub fn view(model: &mut CueStack, frame: &mut Frame) {
+pub fn view(model: &mut Model, frame: &mut Frame) {
+    let (editor, cuestack): (&mut Editor, &mut CueStack) = model.full_mut();
     // Vec of ListItems (which comes from a decompiled list of Cues)
-    let rows: Vec<Row> = model
+    let rows: Vec<Row> = cuestack
         .cues // Cues of the model
         .iter() // Iterator across cues
         .map(|i| i.get_row()) 
@@ -17,7 +15,13 @@ pub fn view(model: &mut CueStack, frame: &mut Frame) {
 
     let table: Table = init_table(rows);
 
-    frame.render_stateful_widget(table, frame.area(), &mut model.current_cue);
+    let paragraph = Paragraph::new(editor.get_mode_str())
+        .style(Color::White)
+        .alignment(Alignment::Center);
+
+    frame.render_widget(paragraph, frame.area());
+
+    frame.render_stateful_widget(table, frame.area(), &mut cuestack.current_cue);
 }
 
 #[must_use]
@@ -41,4 +45,5 @@ pub fn init_table(rows: Vec<Row>) -> Table {
         .block(Block::new().title("Cue Stack"))
         .row_highlight_style(Style::new().reversed())
         .highlight_symbol(">>")
+        .column_highlight_style(Color::Gray)
 }

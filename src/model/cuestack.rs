@@ -17,7 +17,6 @@ use crate::update::keymaps::Message;
 pub struct CueStack {
     pub cues: Vec<Box<dyn Cue>>,
     pub current_cue: TableState,
-    pub running_state: RunningState,
     pub handler: AudioDevice
 }
 
@@ -46,7 +45,8 @@ impl CueStack {
     /// # Errors
     ///
     /// Will return `Err` if it can't i guess
-    pub const fn go_left(&mut self) -> color_eyre::Result<()>  {
+    pub fn go_left(&mut self) -> color_eyre::Result<()>  {
+        self.current_cue.select_previous_column();
         Ok(())
     }
 
@@ -56,22 +56,7 @@ impl CueStack {
     ///
     /// Will return `Err` if can't go next or prev
     pub fn go_next(&mut self) -> color_eyre::Result<()> {
-        let len = self.cues.len()
-            .checked_sub(1)
-            .ok_or_else(|| eyre!("Integer Overflow"))?;
-
-        let i = match self.current_cue.selected() {
-            Some(i) => {
-                if i >= len {
-                    0
-                } else {
-                    i.checked_add(1)
-                        .ok_or_else(|| eyre!("Integer Overflow"))?
-                }
-            }
-            None => 0,
-        };
-        self.current_cue.select(Some(i));
+        self.current_cue.select_next();
         Ok(())
     }
 
@@ -82,21 +67,7 @@ impl CueStack {
     ///
     /// Will return `Err` if overflows
     pub fn go_previous(&mut self) -> color_eyre::Result<()>  {
-        let i = match self.current_cue.selected() {
-            Some(i) => {
-                if i == 0 {
-                    self.cues.len()
-                        .checked_sub(1)
-                        .ok_or_else(|| eyre!("Integer Overflow"))?
-                } else {
-                    i
-                        .checked_sub(1)
-                        .ok_or_else(|| eyre!("Integer Overflow"))?
-                }
-            }
-            None => 0,
-        };
-        self.current_cue.select(Some(i));
+        self.current_cue.select_previous();
         Ok(())
     }
 
@@ -104,7 +75,8 @@ impl CueStack {
     /// # Errors
     ///
     /// Will return `Err` if it can't i guess
-    pub const fn go_right(&mut self) -> color_eyre::Result<()>  {
+    pub fn go_right(&mut self) -> color_eyre::Result<()>  {
+        self.current_cue.select_next_column();
         Ok(())
     }
 
@@ -255,4 +227,15 @@ impl CueStack {
         Ok(())
     }
 
+    pub fn edit_current_cell_start(&self) {
+        println!("teststart");
+    }
+
+    pub fn edit_current_cell_end(&self) {
+        println!("testend");
+    }
+
+    pub fn save_current_cell(&self) {
+        println!("test2");
+    }
 }

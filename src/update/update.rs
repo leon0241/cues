@@ -1,7 +1,7 @@
 use crate::{model::{
     cues::{
         audio_cue::AudioCue, cue_base::{CueType, FollowState}, fade_cue::FadeCue
-    }, cuestack::CueStack, editor::Mode
+    }, cuestack::CueStack, editor::{Editor, Mode}
 }, update::keymaps::{EditorCmd, ModifierCmd, NavigationCmd, PlaybackCmd}};
 
 use crate::model::cues::audio_file::AudioFile;
@@ -39,21 +39,81 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
 /// # Errors
 ///
 /// Will return `Err` if cannot handle a key
-pub fn update(model: &mut CueStack, msg: &Message) -> color_eyre::Result<(Mode, Option<Message>)> {
+pub fn update_normal(model: &mut CueStack, msg: &Message) -> color_eyre::Result<Option<Message>> {
     // TODO: check all these guys for errors
-    match msg {
-        Message::Navigation(cmd) => navigation_handler(model, cmd)?,
-        Message::Modifier(cmd) => modifier_handler(model, cmd)?,
-        Message::Playback(cmd) => playback_handler(model, cmd)?,
-        Message::Editor(cmd) => editor_handler(model, cmd)?,
-    }
-    Ok((Mode::Normal, None))
+    
+    let return_msg: Option<Message> = match msg {
+        Message::Navigation(cmd) => {
+            navigation_handler(model, cmd)?
+        },
+        Message::Modifier(cmd) => {
+            modifier_handler(model, cmd)?
+        },
+        Message::Playback(cmd) => {
+            playback_handler(model, cmd)?
+        },
+        Message::Editor(cmd) => {
+            editor_handler(model, cmd)?
+        }
+    };
+
+    return_msg.map_or_else(|| Ok(None), |i| Ok(Some(i)))
 }
 
 /// # Errors
 ///
 /// Will return `Err` if cannot handle a key
-pub fn navigation_handler(model: &mut CueStack, cmd: &NavigationCmd) -> color_eyre::Result<()> {
+pub fn update_insert(model: &mut CueStack, msg: &Message) -> color_eyre::Result<Option<Message>> {
+
+    let return_msg: Option<Message> = match msg {
+       Message::Editor(cmd) => {
+           editor_handler(model, cmd)?
+       } 
+       _ => {None}
+    };
+
+    return_msg.map_or_else(|| Ok(None), |i| Ok(Some(i)))
+}
+
+/// # Errors
+///
+/// Will return `Err` if cannot handle a key
+pub const fn update_visual(model: &mut CueStack, msg: &Message) -> color_eyre::Result<(Mode, Option<Message>)> {
+    // TODO: check all these guys for errors
+    // match msg {
+    //     Message::Navigation(cmd) => navigation_handler(model, cmd)?,
+    //     Message::Modifier(cmd) => modifier_handler(model, cmd)?,
+    //     Message::Playback(cmd) => playback_handler(model, cmd)?,
+    //     Message::Editor(cmd) => editor_handler(model, cmd)?,
+    // }
+    Ok((Mode::Insert, None))
+}
+
+/// # Errors
+///
+/// Will return `Err` if cannot handle a key
+pub const fn update_editor(editor: &mut Editor, msg: &EditorCmd) -> color_eyre::Result<Option<Message>> {
+    match msg {
+        EditorCmd::Quit => {
+            editor.set_running_state(crate::model::editor::RunningState::Done);
+        }
+        EditorCmd::EnterInsertStart | EditorCmd::EnterInsertEnd => {
+            editor.set_mode(Mode::Insert);
+        }
+        EditorCmd::EnterNormal => {
+            editor.set_mode(Mode::Normal);
+        }
+        EditorCmd::EnterVisual => {
+            editor.set_mode(Mode::Visual);
+        }
+    }
+    Ok(None)
+}
+
+/// # Errors
+///
+/// Will return `Err` if cannot handle a key
+pub fn navigation_handler(model: &mut CueStack, cmd: &NavigationCmd) -> color_eyre::Result<Option<Message>> {
     match cmd {
         NavigationCmd::LeftCol => {
             model.go_left()?;
@@ -68,13 +128,13 @@ pub fn navigation_handler(model: &mut CueStack, cmd: &NavigationCmd) -> color_ey
             model.go_right()?;
         }
     }
-    Ok(())
+    Ok(None)
 }
 
 /// # Errors
 ///
 /// Will return `Err` if cannot handle a key
-pub fn modifier_handler(model: &mut CueStack, cmd: &ModifierCmd) -> color_eyre::Result<()> {
+pub fn modifier_handler(model: &mut CueStack, cmd: &ModifierCmd) -> color_eyre::Result<Option<Message>> {
     match cmd {
         ModifierCmd::ModifyCue => {
             // model.update_cue();
@@ -86,13 +146,13 @@ pub fn modifier_handler(model: &mut CueStack, cmd: &ModifierCmd) -> color_eyre::
             model.delete_cue()?;
         }
     }
-    Ok(())
+    Ok(None)
 }
 
 /// # Errors
 ///
 /// Will return `Err` if cannot handle a key
-pub fn playback_handler(model: &mut CueStack, cmd: &PlaybackCmd) -> color_eyre::Result<()> {
+pub fn playback_handler(model: &mut CueStack, cmd: &PlaybackCmd) -> color_eyre::Result<Option<Message>> {
     match cmd {
         PlaybackCmd::PlayCue => {
             let cue_type: CueType = model.get_current_type()?;
@@ -138,29 +198,35 @@ pub fn playback_handler(model: &mut CueStack, cmd: &PlaybackCmd) -> color_eyre::
             model.go_next()?;
         }
     }
-    Ok(())
+    Ok(None)
 }
 
 /// # Errors
 ///
 /// Will return `Err` if cannot handle a key
-pub const fn editor_handler(model: &mut CueStack, cmd: &EditorCmd) -> color_eyre::Result<()> {
+pub fn editor_handler(model: &mut CueStack, cmd: &EditorCmd) -> color_eyre::Result<Option<Message>> {
     match cmd {
         EditorCmd::Quit => {
-            model.running_state = crate::model::editor::RunningState::Done;
+            Ok(Some(Message::Editor(EditorCmd::Quit)))
         }
         EditorCmd::EnterInsertStart => {
-            unimplemented!()
+            model.edit_current_cell_start();
+
+            Ok(Some(Message::Editor(EditorCmd::EnterInsertEnd)))
         }
         EditorCmd::EnterInsertEnd => {
-            unimplemented!()
+            model.edit_current_cell_end();
+
+            Ok(Some(Message::Editor(EditorCmd::EnterInsertEnd)))
         }
         EditorCmd::EnterNormal => {
-            unimplemented!()
+            model.save_current_cell();
+
+            Ok(Some(Message::Editor(EditorCmd::EnterNormal)))
         }
         EditorCmd::EnterVisual => {
-            unimplemented!()
+            // model.set_mode(Mode::Visual);
+            Ok(Some(Message::Editor(EditorCmd::EnterVisual)))
         }
     }
-    Ok(())
 }

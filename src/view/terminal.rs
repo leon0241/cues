@@ -1,6 +1,6 @@
 use std::io::{self, stdout, Stdout};
 
-use crate::view::view::view;
+use crate::{model::full_model::Model, view::view::view};
 use crate::model::cuestack::CueStack;
 
 use ratatui::{
@@ -61,7 +61,7 @@ impl Tui {
     /// # Errors
     ///
     /// Will error if something doesn't draw right
-    pub fn draw(&mut self, model: &mut CueStack) -> io::Result<()> {
+    pub fn draw(&mut self, model: &mut Model) -> io::Result<()> {
         self.terminal.draw(|frame| view(model, frame))?;
         Ok(())
     }

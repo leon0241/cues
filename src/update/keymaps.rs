@@ -170,12 +170,15 @@ const fn editor_key(key: KeyCode, _modifier: KeyModifiers) -> Option<Message> {
 
 const fn handle_insert(key: KeyCode, _modifier: KeyModifiers) -> Option<Message> {
     match key {
-        KeyCode::Char('k') => Some(
-            Message::Navigation(NavigationCmd::PrevCue)
+        KeyCode::Esc => Some(
+            Message::Editor(EditorCmd::EnterNormal)
         ),
-        KeyCode::Char('j') => Some(
-            Message::Navigation(NavigationCmd::NextCue)
+        KeyCode::Char('q') => Some(
+            Message::Editor(EditorCmd::Quit)
         ),
+        // KeyCode::Char('j') => Some(
+        //     Message::Navigation(NavigationCmd::NextCue)
+        // ),
         _ => None,
     }
 }
