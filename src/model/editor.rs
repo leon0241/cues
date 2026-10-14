@@ -6,6 +6,16 @@ pub enum Mode {
     Visual
 }
 
+#[derive(Debug, Default, PartialEq, Eq, Copy, Clone)]
+pub enum ComboState {
+    #[default]
+    None,
+    Delete, // d -> 
+    Create, // o -> 
+    Change, // c ->
+    Yank,   // y ->
+}
+
 #[derive(Debug, Default, PartialEq, Eq)]
 pub enum RunningState {
     #[default]
@@ -17,6 +27,7 @@ pub enum RunningState {
 pub struct Editor {
     mode: Mode,
     running_state: RunningState,
+    combo_state: ComboState,
 }
 
 impl Editor {
@@ -61,5 +72,14 @@ impl Editor {
     #[must_use]
     pub const fn running_state(&self) -> &RunningState {
         &self.running_state
+    }
+
+    #[must_use]
+    pub const fn combo_state(&self) -> ComboState {
+        self.combo_state
+    }
+
+    pub const fn set_combo_state(&mut self, combo_state: ComboState) {
+        self.combo_state = combo_state;
     }
 }

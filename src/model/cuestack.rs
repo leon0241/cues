@@ -3,21 +3,21 @@ use ratatui::widgets::TableState;
 use color_eyre::eyre::eyre;
 
 
-use crate::{model::{
+use crate::{model::
     cues::{
         cue::{Cue, CueColumn}, cue_base::CueType,
-    }, editor::RunningState
-}, update::keymaps::PlaybackCmd};
+    }
+, update::keymaps::PlaybackCmd};
 
 use crate::model::audio_config::AudioDevice;
 
-use crate::update::keymaps::Message;
 
 #[derive(Default)]
 pub struct CueStack {
     pub cues: Vec<Box<dyn Cue>>,
     pub current_cue: TableState,
-    pub handler: AudioDevice
+    pub handler: AudioDevice,
+    pub do_a_thing: String // Test message output
 }
 
 impl CueStack {
@@ -228,14 +228,41 @@ impl CueStack {
     }
 
     pub fn edit_current_cell_start(&self) {
-        println!("teststart");
+        println!("enter insert at start");
     }
 
     pub fn edit_current_cell_end(&self) {
-        println!("testend");
+        println!("enter insert at end");
     }
 
     pub fn save_current_cell(&self) {
-        println!("test2");
+        println!("saving a cell returning to normal");
+    }
+
+    pub fn copy_cue(&self) {
+        println!("copying cue")
+    }
+
+    pub fn copy_cell(&self, column: CueColumn) {
+        match column {
+            CueColumn::Name => {
+                println!("copying name")
+            },
+            CueColumn::Number => {
+                println!("copying number")
+            },
+            CueColumn::Follow => {
+                println!("copying follow")
+            },
+            CueColumn::PreWait => {
+                println!("copying duration")
+            },
+            CueColumn::PostWait => {
+                println!("copying duration")
+            },
+            _ => {
+                println!("do nothing")
+            }
+        }
     }
 }

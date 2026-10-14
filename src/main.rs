@@ -67,7 +67,7 @@ fn run_loop(mut tui: Tui) -> color_eyre::Result<()> {
         // Start on Normal mode (default)
         let mut current_mode = model.editor().get_mode();
         // Handle events and map to a Message
-        let mut current_msg = handle_event(model.cuestack(), current_mode)?;
+        let mut current_msg = handle_event(model.editor(), current_mode)?;
 
         // Inside Normal Mode
         match current_mode {

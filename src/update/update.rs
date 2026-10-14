@@ -1,8 +1,8 @@
 use crate::{model::{
     cues::{
-        audio_cue::AudioCue, cue_base::{CueType, FollowState}, fade_cue::FadeCue
+        audio_cue::AudioCue, cue::CueColumn, cue_base::{CueType, FollowState}, fade_cue::FadeCue
     }, cuestack::CueStack, editor::{Editor, Mode}
-}, update::keymaps::{EditorCmd, ModifierCmd, NavigationCmd, PlaybackCmd}};
+}, update::keymaps::{CueCmd, EditorCmd, ModKeyCmd, ModifierCmd, NavigationCmd, PlaybackCmd}};
 
 use crate::model::cues::audio_file::AudioFile;
 
@@ -54,6 +54,9 @@ pub fn update_normal(model: &mut CueStack, msg: &Message) -> color_eyre::Result<
         },
         Message::Editor(cmd) => {
             editor_handler(model, cmd)?
+        }
+        Message::ModKey(cmd) => {
+            mod_key_handler(model, cmd)?
         }
     };
 
@@ -227,6 +230,61 @@ pub fn editor_handler(model: &mut CueStack, cmd: &EditorCmd) -> color_eyre::Resu
         EditorCmd::EnterVisual => {
             // model.set_mode(Mode::Visual);
             Ok(Some(Message::Editor(EditorCmd::EnterVisual)))
+        }
+    }
+}
+
+pub fn mod_key_handler(model: &mut CueStack, cmd: &ModKeyCmd) -> color_eyre::Result<Option<Message>> {
+    let inner = match cmd {
+        x => {
+            let a: CueCmd = x.into();
+        }
+    };
+
+    let cmd2 = match cmd {
+        ModKeyCmd::Yank(cue_cmd) => {
+            cell_matcher(
+                cue_cmd,
+                &model.copy_cue,
+                &model.copy_cell
+            )
+        },
+        ModKeyCmd::Delete(cue_cmd) => {
+
+        },
+        ModKeyCmd::Create(cue_cmd) => {
+            
+        },
+        ModKeyCmd::Change(cue_cmd) => {
+
+        },
+    };
+
+    match cmd2 {
+        CueCmd::Cue => {
+            model.copy_cue();
+
+            Ok(None)
+        }
+        CueCmd::CueNum => {
+            model.copy_cell(CueColumn::Number);
+            Ok(None)
+        }
+        CueCmd::Name => {
+            model.copy_cell(CueColumn::Name);
+            Ok(None)
+        }
+        CueCmd::PreWait => {
+            model.copy_cell(CueColumn::PreWait);
+            Ok(None)
+        }
+        CueCmd::PostWait => {
+            model.copy_cell(CueColumn::PostWait);
+            Ok(None)
+        }
+        CueCmd::Follow => {
+            model.copy_cell(CueColumn::Follow);
+            Ok(None)
         }
     }
 }

@@ -7,6 +7,8 @@ pub enum CueColumn {
     Playing,
     Name,
     Number,
+    PreWait,
+    PostWait,
     Duration,
     Follow
 }
