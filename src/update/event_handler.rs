@@ -49,7 +49,6 @@ pub fn event_matcher(model: &mut Model) -> color_eyre::Result<()> {
     // Handle events and map to a Message
     let mut current_msg: Option<Message> = handle_event(model.editor(), current_mode)?;
 
-
     while let Some(ref message) = current_msg {
         match current_mode {
             Mode::Normal => {

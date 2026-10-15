@@ -62,7 +62,7 @@ fn run_loop(mut tui: Tui) -> color_eyre::Result<()> {
 
         // Draw (all logic in the View files)
         tui.draw(&mut model)?; // Calls view
-
+                               //
         event_matcher(&mut model)?;
     }
     Ok(())

@@ -3,20 +3,20 @@ use std::collections::HashMap;
 use ratatui::crossterm::event::KeyCode;
 
 use crate::model::keymaps::{
-    insert::init_imaps,
-    modkey::{
+    insert_keymaps::init_imaps,
+    modkey_keymaps::{
         init_change_maps,
         init_delete_maps,
         init_yank_maps
     },
-    normal::init_nmaps
+    normal_keymaps::init_nmaps
 };
 
-pub mod insert;
-pub mod modkey;
-pub mod normal;
-pub mod visual;
-pub mod vline;
+pub mod insert_keymaps;
+pub mod modkey_keymaps;
+pub mod normal_keymaps;
+pub mod visual_keymaps;
+pub mod vline_keymaps;
 
 #[derive(Debug, Default, Clone, Copy)]
 pub enum Message {
@@ -93,7 +93,7 @@ pub enum CueCmd {
     Follow
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct KeyMaps {
     normal: HashMap<KeyCode, Message>,
     delete: HashMap<KeyCode, Message>,
@@ -103,6 +103,21 @@ pub struct KeyMaps {
     visual: HashMap<KeyCode, Message>,
     vline: HashMap<KeyCode, Message>,
     insert: HashMap<KeyCode, Message>
+}
+
+impl Default for KeyMaps {
+    fn default() -> Self {
+        Self {
+            normal: init_nmaps(),
+            delete: init_delete_maps(),
+            yank: init_yank_maps(),
+            change: init_change_maps(),
+            create: HashMap::new(),
+            visual: HashMap::new(),
+            vline: HashMap::new(),
+            insert: init_imaps()
+        }
+    }
 }
 
 impl KeyMaps {
