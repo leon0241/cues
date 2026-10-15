@@ -1,0 +1,162 @@
+use std::collections::HashMap;
+
+use ratatui::crossterm::event::KeyCode;
+
+use crate::model::keymaps::{
+    insert::init_imaps,
+    modkey::{
+        init_change_maps,
+        init_delete_maps,
+        init_yank_maps
+    },
+    normal::init_nmaps
+};
+
+pub mod insert;
+pub mod modkey;
+pub mod normal;
+pub mod visual;
+pub mod vline;
+
+#[derive(Debug, Default, Clone, Copy)]
+pub enum Message {
+    #[default]
+    None,
+    Navigation(NavigationCmd),
+    Modifier(ModifierCmd),
+    Playback(PlaybackCmd),
+    Editor(EditorCmd),
+    ModKey(ModKeyCmd),
+    Create(CreateCmd),
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum NavigationCmd {
+    LeftCol,
+    PrevCue,
+    NextCue,
+    RightCol,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum PlaybackCmd {
+    PlayCue,
+    PauseCue,
+    StopCue,
+    FadeStopCue,
+}
+
+
+#[derive(Debug, Clone, Copy)]
+pub enum EditorCmd {
+    Quit,
+    EnterInsertStart,
+    EnterInsertEnd,
+    EnterNormal,
+    EnterVisual,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum CreateCmd {
+    CreateAudio,
+    CreateFade,
+    CreateStart,
+    CreateStop,
+    CreatePause,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum ModifierCmd {
+    ModifyCue,
+    NewCue,
+    DeleteCue,
+}
+
+
+#[derive(Debug, Clone, Copy)]
+
+pub enum ModKeyCmd {
+    Yank(CueCmd),
+    Delete(CueCmd),
+    Create(CueCmd),
+    Change(CueCmd),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// Enum for all Cue column editing
+pub enum CueCmd {
+    Cue,
+    CueNum,
+    Name,
+    PreWait,
+    PostWait,
+    Follow
+}
+
+#[derive(Debug, Default)]
+pub struct KeyMaps {
+    normal: HashMap<KeyCode, Message>,
+    delete: HashMap<KeyCode, Message>,
+    yank: HashMap<KeyCode, Message>,
+    change: HashMap<KeyCode, Message>,
+    create: HashMap<KeyCode, Message>,
+    visual: HashMap<KeyCode, Message>,
+    vline: HashMap<KeyCode, Message>,
+    insert: HashMap<KeyCode, Message>
+}
+
+impl KeyMaps {
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
+            normal: init_nmaps(),
+            delete: init_delete_maps(),
+            yank: init_yank_maps(),
+            change: init_change_maps(),
+            create: HashMap::new(),
+            visual: HashMap::new(),
+            vline: HashMap::new(),
+            insert: init_imaps()
+        }
+    }
+
+    #[must_use]
+    pub const fn normal_maps(&self) -> &HashMap<KeyCode, Message> {
+        &self.normal
+    }
+
+    #[must_use]
+    pub const fn yank_maps(&self) -> &HashMap<KeyCode, Message> {
+        &self.yank
+    }
+
+    #[must_use]
+    pub const fn change_maps(&self) -> &HashMap<KeyCode, Message> {
+        &self.change
+    }
+
+    #[must_use]
+    pub const fn create_maps(&self) -> &HashMap<KeyCode, Message> {
+        &self.create
+    }
+
+    #[must_use]
+    pub const fn visual_maps(&self) -> &HashMap<KeyCode, Message> {
+        &self.visual
+    }
+
+    #[must_use]
+    pub const fn vline_maps(&self) -> &HashMap<KeyCode, Message> {
+        &self.vline
+    }
+
+    #[must_use]
+    pub const fn delete_maps(&self) -> &HashMap<KeyCode, Message> {
+        &self.delete
+    }
+
+    #[must_use]
+    pub const fn insert_maps(&self) -> &HashMap<KeyCode, Message> {
+        &self.insert
+    }
+}

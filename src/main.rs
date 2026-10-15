@@ -8,13 +8,12 @@ pub mod view;
 
 use model::{
     cuestack::{CueStack},
-    editor::{Editor, Mode, RunningState},
+    editor::{Editor, RunningState},
     full_model::{Model}
 };
 
 use update::{
-    update::{ init_cues, update_normal, update_insert, update_visual},
-    keymaps::{ handle_event }
+    event_handler::{ init_cues },
 };
 
 use view::{
@@ -25,7 +24,7 @@ use ratatui::{backend::CrosstermBackend, Terminal};
 
 use color_eyre::Result;
 
-use crate::update::{keymaps::Message, update::update_editor};
+use crate::update::event_handler::{event_matcher};
 
 fn main() -> Result<()>{
     // Color_eyre error handling
@@ -64,47 +63,7 @@ fn run_loop(mut tui: Tui) -> color_eyre::Result<()> {
         // Draw (all logic in the View files)
         tui.draw(&mut model)?; // Calls view
 
-        // Start on Normal mode (default)
-        let mut current_mode = model.editor().get_mode();
-        // Handle events and map to a Message
-        let mut current_msg = handle_event(model.editor(), current_mode)?;
-
-        // Inside Normal Mode
-        match current_mode {
-            Mode::Normal => {
-                while let Some(ref message) = current_msg {
-                    current_msg = update_normal(model.cuestack_mut(), message)?;
-
-                    match current_msg {
-                        None => {}
-                        Some(Message::Editor(cmd)) => {
-                            update_editor(model.editor_mut(), &cmd)?;
-                            current_msg = None;
-                        }
-                        _ => {current_msg = None}
-                    }
-                }
-            }
-            Mode::Insert => {
-                while let Some(ref message) = current_msg {
-                    current_msg = update_insert(model.cuestack_mut(), message)?;
-
-                    match current_msg {
-                        None => {}
-                        Some(Message::Editor(cmd)) => {
-                            update_editor(model.editor_mut(), &cmd)?;
-                            current_msg = None;
-                        }
-                        _ => {current_msg = None}
-                    }
-                }
-            }
-            Mode::Visual => {
-                while let Some(message) = current_msg {
-                    (current_mode, current_msg) = update_visual(model.cuestack_mut(), &message)?;
-                }
-            }
-        }
+        event_matcher(&mut model)?;
     }
     Ok(())
 }

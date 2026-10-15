@@ -1,28 +1,4 @@
-use ratatui::crossterm::event::{KeyCode, KeyModifiers};
-
-use crate::{model::{cues::audio_cue::AudioCue, cuestack::CueStack}, update::keymaps_file::Message};
-
-#[derive(Debug)]
-pub enum ModifierCmd {
-    ModifyCue,
-    NewCue,
-    DeleteCue,
-}
-
-const fn modifier_key(key: KeyCode, _modifier: KeyModifiers) -> Option<Message> {
-    match key {
-        KeyCode::Char('i') => Some(
-            Message::Modifier(ModifierCmd::ModifyCue)
-        ),
-        KeyCode::Char('o') => Some(
-            Message::Modifier(ModifierCmd::NewCue)
-        ),
-        KeyCode::Char('d') => Some(
-            Message::Modifier(ModifierCmd::DeleteCue)
-        ),
-        _ => None,
-    }
-}
+use crate::model::{cues::audio_cue::AudioCue, cuestack::CueStack, keymaps::{Message, ModifierCmd}};
 
 /// # Errors
 ///

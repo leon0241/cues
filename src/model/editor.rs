@@ -1,3 +1,5 @@
+use crate::model::keymaps::KeyMaps;
+
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone)]
 pub enum Mode {
     #[default]
@@ -23,11 +25,13 @@ pub enum RunningState {
     Done,
 }
 
-#[derive(Debug, Default, PartialEq, Eq)]
+#[derive(Debug, Default)]
 pub struct Editor {
     mode: Mode,
     running_state: RunningState,
     combo_state: ComboState,
+    keymaps: KeyMaps,
+    // clipboard: 
 }
 
 impl Editor {
@@ -81,5 +85,10 @@ impl Editor {
 
     pub const fn set_combo_state(&mut self, combo_state: ComboState) {
         self.combo_state = combo_state;
+    }
+
+    #[must_use]
+    pub const fn keymaps(&self) -> &KeyMaps {
+        &self.keymaps
     }
 }

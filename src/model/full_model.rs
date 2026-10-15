@@ -7,11 +7,13 @@ pub struct Model {
 }
 
 impl Model {
+    #[must_use]
     pub const fn new(editor: Editor, cuestack: CueStack) -> Self {
         Self { editor, cuestack }
     }
 
-    pub fn editor(&self) -> &Editor {
+    #[must_use]
+    pub const fn editor(&self) -> &Editor {
         &self.editor
     }
 
@@ -19,7 +21,8 @@ impl Model {
         self.editor = editor;
     }
 
-    pub fn cuestack(&self) -> &CueStack {
+    #[must_use]
+    pub const fn cuestack(&self) -> &CueStack {
         &self.cuestack
     }
 
@@ -27,15 +30,18 @@ impl Model {
         self.cuestack = cuestack;
     }
 
-    pub fn cuestack_mut(&mut self) -> &mut CueStack {
+    #[must_use]
+    pub const fn cuestack_mut(&mut self) -> &mut CueStack {
         &mut self.cuestack
     }
 
-    pub fn editor_mut(&mut self) -> &mut Editor {
+    #[must_use]
+    pub const fn editor_mut(&mut self) -> &mut Editor {
         &mut self.editor
     }
 
-    pub fn full_mut(&mut self) -> (&mut Editor, &mut CueStack) {
+    #[must_use]
+    pub const fn full_mut(&mut self) -> (&mut Editor, &mut CueStack) {
         (&mut self.editor, &mut self.cuestack)
     }
 }

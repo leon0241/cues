@@ -1,32 +1,4 @@
-use ratatui::crossterm::event::{KeyCode, KeyModifiers};
-
-use crate::{model::{cues::cue_base::CueType, cuestack::CueStack}, update::keymaps_file::Message};
-
-#[derive(Debug)]
-pub enum PlaybackCmd {
-    PlayCue,
-    PauseCue,
-    StopCue,
-    FadeStopCue,
-}
-
-const fn playback_key(key: KeyCode, _modifier: KeyModifiers) -> Option<Message> {
-    match key {
-        KeyCode::Char(' ') => Some(
-            Message::Playback(PlaybackCmd::PlayCue)
-        ),
-        KeyCode::Char('p') => Some(
-            Message::Playback(PlaybackCmd::PauseCue)
-        ),
-        KeyCode::Char('x') => Some(
-            Message::Playback(PlaybackCmd::FadeStopCue)
-        ),
-        KeyCode::Char('X') => Some(
-            Message::Playback(PlaybackCmd::StopCue)
-        ),
-        _ => None,
-    }
-}
+use crate::model::{cues::cue_base::CueType, cuestack::CueStack, keymaps::{Message, PlaybackCmd}};
 
 /// # Errors
 ///

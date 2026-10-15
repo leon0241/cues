@@ -1,7 +1,6 @@
 use std::io::{self, stdout, Stdout};
 
 use crate::{model::full_model::Model, view::view::view};
-use crate::model::cuestack::CueStack;
 
 use ratatui::{
     backend::{CrosstermBackend},

@@ -11,6 +11,8 @@ pub enum PlayState {
     Playing,
     Stopped,
 }
+
+#[allow(dead_code)]
 pub struct TargetCue {
     number: f32,
     cue_type: CueType,

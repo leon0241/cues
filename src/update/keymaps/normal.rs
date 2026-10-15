@@ -1,68 +1,81 @@
-use ratatui::crossterm::event::{KeyCode, KeyModifiers};
-
-use crate::{model::{cuestack::CueStack, editor::ComboState}, update::keymaps_file::Message};
-
-
 pub mod navigation;
 pub mod modifiers;
 pub mod playback;
 pub mod editor;
 pub mod modkey;
 
+use ratatui::crossterm::event::{KeyCode, KeyModifiers};
 
-const fn handle_normal(key: KeyCode, modifier: KeyModifiers, combo_state: ComboState) -> Option<Message> {
-    match combo_state {
+use crate::{
+    model::{
+        cuestack::{CueStack},
+        editor::{ComboState, Editor},
+        full_model::Model, keymaps::Message
+    },
+    update::keymaps::normal::{
+        editor::editor_handler,
+        modifiers::modifier_handler,
+        modkey::modkey_handler,
+        navigation::navigation_handler,
+        playback::playback_handler
+    }
+};
+
+#[must_use]
+pub fn handle_normal(key: KeyCode, _modifier: KeyModifiers, editor: &Editor) -> Option<Message> {
+    let keymaps = editor.keymaps();
+
+    match editor.combo_state() {
         // No additional combo
         ComboState::None => {
-            if let Some(i) = normal_mode_switch(key, modifier) {
-                return Some(i);
-            }
-            if let Some(i) = navigation_key(key, modifier) {
-                return Some(i);
-            }
-            if let Some(i) = modifier_key(key, modifier) {
-                return Some(i);
-            }
-            if let Some(i) = playback_key(key, modifier) {
-                return Some(i);
-            }
-            if let Some(i) = editor_key(key, modifier) {
-                return Some(i);
-            }
+            keymaps.normal_maps().get(&key).copied()
         }
+
         // Yank, Delete, Create, Change
-        combo_state => {
-            if let Some(i) = mod_key(key, modifier, combo_state) {
-                return Some(i);
-            }
+        ComboState::Yank => {
+            keymaps.yank_maps().get(&key).copied()
         }
+        ComboState::Delete => {
+            keymaps.delete_maps().get(&key).copied()
+        },
+        ComboState::Create => {
+            keymaps.create_maps().get(&key).copied()
+        },
+        ComboState::Change => {
+            keymaps.change_maps().get(&key).copied()
+        },
+        // Z -> folding?
     }
-    None
 }
 
 
 /// # Errors
 ///
 /// Will return `Err` if cannot handle a key
-pub fn update_normal(model: &mut CueStack, msg: &Message) -> color_eyre::Result<Option<Message>> {
+pub fn update_normal(model: &mut Model, msg: &Message) -> color_eyre::Result<Option<Message>> {
     // TODO: check all these guys for errors
+
+    let (editor, cuestack): (&mut Editor, &mut CueStack) = model.full_mut();
     
     let return_msg: Option<Message> = match msg {
         Message::Navigation(cmd) => {
-            navigation_handler(model, cmd)?
+            navigation_handler(cuestack, cmd)?
         },
         Message::Modifier(cmd) => {
-            modifier_handler(model, cmd)?
+            modifier_handler(cuestack, cmd)?
         },
         Message::Playback(cmd) => {
-            playback_handler(model, cmd)?
+            playback_handler(cuestack, cmd)?
         },
         Message::Editor(cmd) => {
-            editor_handler(model, cmd)?
+            editor_handler(editor, cuestack, cmd)?
         }
         Message::ModKey(cmd) => {
-            mod_key_handler(model, cmd)?
+            modkey_handler(cuestack, cmd)?
         }
+        // TODO: this
+        Message::None => None,
+        Message::Create(_create_cmd) => None,
     };
 
     return_msg.map_or_else(|| Ok(None), |i| Ok(Some(i)))

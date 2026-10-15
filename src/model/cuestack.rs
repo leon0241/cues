@@ -3,11 +3,9 @@ use ratatui::widgets::TableState;
 use color_eyre::eyre::eyre;
 
 
-use crate::{model::
-    cues::{
+use crate::model::{cues::{
         cue::{Cue, CueColumn}, cue_base::CueType,
-    }
-, update::keymaps::PlaybackCmd};
+    }, keymaps::PlaybackCmd};
 
 use crate::model::audio_config::AudioDevice;
 
@@ -123,7 +121,7 @@ impl CueStack {
         Ok(current_cue.get_type())
     }
 
-    fn cue_action(&mut self, i: usize, selection: &PlaybackCmd) -> color_eyre::Result<()> {
+    fn cue_action(&mut self, i: usize, selection: PlaybackCmd) -> color_eyre::Result<()> {
 
         let current_cue: &mut Box<dyn Cue> = 
             self.cues
@@ -164,7 +162,6 @@ impl CueStack {
                     current_cue.edit_cell_value(CueColumn::Playing, String::from(""));
                 }
             }
-            _ => { }
         }
 
         Ok(())
@@ -178,7 +175,7 @@ impl CueStack {
     pub fn current_cue_action(&mut self, selection: &PlaybackCmd) -> color_eyre::Result<()> {
         let i: usize = self.current_cue.selected().ok_or_else(|| eyre!("no cue selected"))?;
 
-        self.cue_action(i, selection)
+        self.cue_action(i, *selection)
     }
 
     /// Get the current cue target
@@ -216,7 +213,7 @@ impl CueStack {
            }
             (Some(i), None) => {
                 // exactly one match
-                self.cue_action(i, selection)?;
+                self.cue_action(i, *selection)?;
                 println!("b");
             }
             (Some(_first), Some(_second)) => {
@@ -240,29 +237,50 @@ impl CueStack {
     }
 
     pub fn copy_cue(&self) {
-        println!("copying cue")
+        println!("copying cue");
     }
 
-    pub fn copy_cell(&self, column: CueColumn) {
+    pub fn copy_cell(&self, column: &CueColumn) {
         match column {
             CueColumn::Name => {
-                println!("copying name")
+                println!("copying name");
             },
             CueColumn::Number => {
-                println!("copying number")
+                println!("copying number");
             },
             CueColumn::Follow => {
-                println!("copying follow")
+                println!("copying follow");
             },
             CueColumn::PreWait => {
-                println!("copying duration")
+                println!("copying prewait");
             },
             CueColumn::PostWait => {
-                println!("copying duration")
+                println!("copying postwait");
             },
             _ => {
-                println!("do nothing")
+                println!("do nothing");
             }
         }
+    }
+
+    /// # Errors
+    ///
+    /// TODO
+    pub const fn change_cell(&self, _i: &CueColumn) -> color_eyre::Result<()> {
+        Ok(())
+    }
+
+    /// # Errors
+    ///
+    /// TODO
+    pub const fn clear_cue(&self) -> color_eyre::Result<()> {
+        Ok(())
+    }
+
+    /// # Errors
+    ///
+    /// TODO
+    pub const fn delete_cell(&self, _i: &CueColumn) -> color_eyre::Result<()> {
+        Ok(())
     }
 }

@@ -1,3 +1,3 @@
 pub mod keymaps;
 pub mod message;
-pub mod update;
+pub mod event_handler;

@@ -1,32 +1,4 @@
-use ratatui::crossterm::event::KeyCode;
-
-use crate::{model::cuestack::CueStack, update::keymaps_file::{Message}};
-
-#[derive(Debug)]
-pub enum NavigationCmd {
-    LeftCol,
-    PrevCue,
-    NextCue,
-    RightCol,
-}
-
-const fn navigation_key(key: KeyCode, _modifier: ratatui::crossterm::event::KeyModifiers) -> Option<Message> {
-    match key {
-        KeyCode::Char('h') => Some(
-            Message::Navigation(NavigationCmd::LeftCol)
-        ),
-        KeyCode::Char('k') => Some(
-            Message::Navigation(NavigationCmd::PrevCue)
-        ),
-        KeyCode::Char('j') => Some(
-            Message::Navigation(NavigationCmd::NextCue)
-        ),
-        KeyCode::Char('l') => Some(
-            Message::Navigation(NavigationCmd::RightCol)
-        ),
-        _ => None,
-    }
-}
+use crate::model::{cuestack::CueStack, keymaps::{Message, NavigationCmd}};
 
 /// # Errors
 ///
