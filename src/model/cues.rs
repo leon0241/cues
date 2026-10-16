@@ -1,3 +1,11 @@
+pub mod audio_cue;
+pub mod audio_file;
+pub mod cue_base;
+pub mod fade_cue;
+pub mod pause_cue;
+pub mod start_cue;
+pub mod stop_cue;
+
 use crate::model::cues::cue_base::{CueType, FollowState, HasCueBase};
 
 use ratatui::widgets::Row;
@@ -10,39 +18,39 @@ pub enum CueColumn {
     PreWait,
     PostWait,
     Duration,
-    Follow
+    Follow,
 }
 pub trait CueVals {
     /// Returns cue in table row format for Ratatui
-    fn get_row(&self) -> Row<'_> ;
+    fn get_row(&self) -> Row<'_>;
     //
     // /// Play functionality for a cue. Note this is not just
     // /// "Play" but rather what happens when Space is pressed
     // fn play_cue(&self) -> color_eyre::Result<()>;
 
     /// Get Cue Type
-    fn get_type(&self) -> CueType;
+    fn cue_type(&self) -> CueType;
 
     /// Get Name (Label) of a cue
-    fn get_name(&self) -> String;
+    fn name(&self) -> String;
 
     /// Set Name (Label) of a cue
     fn set_name(&mut self, name: String);
 
     /// Get Number of a cue
-    fn get_number(&self) -> f32;
+    fn number(&self) -> f32;
 
     /// Set Number of a cue
     fn set_number(&mut self, number: f32);
 
     /// Get Follow State of a cue
-    fn get_follow_state(&self) -> String;
+    fn follow_state(&self) -> String;
 
     /// Set Follow State of a cue
     fn set_follow_state(&mut self, state: FollowState);
 
     /// Get (Playing Status) icon of a cue
-    fn get_icon(&self) -> String;
+    fn icon(&self) -> String;
 
     /// Set (Playing Status) icon of a cue
     fn set_icon(&mut self, icon: String);
@@ -71,46 +79,50 @@ pub trait Cue: CueVals {
         None
     }
 
-    fn get_target(&self) -> Option<f32> {
+    fn target(&self) -> Option<f32> {
         None
     }
 
     #[allow(unused_variables)]
-    fn set_target(&mut self, target: f32) { }
+    fn set_target(&mut self, target: f32) {}
 }
 
 // Implement for all types where T ==(has the trait)=> Cue
-impl <T: HasCueBase> CueVals for T {
-    fn get_row(&self) -> Row<'_>  {
+impl<T: HasCueBase> CueVals for T {
+    fn get_row(&self) -> Row<'_> {
         Row::new(vec![
-            self.get_base().icon.clone(),
-            self.get_base().number.to_string(),
-            self.get_base().name.clone(),
-            self.get_base().duration.to_string()
+            self.base().icon.clone(),
+            self.base().number.to_string(),
+            self.base().name.clone(),
+            self.base().duration.to_string(),
         ])
     }
 
-    fn get_type(&self) -> CueType { self.get_base().cue_type }
+    fn cue_type(&self) -> CueType {
+        self.base().cue_type
+    }
 
-    fn get_name(&self) -> String { self.get_base().name.clone() }
+    fn name(&self) -> String {
+        self.base().name.clone()
+    }
 
-    fn set_name(&mut self, name: String) { self.set_base().name = name }
+    fn set_name(&mut self, name: String) {
+        self.set_base().name = name;
+    }
 
-    fn get_number(&self) -> f32 { self.get_base().number }
+    fn number(&self) -> f32 {
+        self.base().number
+    }
 
-    fn set_number(&mut self, number: f32) { self.set_base().number = number }
+    fn set_number(&mut self, number: f32) {
+        self.set_base().number = number;
+    }
 
-    fn get_follow_state(&self) -> String {
-        match self.get_base().follow {
-            FollowState::Follow => {
-                String::from("F")
-            }
-            FollowState::Continue => {
-                String::from("C")
-            }
-            FollowState::None => {
-                String::new()
-            }
+    fn follow_state(&self) -> String {
+        match self.base().follow {
+            FollowState::Follow => String::from("F"),
+            FollowState::Continue => String::from("C"),
+            FollowState::None => String::new(),
         }
     }
 
@@ -118,8 +130,8 @@ impl <T: HasCueBase> CueVals for T {
         self.set_base().follow = state;
     }
 
-    fn get_icon(&self) -> String {
-        self.get_base().icon.clone()
+    fn icon(&self) -> String {
+        self.base().icon.clone()
     }
 
     fn set_icon(&mut self, icon: String) {

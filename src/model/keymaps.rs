@@ -4,12 +4,8 @@ use ratatui::crossterm::event::KeyCode;
 
 use crate::model::keymaps::{
     insert_keymaps::init_imaps,
-    modkey_keymaps::{
-        init_change_maps,
-        init_delete_maps,
-        init_yank_maps
-    },
-    normal_keymaps::init_nmaps
+    modkey_keymaps::{init_change_maps, init_delete_maps, init_yank_maps},
+    normal_keymaps::init_nmaps,
 };
 
 pub mod insert_keymaps;
@@ -28,6 +24,7 @@ pub enum Message {
     Editor(EditorCmd),
     ModKey(ModKeyCmd),
     Create(CreateCmd),
+    Combo(ComboCmd),
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -46,7 +43,6 @@ pub enum PlaybackCmd {
     FadeStopCue,
 }
 
-
 #[derive(Debug, Clone, Copy)]
 pub enum EditorCmd {
     Quit,
@@ -54,6 +50,15 @@ pub enum EditorCmd {
     EnterInsertEnd,
     EnterNormal,
     EnterVisual,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum ComboCmd {
+    Return,
+    EnterDelete, // d ->
+    EnterCreate, // o ->
+    EnterChange, // c ->
+    EnterYank,   // y ->
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -72,7 +77,6 @@ pub enum ModifierCmd {
     DeleteCue,
 }
 
-
 #[derive(Debug, Clone, Copy)]
 
 pub enum ModKeyCmd {
@@ -90,7 +94,7 @@ pub enum CueCmd {
     Name,
     PreWait,
     PostWait,
-    Follow
+    Follow,
 }
 
 #[derive(Debug)]
@@ -102,7 +106,7 @@ pub struct KeyMaps {
     create: HashMap<KeyCode, Message>,
     visual: HashMap<KeyCode, Message>,
     vline: HashMap<KeyCode, Message>,
-    insert: HashMap<KeyCode, Message>
+    insert: HashMap<KeyCode, Message>,
 }
 
 impl Default for KeyMaps {
@@ -115,7 +119,7 @@ impl Default for KeyMaps {
             create: HashMap::new(),
             visual: HashMap::new(),
             vline: HashMap::new(),
-            insert: init_imaps()
+            insert: init_imaps(),
         }
     }
 }
@@ -131,7 +135,7 @@ impl KeyMaps {
             create: HashMap::new(),
             visual: HashMap::new(),
             vline: HashMap::new(),
-            insert: init_imaps()
+            insert: init_imaps(),
         }
     }
 

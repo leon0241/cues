@@ -2,14 +2,22 @@ use std::time::Duration;
 
 use ratatui::crossterm::event;
 
-use crate::{model::{
-    cues::{
-        audio_cue::AudioCue, cue_base::FollowState, fade_cue::FadeCue
-    }, cuestack::CueStack, editor::{Editor, Mode}, full_model::Model, keymaps::Message
-}, update::keymaps::{insert::{handle_insert, update_insert}, normal::{handle_normal, update_normal}, visual::{handle_visual, update_visual}}};
+use crate::{
+    model::{
+        cues::{audio_cue::AudioCue, cue_base::FollowState, fade_cue::FadeCue},
+        cuestack::CueStack,
+        editor::{Editor, Mode},
+        full_model::Model,
+        keymaps::Message,
+    },
+    update::keymaps::{
+        insert::{handle_insert, update_insert},
+        normal::{handle_normal, update_normal},
+        visual::{handle_visual, update_visual},
+    },
+};
 
 use crate::model::cues::audio_file::AudioFile;
-
 
 /// # Errors
 ///
@@ -18,23 +26,51 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
     let file1: AudioFile = AudioFile::new(
         String::from("funkytown"),
         String::from("project/audio/test.wav"),
-        &model.handler
+        &model.handler,
     )?;
     let file2: AudioFile = AudioFile::new(
         String::from("boom"),
         String::from("project/audio/boom.wav"),
-        &model.handler
+        &model.handler,
     )?;
 
-    model.set_items(
-        vec![
-            Box::new(AudioCue::new(1_f32, String::from("test"), 1_f32, FollowState::None, None)),
-            Box::new(AudioCue::new(2_f32, String::from("file"), 1_f32, FollowState::None, Some(file1))),
-            Box::new(AudioCue::new(2.5_f32, String::from("boom"), 1_f32, FollowState::None, Some(file2))),
-            Box::new(FadeCue::new(3_f32, String::from("fade"), 1_f32, FollowState::None, Some(2_f32))),
-            Box::new(AudioCue::new(3_f32, String::from("test2"), 1_f32, FollowState::None, None)),
-        ]
-    );
+    model.set_items(vec![
+        Box::new(AudioCue::new(
+            1_f32,
+            String::from("test"),
+            1_f32,
+            FollowState::None,
+            None,
+        )),
+        Box::new(AudioCue::new(
+            2_f32,
+            String::from("file"),
+            1_f32,
+            FollowState::None,
+            Some(file1),
+        )),
+        Box::new(AudioCue::new(
+            2.5_f32,
+            String::from("boom"),
+            1_f32,
+            FollowState::None,
+            Some(file2),
+        )),
+        Box::new(FadeCue::new(
+            3_f32,
+            String::from("fade"),
+            1_f32,
+            FollowState::None,
+            Some(2_f32),
+        )),
+        Box::new(AudioCue::new(
+            3_f32,
+            String::from("test2"),
+            1_f32,
+            FollowState::None,
+            None,
+        )),
+    ]);
 
     Ok(())
 }
@@ -43,9 +79,8 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
 ///
 /// TODO
 pub fn event_matcher(model: &mut Model) -> color_eyre::Result<()> {
-
     // Start on Normal mode (default)
-    let current_mode: Mode = model.editor().get_mode();
+    let current_mode: Mode = model.editor().mode();
     // Handle events and map to a Message
     let mut current_msg: Option<Message> = handle_event(model.editor(), current_mode)?;
 
@@ -56,17 +91,15 @@ pub fn event_matcher(model: &mut Model) -> color_eyre::Result<()> {
             }
             Mode::Insert => {
                 current_msg = update_insert(model, message)?;
-            },
+            }
             Mode::Visual => {
                 current_msg = update_visual(model, message)?;
-            },
+            }
         }
     }
 
     Ok(())
 }
-
-
 
 /// # Errors
 ///
@@ -86,14 +119,8 @@ pub fn handle_key(key: event::KeyEvent, mode: Mode, editor: &Editor) -> Option<M
     let (code, modifiers) = (key.code, key.modifiers);
 
     match mode {
-        Mode::Normal => {
-            handle_normal(code, modifiers, editor)
-        }
-        Mode::Insert => {
-            handle_insert(code, modifiers, editor)
-        }
-        Mode::Visual => {
-            handle_visual(code, modifiers, editor)
-        }
+        Mode::Normal => handle_normal(code, modifiers, editor),
+        Mode::Insert => handle_insert(code, modifiers, editor),
+        Mode::Visual => handle_visual(code, modifiers, editor),
     }
 }

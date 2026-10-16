@@ -5,7 +5,7 @@ use num_traits::ToPrimitive;
 use rodio::Player;
 
 use crate::model::cues::{
-    audio_file::AudioFile, cue::Cue, cue_base::{CueBase, CueType, FollowState, HasCueBase}
+    Cue, audio_file::AudioFile, cue_base::{CueBase, CueType, FollowState, HasCueBase}
 };
 
 /// Audio Cue
@@ -29,7 +29,7 @@ trait AudioCueFn: Cue {
 
 
 impl HasCueBase for AudioCue {
-    fn get_base(&self) -> &CueBase {
+    fn base(&self) -> &CueBase {
         &self.base
     }
 

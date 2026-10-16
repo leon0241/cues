@@ -5,15 +5,15 @@ pub enum Mode {
     #[default]
     Normal,
     Insert,
-    Visual
+    Visual,
 }
 
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone)]
 pub enum ComboState {
     #[default]
     None,
-    Delete, // d -> 
-    Create, // o -> 
+    Delete, // d ->
+    Create, // o ->
     Change, // c ->
     Yank,   // y ->
 }
@@ -31,7 +31,7 @@ pub struct Editor {
     running_state: RunningState,
     combo_state: ComboState,
     keymaps: KeyMaps,
-    // clipboard: 
+    // clipboard:
 }
 
 impl Editor {
@@ -41,32 +41,32 @@ impl Editor {
     }
 
     #[must_use]
-    pub const fn get_mode(&self) -> Mode {
+    pub const fn mode(&self) -> Mode {
         self.mode
     }
 
     #[must_use]
-    pub fn get_mode_str(&self) -> String {
+    pub fn mode_str(&self) -> String {
         match self.mode {
-            Mode::Normal => {
-                String::from("Normal")
-            }
-            Mode::Insert => {
-                String::from("Insert")
-            }
-            Mode::Visual => {
-                String::from("Visual")
-            }
+            Mode::Normal => String::from("Normal"),
+            Mode::Insert => String::from("Insert"),
+            Mode::Visual => String::from("Visual"),
+        }
+    }
+
+    #[must_use]
+    pub fn combo_str(&self) -> String {
+        match self.combo_state {
+            ComboState::None => String::from("None"),
+            ComboState::Delete => String::from("Delete"),
+            ComboState::Create => String::from("Create"),
+            ComboState::Change => String::from("Change"),
+            ComboState::Yank => String::from("Yank"),
         }
     }
 
     pub const fn set_mode(&mut self, mode: Mode) {
         self.mode = mode;
-    }
-
-    #[must_use]
-    pub fn is_normal(&self) -> bool {
-        self.mode == Mode::Normal
     }
 
     pub const fn set_running_state(&mut self, running_state: RunningState) {

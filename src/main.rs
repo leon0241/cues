@@ -7,26 +7,22 @@ pub mod view;
 // pub mod util;
 
 use model::{
-    cuestack::{CueStack},
+    cuestack::CueStack,
     editor::{Editor, RunningState},
-    full_model::{Model}
+    full_model::Model,
 };
 
-use update::{
-    event_handler::{ init_cues },
-};
+use update::event_handler::init_cues;
 
-use view::{
-    terminal::Tui,
-};
+use view::terminal::Tui;
 
-use ratatui::{backend::CrosstermBackend, Terminal};
+use ratatui::{Terminal, backend::CrosstermBackend};
 
 use color_eyre::Result;
 
-use crate::update::event_handler::{event_matcher};
+use crate::update::event_handler::event_matcher;
 
-fn main() -> Result<()>{
+fn main() -> Result<()> {
     // Color_eyre error handling
     color_eyre::install()?;
 
@@ -48,10 +44,7 @@ fn create_terminal() -> color_eyre::Result<Tui> {
 }
 
 fn run_loop(mut tui: Tui) -> color_eyre::Result<()> {
-    let mut model: Model = Model::new(
-        Editor::new(),
-        CueStack::new()
-        );
+    let mut model: Model = Model::new(Editor::new(), CueStack::new());
     // let mut model: CueStack = CueStack::new();
     model.cuestack_mut().set_default_sink()?;
     // maybe put mut back with insert/normal
@@ -59,10 +52,9 @@ fn run_loop(mut tui: Tui) -> color_eyre::Result<()> {
     init_cues(model.cuestack_mut())?;
 
     while *model.editor().running_state() != RunningState::Done {
-
         // Draw (all logic in the View files)
         tui.draw(&mut model)?; // Calls view
-                               //
+        //
         event_matcher(&mut model)?;
     }
     Ok(())

@@ -3,7 +3,7 @@ pub enum FollowState {
     #[default]
     None,
     Follow,
-    Continue
+    Continue,
 }
 
 pub enum PlayState {
@@ -16,20 +16,20 @@ pub enum PlayState {
 pub struct TargetCue {
     number: f32,
     cue_type: CueType,
-    abs_number: i32
+    abs_number: i32,
 }
 
 pub enum TargetType {
     None,
     File,
-    TargetCue
+    TargetCue,
 }
 
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone)]
 pub enum CueType {
     #[default]
     Audio,
-    Fade
+    Fade,
 }
 
 pub struct CueBase {
@@ -43,8 +43,8 @@ pub struct CueBase {
     pub icon: String,
     pub status: PlayState,
     pub target: TargetType,
-    pub parent: Option<TargetCue>
-} 
+    pub parent: Option<TargetCue>,
+}
 
 impl Default for CueBase {
     fn default() -> Self {
@@ -60,8 +60,13 @@ impl Default for CueBase {
 
 impl CueBase {
     #[must_use]
-    pub const fn new(number: f32, name: String, duration: f32,
-        follow: FollowState, cue_type: CueType) -> Self {
+    pub const fn new(
+        number: f32,
+        name: String,
+        duration: f32,
+        follow: FollowState,
+        cue_type: CueType,
+    ) -> Self {
         Self {
             number,
             name,
@@ -80,8 +85,7 @@ impl CueBase {
 
 /// Helper Trait for Blanket Impl.
 pub trait HasCueBase {
-    fn get_base(&self) -> &CueBase;
+    fn base(&self) -> &CueBase;
 
     fn set_base(&mut self) -> &mut CueBase;
 }
-
