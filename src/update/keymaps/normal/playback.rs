@@ -22,10 +22,27 @@ pub fn playback_handler(
                 CueType::Fade => {
                     let target: Option<f32> = model.current_target()?;
                     if let Some(i) = target {
+                        model.cue_action(Some(i), &PlaybackCmd::FadeStopCue)?;
+                    }
+                }
+                CueType::Start => {
+                    let target: Option<f32> = model.current_target()?;
+                    if let Some(i) = target {
+                        model.cue_action(Some(i), &PlaybackCmd::PlayCue)?;
+                    }
+                }
+                CueType::Stop => {
+                    let target: Option<f32> = model.current_target()?;
+                    if let Some(i) = target {
                         model.cue_action(Some(i), &PlaybackCmd::StopCue)?;
                     }
-                } // TODO: the rest of these cases
-                  // _ => {  }
+                }
+                CueType::Pause => {
+                    let target: Option<f32> = model.current_target()?;
+                    if let Some(i) = target {
+                        model.cue_action(Some(i), &PlaybackCmd::PauseCue)?;
+                    }
+                }
             }
             model.go_next();
         }

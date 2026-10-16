@@ -6,7 +6,7 @@ pub mod pause_cue;
 pub mod start_cue;
 pub mod stop_cue;
 
-use crate::model::cues::cue_base::{CueType, FollowState, HasCueBase};
+use crate::model::cues::cue_base::{CueType, FollowState, HasCueBase, PlayState};
 
 use ratatui::widgets::Row;
 
@@ -49,11 +49,11 @@ pub trait CueVals {
     /// Set Follow State of a cue
     fn set_follow_state(&mut self, state: FollowState);
 
-    /// Get (Playing Status) icon of a cue
-    fn icon(&self) -> String;
+    /// Get (Playing Status) of a cue
+    fn status(&self) -> PlayState;
 
-    /// Set (Playing Status) icon of a cue
-    fn set_icon(&mut self, icon: String);
+    /// Set (Playing Status) of a cue
+    fn set_status(&mut self, icon: PlayState);
 
     /// Edit value of a cell
     fn edit_cell_value(&mut self, column: CueColumn, value: String);
@@ -91,7 +91,8 @@ pub trait Cue: CueVals {
 impl<T: HasCueBase> CueVals for T {
     fn get_row(&self) -> Row<'_> {
         Row::new(vec![
-            self.base().icon.clone(),
+            self.base().cue_type.icon().to_string(),
+            self.base().status.icon().to_string(),
             self.base().number.to_string(),
             self.base().name.clone(),
             self.base().duration.to_string(),
@@ -130,17 +131,13 @@ impl<T: HasCueBase> CueVals for T {
         self.set_base().follow = state;
     }
 
-    fn icon(&self) -> String {
-        self.base().icon.clone()
+    fn status(&self) -> PlayState {
+        self.base().status
     }
 
-    fn set_icon(&mut self, icon: String) {
-        self.set_base().icon = icon;
+    fn set_status(&mut self, status: PlayState) {
+        self.set_base().status = status;
     }
 
-    fn edit_cell_value(&mut self, column: CueColumn, value: String) {
-        if column == CueColumn::Playing {
-            self.set_base().icon = value;
-        }
-    }
+    fn edit_cell_value(&mut self, column: CueColumn, value: String) {}
 }

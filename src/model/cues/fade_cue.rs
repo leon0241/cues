@@ -3,7 +3,6 @@ use crate::model::cues::{
     cue_base::{CueBase, CueType, FollowState, HasCueBase},
 };
 
-#[derive(Default)]
 pub struct FadeCue {
     base: CueBase,
     target: Option<f32>,
@@ -30,6 +29,18 @@ impl Cue for FadeCue {
 
     fn set_target(&mut self, target: f32) {
         self.target = Some(target);
+    }
+}
+
+impl Default for FadeCue {
+    fn default() -> Self {
+        Self {
+            base: CueBase {
+                cue_type: CueType::Fade,
+                ..CueBase::default()
+            },
+            target: None,
+        }
     }
 }
 

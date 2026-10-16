@@ -1,19 +1,15 @@
-use std::io::{self, stdout, Stdout};
+use std::io::{self, Stdout, stdout};
 
 use crate::{model::full_model::Model, view::view::view};
 
 use ratatui::{
-    backend::{CrosstermBackend},
-    crossterm::{
-        execute,
-        terminal::{
-            disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
-        },
-        ExecutableCommand,
-    },
     Terminal,
+    backend::CrosstermBackend,
+    crossterm::{
+        ExecutableCommand, execute,
+        terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
+    },
 };
-
 
 pub type CrosstermTerminal = Terminal<CrosstermBackend<Stdout>>;
 pub struct Tui {
@@ -23,7 +19,7 @@ pub struct Tui {
 impl Tui {
     #[must_use]
     pub const fn new(terminal: CrosstermTerminal) -> Self {
-        Self {terminal}
+        Self { terminal }
     }
 
     /// # Errors
@@ -51,7 +47,7 @@ impl Tui {
     pub fn set_panic_hook(&self) {
         let hook = std::panic::take_hook();
         std::panic::set_hook(Box::new(move |panic_info| {
-            let _ = stdout(). execute(LeaveAlternateScreen);
+            let _ = stdout().execute(LeaveAlternateScreen);
             let _ = disable_raw_mode();
             hook(panic_info);
         }));

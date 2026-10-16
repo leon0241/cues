@@ -4,7 +4,7 @@ use ratatui::crossterm::event::KeyCode;
 
 use crate::model::keymaps::{
     insert_keymaps::init_imaps,
-    modkey_keymaps::{init_change_maps, init_delete_maps, init_yank_maps},
+    modkey_keymaps::{init_change_maps, init_create_maps, init_delete_maps, init_yank_maps},
     normal_keymaps::init_nmaps,
 };
 
@@ -116,7 +116,7 @@ impl Default for KeyMaps {
             delete: init_delete_maps(),
             yank: init_yank_maps(),
             change: init_change_maps(),
-            create: HashMap::new(),
+            create: init_create_maps(),
             visual: HashMap::new(),
             vline: HashMap::new(),
             insert: init_imaps(),

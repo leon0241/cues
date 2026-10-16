@@ -3,7 +3,6 @@ use crate::model::cues::{
     cue_base::{CueBase, CueType, FollowState, HasCueBase},
 };
 
-#[derive(Default)]
 pub struct StopCue {
     base: CueBase,
     target: Option<f32>,
@@ -33,6 +32,18 @@ impl Cue for StopCue {
     }
 }
 
+impl Default for StopCue {
+    fn default() -> Self {
+        Self {
+            base: CueBase {
+                cue_type: CueType::Stop,
+                ..CueBase::default()
+            },
+            target: None,
+        }
+    }
+}
+
 impl StopCue {
     #[must_use]
     pub const fn new(
@@ -43,7 +54,7 @@ impl StopCue {
         target: Option<f32>,
     ) -> Self {
         Self {
-            base: CueBase::new(number, name, duration, follow, CueType::Fade),
+            base: CueBase::new(number, name, duration, follow, CueType::Stop),
             // colour: None,
             target,
         }

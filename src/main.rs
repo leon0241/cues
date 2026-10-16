@@ -28,7 +28,7 @@ fn main() -> Result<()> {
 
     let tui: Tui = create_terminal()?;
 
-    _ = run_loop(tui);
+    run_loop(tui)?;
 
     Ok(())
 }
@@ -38,7 +38,7 @@ fn create_terminal() -> color_eyre::Result<Tui> {
     let terminal: Terminal<CrosstermBackend<std::io::Stdout>> = Terminal::new(backend)?;
 
     let tui = Tui::new(terminal);
-    _ = tui.init_terminal();
+    tui.init_terminal()?;
 
     Ok(tui)
 }

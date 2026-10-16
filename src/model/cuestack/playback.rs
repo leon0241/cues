@@ -1,7 +1,7 @@
 use color_eyre::eyre::eyre;
 
 use crate::model::{
-    cues::{Cue, CueColumn},
+    cues::{Cue, cue_base::PlayState},
     cuestack::CueStack,
     keymaps::PlaybackCmd,
 };
@@ -40,7 +40,7 @@ impl CueStack {
         let cue = self.get_cue(i)?;
 
         cue.play_cue()?;
-        cue.edit_cell_value(CueColumn::Playing, String::from(""));
+        cue.set_status(PlayState::Playing);
         Ok(())
     }
 
@@ -51,11 +51,11 @@ impl CueStack {
         match cue.pause_cue() {
             // Unpaused -> Paused
             Some(true) => {
-                cue.edit_cell_value(CueColumn::Playing, String::from(""));
+                cue.set_status(PlayState::Stopped);
             }
             // Paused -> Unpaused
             Some(false) => {
-                cue.edit_cell_value(CueColumn::Playing, String::from(""));
+                cue.set_status(PlayState::Playing);
             }
             // Else (no file / not playing)
             _ => {}
@@ -67,7 +67,7 @@ impl CueStack {
         let cue = self.get_cue(i)?;
 
         if let Some(_i) = cue.stop_cue() {
-            cue.edit_cell_value(CueColumn::Playing, String::from(""));
+            cue.set_status(PlayState::Stopped);
         }
         Ok(())
     }
@@ -77,7 +77,7 @@ impl CueStack {
 
         // If F+S is implemented
         if let Some(_i) = cue.fade_stop_cue(3_f32) {
-            cue.edit_cell_value(CueColumn::Playing, String::from(""));
+            cue.set_status(PlayState::Fading);
         }
         Ok(())
     }

@@ -4,32 +4,36 @@ use crate::model::{
         stop_cue::StopCue,
     },
     cuestack::CueStack,
+    editor::{ComboState, Editor},
     keymaps::{CreateCmd, Message},
 };
 
 /// # Errors
 ///
 /// Will return `Err` if cannot handle a key
-pub fn modifier_handler(
-    model: &mut CueStack,
+pub fn create_handler(
+    cuestack: &mut CueStack,
+    editor: &mut Editor,
     cmd: &CreateCmd,
 ) -> color_eyre::Result<Option<Message>> {
     match cmd {
         CreateCmd::CreateAudio => {
-            model.new_cue(Box::new(AudioCue::default()));
+            cuestack.new_cue(Box::new(AudioCue::default()));
         }
         CreateCmd::CreateFade => {
-            model.new_cue(Box::new(FadeCue::default()));
+            cuestack.new_cue(Box::new(FadeCue::default()));
         }
         CreateCmd::CreateStart => {
-            model.new_cue(Box::new(StartCue::default()));
+            cuestack.new_cue(Box::new(StartCue::default()));
         }
         CreateCmd::CreateStop => {
-            model.new_cue(Box::new(StopCue::default()));
+            println!("test");
+            cuestack.new_cue(Box::new(StopCue::default()));
         }
         CreateCmd::CreatePause => {
-            model.new_cue(Box::new(PauseCue::default()));
+            cuestack.new_cue(Box::new(PauseCue::default()));
         }
     }
+    editor.set_combo_state(ComboState::None);
     Ok(None)
 }

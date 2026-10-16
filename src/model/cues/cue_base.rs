@@ -6,10 +6,26 @@ pub enum FollowState {
     Continue,
 }
 
+#[derive(Clone, Copy)]
 pub enum PlayState {
     None,
     Playing,
+    Paused,
+    Fading,
     Stopped,
+}
+
+impl PlayState {
+    #[must_use]
+    pub const fn icon(&self) -> &'static str {
+        match self {
+            Self::None => " ",
+            Self::Playing => "",
+            Self::Paused => "",
+            Self::Fading => "",
+            Self::Stopped => "",
+        }
+    }
 }
 
 #[allow(dead_code)]
@@ -30,6 +46,22 @@ pub enum CueType {
     #[default]
     Audio,
     Fade,
+    Start,
+    Stop,
+    Pause,
+}
+
+impl CueType {
+    #[must_use]
+    pub const fn icon(&self) -> &'static str {
+        match self {
+            Self::Audio => "",
+            Self::Fade => "",
+            Self::Stop => "",
+            Self::Pause => "",
+            Self::Start => "",
+        }
+    }
 }
 
 pub struct CueBase {
@@ -40,7 +72,6 @@ pub struct CueBase {
     pub prewait: f32,
     pub duration: f32,
     pub postwait: f32,
-    pub icon: String,
     pub status: PlayState,
     pub target: TargetType,
     pub parent: Option<TargetCue>,
@@ -75,7 +106,6 @@ impl CueBase {
             cue_type,
             prewait: 0_f32,
             postwait: 0_f32,
-            icon: String::new(),
             status: PlayState::None,
             target: TargetType::File,
             parent: None,

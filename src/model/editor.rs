@@ -31,6 +31,8 @@ pub struct Editor {
     running_state: RunningState,
     combo_state: ComboState,
     keymaps: KeyMaps,
+    input_buffer: String,
+    character_index: usize,
     // clipboard:
 }
 
@@ -90,5 +92,10 @@ impl Editor {
     #[must_use]
     pub const fn keymaps(&self) -> &KeyMaps {
         &self.keymaps
+    }
+
+    #[must_use]
+    pub const fn character_index(&self) -> usize {
+        self.character_index
     }
 }

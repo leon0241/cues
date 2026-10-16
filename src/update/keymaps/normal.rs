@@ -16,8 +16,9 @@ use crate::{
         keymaps::Message,
     },
     update::keymaps::normal::{
-        combo::combo_handler, editor::editor_handler, modifiers::modifier_handler,
-        modkey::modkey_handler, navigation::navigation_handler, playback::playback_handler,
+        combo::combo_handler, create::create_handler, editor::editor_handler,
+        modifiers::modifier_handler, modkey::modkey_handler, navigation::navigation_handler,
+        playback::playback_handler,
     },
 };
 
@@ -55,7 +56,7 @@ pub fn update_normal(model: &mut Model, msg: &Message) -> color_eyre::Result<Opt
         Message::Combo(cmd) => combo_handler(editor, cmd)?,
         // TODO: this
         Message::None => None,
-        Message::Create(_create_cmd) => None,
+        Message::Create(cmd) => create_handler(cuestack, editor, cmd)?,
     };
 
     return_msg.map_or_else(|| Ok(None), |i| Ok(Some(i)))
