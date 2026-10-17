@@ -22,9 +22,21 @@ pub enum Message {
     Modifier(ModifierCmd),
     Playback(PlaybackCmd),
     Editor(EditorCmd),
+    Input(InputCmd),
     ModKey(ModKeyCmd),
     Create(CreateCmd),
     Combo(ComboCmd),
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum InputCmd {
+    MoveCursorLeft,
+    MoveCursorRight,
+    MoveCursorStart,
+    MoveCursorEnd,
+    InsertChar(char),
+    DeleteChar,
+    FinishInput,
 }
 
 #[derive(Debug, Clone, Copy)]

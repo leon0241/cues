@@ -40,7 +40,7 @@ fn create_terminal() -> color_eyre::Result<Tui> {
     Tui::init_terminal()?;
     let mut tui = Tui::new(terminal);
     tui.set_panic_hook();
-    tui.clear();
+    tui.clear()?;
 
     Ok(tui)
 }

@@ -8,7 +8,7 @@ pub enum FollowState {
 
 impl FollowState {
     #[must_use]
-    pub const fn icon(&self) -> &'static str {
+    pub const fn icon(self) -> &'static str {
         match self {
             Self::None => " ",
             Self::Follow => "",

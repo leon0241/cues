@@ -1,3 +1,5 @@
+pub mod input;
+
 use crate::model::keymaps::KeyMaps;
 
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone)]
@@ -8,6 +10,17 @@ pub enum Mode {
     Visual,
 }
 
+impl Mode {
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Normal => "Normal",
+            Self::Insert => "Insert",
+            Self::Visual => "Visual",
+        }
+    }
+}
+
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone)]
 pub enum ComboState {
     #[default]
@@ -16,6 +29,19 @@ pub enum ComboState {
     Create, // o ->
     Change, // c ->
     Yank,   // y ->
+}
+
+impl ComboState {
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::None => "None",
+            Self::Delete => "Delete",
+            Self::Create => "Create",
+            Self::Change => "Change",
+            Self::Yank => "Yank",
+        }
+    }
 }
 
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -31,8 +57,8 @@ pub struct Editor {
     running_state: RunningState,
     combo_state: ComboState,
     keymaps: KeyMaps,
-    _input_buffer: String,
-    character_index: usize,
+    input_buffer: String,
+    cursor_idx: usize,
     // clipboard:
 }
 
@@ -45,26 +71,6 @@ impl Editor {
     #[must_use]
     pub const fn mode(&self) -> Mode {
         self.mode
-    }
-
-    #[must_use]
-    pub fn mode_str(&self) -> String {
-        match self.mode {
-            Mode::Normal => String::from("Normal"),
-            Mode::Insert => String::from("Insert"),
-            Mode::Visual => String::from("Visual"),
-        }
-    }
-
-    #[must_use]
-    pub fn combo_str(&self) -> String {
-        match self.combo_state {
-            ComboState::None => String::from("None"),
-            ComboState::Delete => String::from("Delete"),
-            ComboState::Create => String::from("Create"),
-            ComboState::Change => String::from("Change"),
-            ComboState::Yank => String::from("Yank"),
-        }
     }
 
     pub const fn set_mode(&mut self, mode: Mode) {
@@ -95,7 +101,7 @@ impl Editor {
     }
 
     #[must_use]
-    pub const fn character_index(&self) -> usize {
-        self.character_index
+    pub fn input_buffer(&self) -> String {
+        self.input_buffer.clone()
     }
 }

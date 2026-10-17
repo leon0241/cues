@@ -60,7 +60,10 @@ impl Tui {
         Ok(())
     }
 
-    pub fn clear(&mut self) {
-        self.terminal.clear();
+    /// # Errors
+    ///
+    /// Will error if it can't clear i guess
+    pub fn clear(&mut self) -> color_eyre::Result<()> {
+        Ok(self.terminal.clear()?)
     }
 }

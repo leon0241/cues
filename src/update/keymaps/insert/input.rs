@@ -1,0 +1,34 @@
+use crate::model::{
+    editor::Editor,
+    keymaps::{InputCmd, Message},
+};
+
+/// # Errors
+///
+/// TODO
+pub fn input_handler(editor: &mut Editor, msg: &InputCmd) -> color_eyre::Result<Option<Message>> {
+    match msg {
+        InputCmd::DeleteChar => {
+            editor.delete_char();
+        }
+        InputCmd::InsertChar(c) => {
+            editor.input_char(*c);
+        }
+        InputCmd::MoveCursorLeft => {
+            editor.move_cursor_left();
+        }
+        InputCmd::MoveCursorRight => {
+            editor.move_cursor_right();
+        }
+        InputCmd::MoveCursorStart => {
+            editor.reset_cursor();
+        }
+        InputCmd::MoveCursorEnd => {
+            editor.move_cursor_end();
+        }
+        InputCmd::FinishInput => {
+            editor.finish_input();
+        }
+    }
+    Ok(None)
+}
