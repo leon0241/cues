@@ -77,6 +77,30 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
 
 /// # Errors
 ///
+/// Will return `Err` if cannot handle a key
+pub fn handle_event(editor: &Editor, mode: Mode) -> color_eyre::Result<Option<Message>> {
+    if event::poll(Duration::from_millis(250))?
+        && let event::Event::Key(key) = event::read()?
+        && key.kind == event::KeyEventKind::Press
+    {
+        return Ok(handle_key(key, mode, editor));
+    }
+    Ok(None)
+}
+
+#[must_use]
+pub fn handle_key(key: event::KeyEvent, mode: Mode, editor: &Editor) -> Option<Message> {
+    let (code, modifiers) = (key.code, key.modifiers);
+
+    match mode {
+        Mode::Normal => handle_normal(code, modifiers, editor),
+        Mode::Insert => handle_insert(code, modifiers, editor),
+        Mode::Visual => handle_visual(code, modifiers, editor),
+    }
+}
+
+/// # Errors
+///
 /// TODO
 pub fn event_matcher(model: &mut Model) -> color_eyre::Result<()> {
     // Start on Normal mode (default)
@@ -99,28 +123,4 @@ pub fn event_matcher(model: &mut Model) -> color_eyre::Result<()> {
     }
 
     Ok(())
-}
-
-/// # Errors
-///
-/// Will return `Err` if cannot handle a key
-pub fn handle_event(editor: &Editor, mode: Mode) -> color_eyre::Result<Option<Message>> {
-    if event::poll(Duration::from_millis(250))?
-        && let event::Event::Key(key) = event::read()?
-        && key.kind == event::KeyEventKind::Press
-    {
-        return Ok(handle_key(key, mode, editor));
-    }
-    Ok(None)
-}
-
-#[must_use]
-pub fn handle_key(key: event::KeyEvent, mode: Mode, editor: &Editor) -> Option<Message> {
-    let (code, modifiers) = (key.code, key.modifiers);
-
-    match mode {
-        Mode::Normal => handle_normal(code, modifiers, editor),
-        Mode::Insert => handle_insert(code, modifiers, editor),
-        Mode::Visual => handle_visual(code, modifiers, editor),
-    }
 }

@@ -73,7 +73,7 @@ pub fn view(model: &mut Model, frame: &mut Frame) {
 
     frame.render_widget(command_line_text, layout.command_line_textbox);
 
-    frame.render_stateful_widget(table, layout.middle, &mut cuestack.current_cue);
+    frame.render_stateful_widget(table, layout.middle, &mut cuestack.current_state);
 }
 
 #[allow(dead_code)]

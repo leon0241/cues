@@ -104,4 +104,8 @@ impl Editor {
     pub fn input_buffer(&self) -> String {
         self.input_buffer.clone()
     }
+
+    pub fn set_input_buffer(&mut self, str: String) {
+        self.input_buffer = str;
+    }
 }

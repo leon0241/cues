@@ -6,6 +6,10 @@ impl Editor {
         self.cursor_idx
     }
 
+    pub const fn set_cursor_idx(&mut self, idx: usize) {
+        self.cursor_idx = idx;
+    }
+
     pub const fn reset_cursor(&mut self) {
         self.cursor_idx = 0;
     }

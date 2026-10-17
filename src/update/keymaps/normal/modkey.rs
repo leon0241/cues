@@ -29,21 +29,21 @@ pub fn modkey_handler(
             if *cue_cmd == CueCmd::Cue {
                 model.copy_cue();
             } else if let Some(i) = match_inner(*cue_cmd) {
-                model.copy_cell(&i)?;
+                model.copy_cell(&i);
             }
         }
         ModKeyCmd::Delete(cue_cmd) => {
             if *cue_cmd == CueCmd::Cue {
-                model.delete_cue()?;
+                model.delete_cue();
             } else if let Some(i) = match_inner(*cue_cmd) {
-                model.delete_cell(&i)?;
+                model.delete_cell(&i);
             }
         }
         ModKeyCmd::Change(cue_cmd) => {
             if *cue_cmd == CueCmd::Cue {
                 model.clear_cue()?;
             } else if let Some(i) = match_inner(*cue_cmd) {
-                model.change_cell(&i)?;
+                model.change_cell(&i);
             }
         }
     }

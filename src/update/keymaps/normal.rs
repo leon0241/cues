@@ -1,7 +1,6 @@
 pub mod combo;
 pub mod create;
 pub mod editor;
-pub mod modifiers;
 pub mod modkey;
 pub mod navigation;
 pub mod playback;
@@ -17,11 +16,14 @@ use crate::{
     },
     update::keymaps::normal::{
         combo::combo_handler, create::create_handler, editor::n_editor_handler,
-        modifiers::modifier_handler, modkey::modkey_handler, navigation::navigation_handler,
-        playback::playback_handler,
+        modkey::modkey_handler, navigation::navigation_handler, playback::playback_handler,
     },
 };
 
+/// # Normal Mode
+///
+/// Takes a ``KeyCode`` and returns a ``Message``
+/// If there is no map, then returns ``None``
 #[must_use]
 pub fn handle_normal(key: KeyCode, _modifier: KeyModifiers, editor: &Editor) -> Option<Message> {
     let keymaps = editor.keymaps();
@@ -39,6 +41,17 @@ pub fn handle_normal(key: KeyCode, _modifier: KeyModifiers, editor: &Editor) -> 
     }
 }
 
+/// # Normal Mode
+///
+/// Takes a ``Message`` and processes a functions.
+/// If the action is finished, returns ``None``.
+/// Otherwise, it returns another message to chain.
+///
+/// # Example
+///
+/// ``Message::ModKey(ModKeyCmd::Change(CueCmd::Name))``
+/// -> ``Message::``
+///
 /// # Errors
 ///
 /// Will return `Err` if cannot handle a key
@@ -49,9 +62,8 @@ pub fn update_normal(model: &mut Model, msg: &Message) -> color_eyre::Result<Opt
 
     let return_msg: Option<Message> = match msg {
         Message::Navigation(cmd) => navigation_handler(cuestack, cmd),
-        Message::Modifier(cmd) => modifier_handler(cuestack, cmd)?,
         Message::Playback(cmd) => playback_handler(cuestack, cmd)?,
-        Message::Editor(cmd) => n_editor_handler(editor, cuestack, cmd)?,
+        Message::Editor(cmd) => n_editor_handler(editor, cuestack, cmd),
         Message::ModKey(cmd) => modkey_handler(editor, cuestack, cmd)?,
         Message::Combo(cmd) => combo_handler(editor, cmd)?,
         // TODO: this

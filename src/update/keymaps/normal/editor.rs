@@ -7,22 +7,36 @@ use crate::model::{
 /// # Errors
 ///
 /// Will return `Err` if cannot handle a key
-pub const fn n_editor_handler(
+pub fn n_editor_handler(
     editor: &mut Editor,
     cuestack: &mut CueStack,
     cmd: &EditorCmd,
-) -> color_eyre::Result<Option<Message>> {
+) -> Option<Message> {
     match cmd {
         EditorCmd::Quit => {
             editor.set_running_state(crate::model::editor::RunningState::Done);
         }
         EditorCmd::EnterInsertStart => {
-            cuestack.edit_current_cell_start();
+            // Get current cell value
+            // Put that into the buffer
+            // Enter Insert
+            if let Some(str) = cuestack.get_current_cell_str() {
+                let len = str.len();
+                editor.set_input_buffer(str);
+                editor.set_cursor_idx(len);
+            }
 
             editor.set_mode(Mode::Insert);
         }
         EditorCmd::EnterInsertEnd => {
-            cuestack.edit_current_cell_end();
+            // Get current cell value
+            // Put that into the buffer
+            // Enter Insert
+            // TODO: get rid of this result
+            if let Some(str) = cuestack.get_current_cell_str() {
+                editor.set_input_buffer(str);
+                editor.reset_cursor();
+            }
 
             editor.set_mode(Mode::Insert);
         }
@@ -35,5 +49,5 @@ pub const fn n_editor_handler(
             editor.set_mode(Mode::Visual);
         }
     }
-    Ok(None)
+    None
 }

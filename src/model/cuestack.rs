@@ -16,7 +16,7 @@ use crate::model::audio_config::AudioDevice;
 #[derive(Default)]
 pub struct CueStack {
     pub cues: Vec<Box<dyn Cue>>,
-    pub current_cue: TableState,
+    pub current_state: TableState,
     pub handler: AudioDevice,
     pub do_a_thing: String, // Test message output
 }
@@ -38,7 +38,7 @@ impl CueStack {
         self.cues = items;
         // We reset the state as the associated items have changed. This effectively reset
         // the selection as well as the stored offset.
-        self.current_cue = TableState::default();
+        self.current_state = TableState::default();
     }
 
     /// Get the current Cue Type
@@ -48,7 +48,7 @@ impl CueStack {
     /// Will return `Err` if no cue is selected
     pub fn current_type(&self) -> color_eyre::Result<CueType> {
         let i: usize = self
-            .current_cue
+            .current_state
             .selected()
             .ok_or_else(|| eyre!("no cue selected"))?;
 
@@ -68,7 +68,7 @@ impl CueStack {
     /// Will return `Err` if no cue is selected
     pub fn current_target(&self) -> color_eyre::Result<Option<f32>> {
         let i: usize = self
-            .current_cue
+            .current_state
             .selected()
             .ok_or_else(|| eyre!("no cue selected"))?;
 
@@ -94,7 +94,7 @@ impl CueStack {
     ) -> color_eyre::Result<()> {
         let cue_num: usize = match target {
             None => self
-                .current_cue
+                .current_state
                 .selected()
                 .ok_or_else(|| eyre!("no cue selected"))?,
             Some(t) => self.query_target(t),

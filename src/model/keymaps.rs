@@ -19,7 +19,6 @@ pub enum Message {
     #[default]
     None,
     Navigation(NavigationCmd),
-    Modifier(ModifierCmd),
     Playback(PlaybackCmd),
     Editor(EditorCmd),
     Input(InputCmd),
