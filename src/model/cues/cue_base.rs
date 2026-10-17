@@ -1,9 +1,20 @@
-#[derive(Debug, Default, PartialEq, Eq)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, Copy)]
 pub enum FollowState {
     #[default]
     None,
     Follow,
     Continue,
+}
+
+impl FollowState {
+    #[must_use]
+    pub const fn icon(&self) -> &'static str {
+        match self {
+            Self::None => " ",
+            Self::Follow => "",
+            Self::Continue => "",
+        }
+    }
 }
 
 #[derive(Clone, Copy)]

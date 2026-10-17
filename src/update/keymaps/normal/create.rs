@@ -27,7 +27,6 @@ pub fn create_handler(
             cuestack.new_cue(Box::new(StartCue::default()));
         }
         CreateCmd::CreateStop => {
-            println!("test");
             cuestack.new_cue(Box::new(StopCue::default()));
         }
         CreateCmd::CreatePause => {

@@ -82,7 +82,6 @@ pub enum ModifierCmd {
 pub enum ModKeyCmd {
     Yank(CueCmd),
     Delete(CueCmd),
-    Create(CueCmd),
     Change(CueCmd),
 }
 
@@ -90,8 +89,8 @@ pub enum ModKeyCmd {
 /// Enum for all Cue column editing
 pub enum CueCmd {
     Cue,
-    CueNum,
     Name,
+    Number,
     PreWait,
     PostWait,
     Follow,

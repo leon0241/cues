@@ -7,7 +7,7 @@ use crate::model::{
 /// # Errors
 ///
 /// Will return `Err` if cannot handle a key
-pub fn editor_handler(
+pub const fn editor_handler(
     editor: &mut Editor,
     cuestack: &mut CueStack,
     cmd: &EditorCmd,

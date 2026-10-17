@@ -1,6 +1,6 @@
 use std::io::{self, Stdout, stdout};
 
-use crate::{model::full_model::Model, view::view::view};
+use crate::{model::full_model::Model, view::view_handler::view};
 
 use ratatui::{
     Terminal,
@@ -25,10 +25,9 @@ impl Tui {
     /// # Errors
     ///
     /// Will return `Err` terminal init doesn't work
-    pub fn init_terminal(&self) -> color_eyre::Result<()> {
+    pub fn init_terminal() -> color_eyre::Result<()> {
         execute!(stdout(), EnterAlternateScreen)?;
         enable_raw_mode()?;
-        self.set_panic_hook();
         Ok(())
     }
 
@@ -59,5 +58,9 @@ impl Tui {
     pub fn draw(&mut self, model: &mut Model) -> io::Result<()> {
         self.terminal.draw(|frame| view(model, frame))?;
         Ok(())
+    }
+
+    pub fn clear(&mut self) {
+        self.terminal.clear();
     }
 }

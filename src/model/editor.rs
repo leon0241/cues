@@ -31,7 +31,7 @@ pub struct Editor {
     running_state: RunningState,
     combo_state: ComboState,
     keymaps: KeyMaps,
-    input_buffer: String,
+    _input_buffer: String,
     character_index: usize,
     // clipboard:
 }

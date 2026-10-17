@@ -16,7 +16,7 @@ pub fn modkey_handler(
     const fn match_inner(cmd: CueCmd) -> Option<CueColumn> {
         match cmd {
             CueCmd::Cue => None,
-            CueCmd::CueNum => Some(CueColumn::Number),
+            CueCmd::Number => Some(CueColumn::Number),
             CueCmd::Name => Some(CueColumn::Name),
             CueCmd::PreWait => Some(CueColumn::PreWait),
             CueCmd::PostWait => Some(CueColumn::PostWait),
@@ -29,7 +29,7 @@ pub fn modkey_handler(
             if *cue_cmd == CueCmd::Cue {
                 model.copy_cue();
             } else if let Some(i) = match_inner(*cue_cmd) {
-                model.copy_cell(&i);
+                model.copy_cell(&i)?;
             }
         }
         ModKeyCmd::Delete(cue_cmd) => {
@@ -46,8 +46,6 @@ pub fn modkey_handler(
                 model.change_cell(&i)?;
             }
         }
-
-        ModKeyCmd::Create(_cue_cmd) => {}
     }
 
     editor.set_combo_state(ComboState::None);

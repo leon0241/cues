@@ -1,2 +1,2 @@
-pub mod view;
 pub mod terminal;
+pub mod view_handler;

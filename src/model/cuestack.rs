@@ -116,17 +116,14 @@ impl CueStack {
         match (matches.next(), matches.next()) {
             (None, _) => {
                 // zero matches
-                println!("a");
                 0
             }
             (Some(i), None) => {
                 // exactly one match (ideal)
-                println!("b");
                 i
             }
             (Some(_f), Some(_s)) => {
                 // two or more matches (first and second are the first two indices)
-                println!("c");
                 0
             }
         }

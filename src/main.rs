@@ -37,8 +37,10 @@ fn create_terminal() -> color_eyre::Result<Tui> {
     let backend: CrosstermBackend<std::io::Stdout> = CrosstermBackend::new(std::io::stdout());
     let terminal: Terminal<CrosstermBackend<std::io::Stdout>> = Terminal::new(backend)?;
 
-    let tui = Tui::new(terminal);
-    tui.init_terminal()?;
+    Tui::init_terminal()?;
+    let mut tui = Tui::new(terminal);
+    tui.set_panic_hook();
+    tui.clear();
 
     Ok(tui)
 }

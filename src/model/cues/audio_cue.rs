@@ -158,25 +158,25 @@ impl Cue for AudioCue {
         std::thread::spawn(move || {
             // max > 0 for loop
             for t in (0..count_usize).rev() {
-                // If ID is the same as atomic bool, nothing has overwritten it.
-                if now_playing_id == now_playing.load(Ordering::Acquire) {
-                    let t_f32 = t.to_f32()
-                        .unwrap_or(f32::MAX);
-                    player.set_volume(vol * t_f32 / count);
-                    std::thread::sleep(dur);
+                // Superseded by another call: it owns the player now, so do nothing
+                if now_playing.load(Ordering::Acquire) != now_playing_id {
+                    return;
                 }
-                // If ID is different from the atomic bool, the function has been called again.
-                // Stop cue
-                else {
-                    break;
-                }
-            }
-            //Store 0 on now_playing (as operation has finished)
-            now_playing.store(0, Ordering::Release);
-            //Stop player
+
+                let t_f32 = t.to_f32()
+                    .unwrap_or(f32::MAX);
+
+                player.set_volume(vol * t_f32 / count);
+                std::thread::sleep(dur);
+        }
+            // Only finish up if we still own the ID (nothing took over during the last sleep)
+        if now_playing
+            .compare_exchange(now_playing_id, 0, Ordering::AcqRel, Ordering::Acquire)
+            .is_ok()
+        {
             player.stop();
-            //Reset volume
             player.set_volume(1.0);
+        }
         });
 
         Some(true)

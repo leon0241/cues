@@ -20,7 +20,7 @@ pub enum CueColumn {
     Duration,
     Follow,
 }
-pub trait CueVals {
+pub trait CueVals: HasCueBase {
     /// Returns cue in table row format for Ratatui
     fn get_row(&self) -> Row<'_>;
     //
@@ -54,9 +54,6 @@ pub trait CueVals {
 
     /// Set (Playing Status) of a cue
     fn set_status(&mut self, icon: PlayState);
-
-    /// Edit value of a cell
-    fn edit_cell_value(&mut self, column: CueColumn, value: String);
 }
 pub trait Cue: CueVals {
     /// # Errors
@@ -91,11 +88,14 @@ pub trait Cue: CueVals {
 impl<T: HasCueBase> CueVals for T {
     fn get_row(&self) -> Row<'_> {
         Row::new(vec![
-            self.base().cue_type.icon().to_string(),
             self.base().status.icon().to_string(),
+            self.base().cue_type.icon().to_string(),
             self.base().number.to_string(),
             self.base().name.clone(),
+            self.base().prewait.to_string(),
             self.base().duration.to_string(),
+            self.base().postwait.to_string(),
+            self.base().follow.icon().to_string(),
         ])
     }
 
@@ -138,6 +138,4 @@ impl<T: HasCueBase> CueVals for T {
     fn set_status(&mut self, status: PlayState) {
         self.set_base().status = status;
     }
-
-    fn edit_cell_value(&mut self, column: CueColumn, value: String) {}
 }

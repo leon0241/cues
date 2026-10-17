@@ -2,6 +2,7 @@ use color_eyre::eyre::eyre;
 
 use crate::model::cues::Cue;
 use crate::model::cues::CueColumn;
+use crate::model::cues::cue_base::FollowState;
 use crate::model::cuestack::CueStack;
 
 impl CueStack {
@@ -24,49 +25,56 @@ impl CueStack {
         Ok(())
     }
 
-    pub fn edit_current_cell_start(&self) {
-        println!("enter insert at start");
-    }
+    pub const fn edit_current_cell_start(&self) {}
 
-    pub fn edit_current_cell_end(&self) {
-        println!("enter insert at end");
-    }
+    pub const fn edit_current_cell_end(&self) {}
 
-    pub fn save_current_cell(&self) {
-        println!("saving a cell returning to normal");
-    }
+    pub const fn save_current_cell(&self) {}
 
-    pub fn copy_cue(&self) {
-        println!("copying cue");
-    }
+    pub const fn copy_cue(&self) {}
 
-    pub fn copy_cell(&self, column: &CueColumn) {
-        match column {
-            CueColumn::Name => {
-                println!("copying name");
-            }
-            CueColumn::Number => {
-                println!("copying number");
-            }
-            CueColumn::Follow => {
-                println!("copying follow");
-            }
-            CueColumn::PreWait => {
-                println!("copying prewait");
-            }
-            CueColumn::PostWait => {
-                println!("copying postwait");
-            }
-            _ => {
-                println!("do nothing");
-            }
-        }
+    /// # Errors
+    ///
+    /// TODO
+    pub fn copy_cell(&mut self, _column: &CueColumn) -> color_eyre::Result<()> {
+        // Current Cue
+        let i: usize = self
+            .current_cue
+            .selected()
+            .ok_or_else(|| eyre!("no cue selected"))?;
+
+        let _current_cue: &mut dyn Cue = self
+            .cues
+            .get_mut(i)
+            .ok_or_else(|| eyre!("index out of range"))?
+            .as_mut();
+        Ok(())
     }
 
     /// # Errors
     ///
     /// TODO
-    pub const fn change_cell(&self, _i: &CueColumn) -> color_eyre::Result<()> {
+    pub fn change_cell(&mut self, column: &CueColumn) -> color_eyre::Result<()> {
+        // Current Cue
+        let i: usize = self
+            .current_cue
+            .selected()
+            .ok_or_else(|| eyre!("no cue selected"))?;
+
+        let current_cue: &mut dyn Cue = self
+            .cues
+            .get_mut(i)
+            .ok_or_else(|| eyre!("index out of range"))?
+            .as_mut();
+
+        match column {
+            CueColumn::Playing | CueColumn::Duration => {}
+            CueColumn::Name => current_cue.set_base().name = String::from("test"),
+            CueColumn::Number => current_cue.set_base().number = 6.7,
+            CueColumn::PreWait => current_cue.set_base().prewait = 6.7,
+            CueColumn::PostWait => current_cue.set_base().postwait = 6.7,
+            CueColumn::Follow => current_cue.set_base().follow = FollowState::Continue,
+        }
         Ok(())
     }
 
@@ -80,7 +88,27 @@ impl CueStack {
     /// # Errors
     ///
     /// TODO
-    pub const fn delete_cell(&self, _i: &CueColumn) -> color_eyre::Result<()> {
+    pub fn delete_cell(&mut self, column: &CueColumn) -> color_eyre::Result<()> {
+        // Current Cue
+        let i: usize = self
+            .current_cue
+            .selected()
+            .ok_or_else(|| eyre!("no cue selected"))?;
+
+        let current_cue: &mut dyn Cue = self
+            .cues
+            .get_mut(i)
+            .ok_or_else(|| eyre!("index out of range"))?
+            .as_mut();
+
+        match column {
+            CueColumn::Playing | CueColumn::Duration => {}
+            CueColumn::Name => current_cue.set_base().name = String::new(),
+            CueColumn::Number => current_cue.set_base().number = 0.0,
+            CueColumn::PreWait => current_cue.set_base().prewait = 0.0,
+            CueColumn::PostWait => current_cue.set_base().postwait = 0.0,
+            CueColumn::Follow => current_cue.set_base().follow = FollowState::None,
+        }
         Ok(())
     }
 }
