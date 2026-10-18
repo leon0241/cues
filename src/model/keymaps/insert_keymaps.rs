@@ -7,8 +7,14 @@ use crate::model::keymaps::{EditorCmd, InputCmd, Message};
 #[must_use]
 pub fn init_imaps() -> HashMap<KeyCode, Message> {
     HashMap::from([
-        (KeyCode::Esc, Message::Editor(EditorCmd::EnterNormal)),
-        (KeyCode::Enter, Message::Editor(EditorCmd::EnterNormal)),
+        (
+            KeyCode::Esc,
+            Message::Editor(EditorCmd::CancelInsertEnterNormal),
+        ),
+        (
+            KeyCode::Enter,
+            Message::Editor(EditorCmd::SaveInsertEnterNormal),
+        ),
     ])
 }
 

@@ -108,4 +108,8 @@ impl Editor {
     pub fn set_input_buffer(&mut self, str: String) {
         self.input_buffer = str;
     }
+
+    pub fn reset_input_buffer(&mut self) {
+        self.input_buffer = String::new();
+    }
 }

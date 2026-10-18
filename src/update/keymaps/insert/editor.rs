@@ -7,14 +7,26 @@ use crate::model::{
 /// # Errors
 ///
 /// Will return `Err` if cannot handle a key
-pub const fn i_editor_handler(
+pub fn i_editor_handler(
     editor: &mut Editor,
     cuestack: &mut CueStack,
     cmd: &EditorCmd,
 ) -> color_eyre::Result<Option<Message>> {
     let return_msg = match cmd {
-        EditorCmd::EnterNormal => {
-            cuestack.save_current_cell();
+        EditorCmd::CancelInsertEnterNormal => {
+            editor.reset_input_buffer();
+            editor.reset_cursor();
+
+            editor.set_mode(Mode::Normal);
+
+            Some(Message::Input(InputCmd::FinishInput))
+        }
+        EditorCmd::SaveInsertEnterNormal => {
+            let string: String = editor.input_buffer();
+            cuestack.set_current_cell_str(string);
+
+            editor.reset_input_buffer();
+            editor.reset_cursor();
 
             editor.set_mode(Mode::Normal);
 

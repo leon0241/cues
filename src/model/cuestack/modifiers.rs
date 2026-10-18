@@ -63,7 +63,32 @@ impl CueStack {
         Some(contents)
     }
 
-    pub const fn save_current_cell(&self) {}
+    pub fn set_cell_str(cue: &mut dyn Cue, column: &CueColumn, value: String) {
+        fn parser(value: &str) -> f32 {
+            value.parse::<f32>().unwrap_or_default()
+        }
+
+        match column {
+            CueColumn::Playing | CueColumn::Duration => {}
+            CueColumn::Name => cue.set_base().name = value,
+            CueColumn::Number => cue.set_base().number = parser(&value),
+            CueColumn::PreWait => cue.set_base().prewait = parser(&value),
+            CueColumn::PostWait => cue.set_base().postwait = parser(&value),
+            CueColumn::Follow => cue.set_base().follow = FollowState::Follow,
+        }
+    }
+
+    pub fn set_current_cell_str(&mut self, value: String) {
+        let Some(current_column) = self.get_current_column() else {
+            return;
+        };
+
+        let Some(current_cue) = self.get_current_cue_mut() else {
+            return;
+        };
+
+        Self::set_cell_str(current_cue, &current_column, value);
+    }
 
     pub const fn copy_cue(&self) {}
 

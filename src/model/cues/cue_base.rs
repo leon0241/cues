@@ -84,7 +84,6 @@ pub struct CueBase {
     pub duration: f32,
     pub postwait: f32,
     pub status: PlayState,
-    pub target: TargetType,
     pub parent: Option<TargetCue>,
 }
 

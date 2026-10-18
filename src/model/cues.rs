@@ -15,6 +15,7 @@ pub enum CueColumn {
     Playing,
     Name,
     Number,
+    Target,
     PreWait,
     PostWait,
     Duration,
@@ -29,12 +30,13 @@ impl CueColumn {
             // 1 is the cuetype icon which will never be edited
             2 => Some(Self::Number),
             3 => Some(Self::Name),
-            4 => Some(Self::PreWait),
-            5 => Some(Self::Duration),
-            6 => Some(Self::PostWait),
-            7 => Some(Self::Follow),
+            4 => Some(Self::Target),
+            5 => Some(Self::PreWait),
+            6 => Some(Self::Duration),
+            7 => Some(Self::PostWait),
+            8 => Some(Self::Follow),
             // There are no columns above 8
-            1_usize | 8_usize.. => None,
+            1_usize | 9_usize.. => None,
         }
     }
 }

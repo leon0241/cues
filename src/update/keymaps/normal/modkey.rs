@@ -18,6 +18,7 @@ pub fn modkey_handler(
             CueCmd::Cue => None,
             CueCmd::Number => Some(CueColumn::Number),
             CueCmd::Name => Some(CueColumn::Name),
+            CueCmd::Target => Some(CueColumn::Target),
             CueCmd::PreWait => Some(CueColumn::PreWait),
             CueCmd::PostWait => Some(CueColumn::PostWait),
             CueCmd::Follow => Some(CueColumn::Follow),

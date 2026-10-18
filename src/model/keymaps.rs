@@ -59,7 +59,8 @@ pub enum EditorCmd {
     Quit,
     EnterInsertStart,
     EnterInsertEnd,
-    EnterNormal,
+    CancelInsertEnterNormal,
+    SaveInsertEnterNormal,
     EnterVisual,
 }
 
@@ -102,6 +103,7 @@ pub enum CueCmd {
     Cue,
     Name,
     Number,
+    Target,
     PreWait,
     PostWait,
     Follow,

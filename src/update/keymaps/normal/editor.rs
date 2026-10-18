@@ -29,10 +29,6 @@ pub fn n_editor_handler(
             editor.set_mode(Mode::Insert);
         }
         EditorCmd::EnterInsertEnd => {
-            // Get current cell value
-            // Put that into the buffer
-            // Enter Insert
-            // TODO: get rid of this result
             if let Some(str) = cuestack.get_current_cell_str() {
                 editor.set_input_buffer(str);
                 editor.reset_cursor();
@@ -40,14 +36,10 @@ pub fn n_editor_handler(
 
             editor.set_mode(Mode::Insert);
         }
-        EditorCmd::EnterNormal => {
-            cuestack.save_current_cell();
-
-            editor.set_mode(Mode::Normal);
-        }
         EditorCmd::EnterVisual => {
             editor.set_mode(Mode::Visual);
         }
+        _ => {}
     }
     None
 }
