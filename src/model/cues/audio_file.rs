@@ -1,6 +1,9 @@
 use color_eyre::eyre::eyre;
 use rodio::{Decoder, Player};
-use std::{io::Cursor, sync::{Arc, atomic::AtomicU64}};
+use std::{
+    io::Cursor,
+    sync::{Arc, atomic::AtomicU64},
+};
 
 use crate::model::audio_config::AudioDevice;
 
@@ -22,7 +25,8 @@ impl AudioFile {
         // Read File info. Arc it so it can be referenced repeatedly using a cursor
         let bytes: Arc<[u8]> = std::fs::read(&file_path)?.into();
 
-        let mixer_sink = mixer.sink
+        let mixer_sink = mixer
+            .sink
             .as_ref()
             .ok_or_else(|| eyre!("Error no mixer"))?
             .mixer();
@@ -36,7 +40,7 @@ impl AudioFile {
             file_path,
             bytes,
             player,
-            now_playing
+            now_playing,
         })
     }
 
@@ -66,10 +70,10 @@ impl AudioFile {
     ///
     pub fn play_file(&self) -> color_eyre::Result<()> {
         // Decode that sound file into a source
-        let source: Decoder<Cursor<Arc<[u8]>>> = Decoder::try_from(Cursor::new(self.bytes.clone()))?;
+        let source: Decoder<Cursor<Arc<[u8]>>> =
+            Decoder::try_from(Cursor::new(self.bytes.clone()))?;
 
         self.player.append(source);
         Ok(())
     }
 }
-

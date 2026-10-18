@@ -5,37 +5,24 @@ use num_traits::ToPrimitive;
 use rodio::Player;
 
 use crate::model::cues::{
-    Cue, audio_file::AudioFile, cue_base::{CueBase, CueType, FollowState, HasCueBase}
+    audio_file::AudioFile, cue_base::PlayableCue
 };
 
 /// Audio Cue
 #[derive(Default)]
 pub struct AudioCue {
-    /// Common Base
-    base: CueBase,
     file: Option<AudioFile>,
 }
 
 
 #[allow(dead_code)]
 /// Audio Cue Specific Functions
-trait AudioCueFn: Cue {
+trait AudioCueFn {
     fn player(&self) -> Option<&Player>;
 
     fn player_arc(&self) -> Option<Arc<Player>>;
 
     fn now_playing(&self) -> Option<Arc<std::sync::atomic::AtomicU64>>;
-}
-
-
-impl HasCueBase for AudioCue {
-    fn base(&self) -> &CueBase {
-        &self.base
-    }
-
-    fn set_base(&mut self) -> &mut CueBase {
-        &mut self.base
-    }
 }
 
 impl AudioCueFn for AudioCue {
@@ -68,19 +55,7 @@ impl AudioCueFn for AudioCue {
     }
 }
 
-impl Cue for AudioCue {
-    fn play_cue(&self) -> color_eyre::Result<()> {
-        // Arc reference to now_playing. Can be read for parallel changes during a fade
-        if 
-            let Some(ref j) = self.file && // If there is a file
-            let Some(i) = self.now_playing() {// If file is currently playing
-            // self.player().empty() { this might not be redundant ngl
-                i.store(1, Ordering::Release);
-                j.play_file()?;
-        }
-        Ok(())
-    }
-
+impl PlayableCue for AudioCue {
     fn pause_cue(&self) -> Option<bool> {
         // Pauses if currently playing, plays if currently paused, and returns opposite.
         fn toggle_pause(player: &Player, paused: bool) -> bool {
@@ -186,13 +161,32 @@ impl Cue for AudioCue {
 
 impl AudioCue {
     #[must_use]
-    pub const fn new(number: f32, name: String, duration: f32,
-        follow: FollowState, file: Option<AudioFile>) -> Self {
-
+    pub const fn new(file: Option<AudioFile>) -> Self {
         Self {
-            base: CueBase::new(number, name, duration, follow,CueType::Audio),
-            // colour: None,
             file,
         }
+    }
+
+    fn play_cue(&self) -> color_eyre::Result<()> {
+        // Arc reference to now_playing. Can be read for parallel changes during a fade
+        if 
+            let Some(ref j) = self.file && // If there is a file
+            let Some(i) = self.now_playing() {// If file is currently playing
+            // self.player().empty() { this might not be redundant ngl
+                i.store(1, Ordering::Release);
+                j.play_file()?;
+        }
+        Ok(())
+    }
+
+
+    #[must_use]
+    pub const fn file(&self) -> &Option<AudioFile> {
+        &self.file
+    }
+
+    #[must_use]
+    pub const fn as_icon(&self) -> &'static str {
+        ""
     }
 }

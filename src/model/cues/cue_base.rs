@@ -40,10 +40,27 @@ impl PlayState {
 }
 
 #[allow(dead_code)]
+#[derive(Default)]
 pub struct TargetCue {
-    number: f32,
-    cue_type: CueType,
-    abs_number: i32,
+    number: Option<String>,
+    // cue_type: CueType,
+    // abs_number: i32,
+}
+
+impl TargetCue {
+    #[must_use]
+    pub const fn new(number: Option<String>) -> Self {
+        Self { number }
+    }
+
+    #[must_use]
+    pub fn target(&self) -> Option<String> {
+        self.number.clone()
+    }
+
+    pub fn set_target(&mut self, value: String) {
+        self.number = Some(value);
+    }
 }
 
 pub enum TargetType {
@@ -52,80 +69,26 @@ pub enum TargetType {
     TargetCue,
 }
 
-#[derive(Debug, Default, PartialEq, Eq, Copy, Clone)]
-pub enum CueType {
-    #[default]
-    Audio,
-    Fade,
-    Start,
-    Stop,
-    Pause,
-}
+pub trait PlayableCue {
+    fn pause_cue(&self) -> Option<bool> {
+        None
+    }
 
-impl CueType {
-    #[must_use]
-    pub const fn icon(&self) -> &'static str {
-        match self {
-            Self::Audio => "",
-            Self::Fade => "",
-            Self::Stop => "",
-            Self::Pause => "",
-            Self::Start => "",
-        }
+    fn stop_cue(&self) -> Option<bool> {
+        None
+    }
+
+    #[allow(unused_variables)]
+    fn fade_stop_cue(&self, time: f32) -> Option<bool> {
+        None
     }
 }
 
-pub struct CueBase {
-    pub cue_type: CueType,
-    pub number: f32,
-    pub name: String,
-    pub follow: FollowState,
-    pub prewait: f32,
-    pub duration: f32,
-    pub postwait: f32,
-    pub status: PlayState,
-    pub parent: Option<TargetCue>,
-}
-
-impl Default for CueBase {
-    fn default() -> Self {
-        Self::new(
-            0_f32,
-            String::new(),
-            0_f32,
-            FollowState::None,
-            CueType::Audio,
-        )
+pub trait ModifierCue {
+    fn target(&self) -> Option<f32> {
+        None
     }
-}
 
-impl CueBase {
-    #[must_use]
-    pub const fn new(
-        number: f32,
-        name: String,
-        duration: f32,
-        follow: FollowState,
-        cue_type: CueType,
-    ) -> Self {
-        Self {
-            number,
-            name,
-            duration,
-            follow,
-            cue_type,
-            prewait: 0_f32,
-            postwait: 0_f32,
-            status: PlayState::None,
-            target: TargetType::File,
-            parent: None,
-        }
-    }
-}
-
-/// Helper Trait for Blanket Impl.
-pub trait HasCueBase {
-    fn base(&self) -> &CueBase;
-
-    fn set_base(&mut self) -> &mut CueBase;
+    #[allow(unused_variables)]
+    fn set_target(&mut self, target: f32) {}
 }

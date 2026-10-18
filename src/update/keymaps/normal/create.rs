@@ -1,8 +1,5 @@
 use crate::model::{
-    cues::{
-        audio_cue::AudioCue, fade_cue::FadeCue, pause_cue::PauseCue, start_cue::StartCue,
-        stop_cue::StopCue,
-    },
+    cues::{Cue, CueType, cue_base::TargetCue},
     cuestack::CueStack,
     editor::{ComboState, Editor},
     keymaps::{CreateCmd, Message},
@@ -18,20 +15,21 @@ pub fn create_handler(
 ) -> color_eyre::Result<Option<Message>> {
     match cmd {
         CreateCmd::CreateAudio => {
-            cuestack.new_cue(Box::new(AudioCue::default()));
+            cuestack.new_cue(Cue::default());
         }
+        // TODO: add these back in
         CreateCmd::CreateFade => {
-            cuestack.new_cue(Box::new(FadeCue::default()));
+            cuestack.new_cue(Cue::default_from_type(CueType::Fade(TargetCue::default())));
         }
-        CreateCmd::CreateStart => {
-            cuestack.new_cue(Box::new(StartCue::default()));
-        }
-        CreateCmd::CreateStop => {
-            cuestack.new_cue(Box::new(StopCue::default()));
-        }
-        CreateCmd::CreatePause => {
-            cuestack.new_cue(Box::new(PauseCue::default()));
-        }
+        _ => {} // CreateCmd::CreateStart => {
+                //     cuestack.new_cue(Box::new(StartCue::default()));
+                // }
+                // CreateCmd::CreateStop => {
+                //     cuestack.new_cue(Box::new(StopCue::default()));
+                // }
+                // CreateCmd::CreatePause => {
+                //     cuestack.new_cue(Box::new(PauseCue::default()));
+                // }
     }
     editor.set_combo_state(ComboState::None);
     Ok(None)

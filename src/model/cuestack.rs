@@ -6,16 +6,14 @@ use ratatui::widgets::TableState;
 
 use color_eyre::eyre::eyre;
 
-use crate::model::{
-    cues::{Cue, cue_base::CueType},
-    keymaps::PlaybackCmd,
-};
+use crate::model::cues::CueType;
+use crate::model::{cues::Cue, keymaps::PlaybackCmd};
 
 use crate::model::audio_config::AudioDevice;
 
 #[derive(Default)]
 pub struct CueStack {
-    pub cues: Vec<Box<dyn Cue>>,
+    pub cues: Vec<Cue>,
     pub current_state: TableState,
     pub handler: AudioDevice,
     pub do_a_thing: String, // Test message output
@@ -34,7 +32,7 @@ impl CueStack {
         self.handler.set_default_sink()
     }
 
-    pub fn set_items(&mut self, items: Vec<Box<dyn Cue>>) {
+    pub fn set_items(&mut self, items: Vec<Cue>) {
         self.cues = items;
         // We reset the state as the associated items have changed. This effectively reset
         // the selection as well as the stored offset.
@@ -46,19 +44,11 @@ impl CueStack {
     /// # Errors
     ///
     /// Will return `Err` if no cue is selected
-    pub fn current_type(&self) -> color_eyre::Result<CueType> {
-        let i: usize = self
-            .current_state
-            .selected()
-            .ok_or_else(|| eyre!("no cue selected"))?;
+    #[must_use]
+    pub fn current_type(&self) -> Option<&CueType> {
+        let current_cue: &Cue = self.get_current_cue()?;
 
-        let current_cue: &dyn Cue = self
-            .cues
-            .get(i)
-            .ok_or_else(|| eyre!("index out of range"))?
-            .as_ref();
-
-        Ok(current_cue.cue_type())
+        Some(current_cue.cue_type())
     }
 
     /// Get the current cue target
@@ -66,19 +56,11 @@ impl CueStack {
     /// # Errors
     ///
     /// Will return `Err` if no cue is selected
-    pub fn current_target(&self) -> color_eyre::Result<Option<f32>> {
-        let i: usize = self
-            .current_state
-            .selected()
-            .ok_or_else(|| eyre!("no cue selected"))?;
+    #[must_use]
+    pub fn current_target(&self) -> Option<String> {
+        let current_cue: &Cue = self.get_current_cue()?;
 
-        let current_cue: &dyn Cue = self
-            .cues
-            .get(i)
-            .ok_or_else(|| eyre!("index out of range"))?
-            .as_ref();
-
-        Ok(current_cue.target())
+        Some(current_cue.get_target())
     }
 
     /// Get the action of a chosen target cue
@@ -89,7 +71,7 @@ impl CueStack {
     /// many targets
     pub fn cue_action(
         &mut self,
-        target: Option<f32>,
+        target: Option<String>,
         selection: &PlaybackCmd,
     ) -> color_eyre::Result<()> {
         let cue_num: usize = match target {
@@ -97,19 +79,20 @@ impl CueStack {
                 .current_state
                 .selected()
                 .ok_or_else(|| eyre!("no cue selected"))?,
-            Some(t) => self.query_target(t),
+
+            Some(t) => self.query_target(&t),
         };
         self.playback_action(cue_num, *selection)?;
         Ok(())
     }
 
-    fn query_target(&self, target: f32) -> usize {
+    fn query_target(&self, target: &str) -> usize {
         // Get all matches for a cue target
         let mut matches = self
             .cues
             .iter()
             .enumerate()
-            .filter(|x| (x.1.number() - target).abs() < 0.001)
+            .filter(|x| x.1.number() == target)
             .map(|(i, _)| i);
 
         // if there are matches or net

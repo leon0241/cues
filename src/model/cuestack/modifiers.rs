@@ -4,11 +4,12 @@ use crate::model::cues::cue_base::FollowState;
 use crate::model::cuestack::CueStack;
 
 impl CueStack {
-    pub fn new_cue(&mut self, new_cue: Box<dyn Cue>) {
+    pub fn new_cue(&mut self, new_cue: Cue) {
         self.cues.push(new_cue);
     }
 
-    const fn get_row_idx(&self) -> Option<usize> {
+    #[must_use]
+    pub const fn get_row_idx(&self) -> Option<usize> {
         self.current_state.selected()
     }
 
@@ -16,18 +17,18 @@ impl CueStack {
         self.current_state.selected_column()
     }
 
-    fn get_current_cue(&self) -> Option<&dyn Cue> {
+    #[must_use]
+    pub fn get_current_cue(&self) -> Option<&Cue> {
         let i = self.get_row_idx()?;
 
         // idk why clippy wants this
-        self.cues.get(i).map(std::convert::AsRef::as_ref)
+        self.cues.get(i)
     }
 
-    fn get_current_cue_mut(&mut self) -> Option<&mut dyn Cue> {
+    fn get_current_cue_mut(&mut self) -> Option<&mut Cue> {
         let i = self.get_row_idx()?;
 
-        let c = self.cues.get_mut(i)?;
-        Some(c.as_mut())
+        self.cues.get_mut(i)
     }
 
     /// Delete Current Cue
@@ -44,37 +45,40 @@ impl CueStack {
         }
     }
 
-    pub fn get_cell_str(&self, cue: &dyn Cue, column: &CueColumn) -> String {
+    #[must_use]
+    pub fn get_cell_str(&self, cue: &Cue, column: &CueColumn) -> String {
         match column {
             CueColumn::Playing | CueColumn::Duration => String::new(),
-            CueColumn::Name => cue.base().name.clone(),
-            CueColumn::Number => cue.base().number.to_string(),
-            CueColumn::PreWait => cue.base().prewait.to_string(),
-            CueColumn::PostWait => cue.base().postwait.to_string(),
-            CueColumn::Follow => cue.base().follow.icon().to_string(),
+            CueColumn::Name => cue.name.clone(),
+            CueColumn::Number => cue.number.clone(),
+            CueColumn::PreWait => cue.prewait.to_string(),
+            CueColumn::PostWait => cue.postwait.to_string(),
+            CueColumn::Follow => cue.follow.icon().to_string(),
+            CueColumn::Target => String::from("erm target"),
         }
     }
 
     pub fn get_current_cell_str(&mut self) -> Option<String> {
         let current_column: CueColumn = self.get_current_column()?;
-        let current_cue: &dyn Cue = self.get_current_cue()?;
+        let current_cue: &Cue = self.get_current_cue()?;
 
         let contents = self.get_cell_str(current_cue, &current_column);
         Some(contents)
     }
 
-    pub fn set_cell_str(cue: &mut dyn Cue, column: &CueColumn, value: String) {
+    pub fn set_cell_str(cue: &mut Cue, column: &CueColumn, value: String) {
         fn parser(value: &str) -> f32 {
             value.parse::<f32>().unwrap_or_default()
         }
 
         match column {
             CueColumn::Playing | CueColumn::Duration => {}
-            CueColumn::Name => cue.set_base().name = value,
-            CueColumn::Number => cue.set_base().number = parser(&value),
-            CueColumn::PreWait => cue.set_base().prewait = parser(&value),
-            CueColumn::PostWait => cue.set_base().postwait = parser(&value),
-            CueColumn::Follow => cue.set_base().follow = FollowState::Follow,
+            CueColumn::Name => cue.name = value,
+            CueColumn::Number => cue.number = value,
+            CueColumn::PreWait => cue.prewait = parser(&value),
+            CueColumn::PostWait => cue.postwait = parser(&value),
+            CueColumn::Follow => cue.follow = FollowState::Follow,
+            CueColumn::Target => cue.set_target(value),
         }
     }
 
@@ -90,6 +94,22 @@ impl CueStack {
         Self::set_cell_str(current_cue, &current_column, value);
     }
 
+    pub fn set_cell_from_col_str(&mut self, column: &CueColumn, value: String) {
+        let Some(current_cue) = self.get_current_cue_mut() else {
+            return;
+        };
+
+        Self::set_cell_str(current_cue, column, value);
+    }
+
+    pub fn change_cell_from_col_str(&mut self, column: &CueColumn) {
+        let Some(current_cue) = self.get_current_cue_mut() else {
+            return;
+        };
+
+        Self::set_cell_str(current_cue, column, String::new());
+    }
+
     pub const fn copy_cue(&self) {}
 
     /// # Errors
@@ -98,23 +118,6 @@ impl CueStack {
     pub fn copy_cell(&mut self, _column: &CueColumn) -> String {
         if let Some(_i) = self.get_current_cue_mut() {}
         String::new()
-    }
-
-    /// # Errors
-    ///
-    /// TODO
-    pub fn change_cell(&mut self, column: &CueColumn) {
-        // Current Cue
-        if let Some(current_cue) = self.get_current_cue_mut() {
-            match column {
-                CueColumn::Playing | CueColumn::Duration => {}
-                CueColumn::Name => current_cue.set_base().name = String::from("test"),
-                CueColumn::Number => current_cue.set_base().number = 6.7,
-                CueColumn::PreWait => current_cue.set_base().prewait = 6.7,
-                CueColumn::PostWait => current_cue.set_base().postwait = 6.7,
-                CueColumn::Follow => current_cue.set_base().follow = FollowState::Continue,
-            }
-        }
     }
 
     /// # Errors
@@ -132,11 +135,12 @@ impl CueStack {
         if let Some(current_cue) = self.get_current_cue_mut() {
             match column {
                 CueColumn::Playing | CueColumn::Duration => {}
-                CueColumn::Name => current_cue.set_base().name = String::new(),
-                CueColumn::Number => current_cue.set_base().number = 0.0,
-                CueColumn::PreWait => current_cue.set_base().prewait = 0.0,
-                CueColumn::PostWait => current_cue.set_base().postwait = 0.0,
-                CueColumn::Follow => current_cue.set_base().follow = FollowState::None,
+                CueColumn::Name => current_cue.name = String::new(),
+                CueColumn::Number => current_cue.number = String::new(),
+                CueColumn::Target => current_cue.set_target(String::new()),
+                CueColumn::PreWait => current_cue.prewait = 0.0,
+                CueColumn::PostWait => current_cue.postwait = 0.0,
+                CueColumn::Follow => current_cue.follow = FollowState::None,
             }
         }
     }

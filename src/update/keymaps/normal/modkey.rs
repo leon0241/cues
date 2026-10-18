@@ -44,7 +44,7 @@ pub fn modkey_handler(
             if *cue_cmd == CueCmd::Cue {
                 model.clear_cue()?;
             } else if let Some(i) = match_inner(*cue_cmd) {
-                model.change_cell(&i);
+                model.change_cell_from_col_str(&i);
             }
         }
     }

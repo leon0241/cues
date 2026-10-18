@@ -1,5 +1,5 @@
 use crate::model::{
-    cues::cue_base::CueType,
+    cues::CueType,
     cuestack::CueStack,
     keymaps::{Message, PlaybackCmd},
 };
@@ -13,60 +13,73 @@ pub fn playback_handler(
 ) -> color_eyre::Result<Option<Message>> {
     match cmd {
         PlaybackCmd::PlayCue => {
-            let cue_type: CueType = model.current_type()?;
+            let Some(cue_type) = model.current_type() else {
+                return Ok(None);
+            };
 
             match cue_type {
-                CueType::Audio => {
+                CueType::Audio(_) => {
                     model.cue_action(None, &PlaybackCmd::PlayCue)?;
                 }
-                CueType::Fade => {
-                    let target: Option<f32> = model.current_target()?;
+                CueType::Fade(_) => {
+                    let target: Option<String> = model.current_target();
                     if let Some(i) = target {
                         model.cue_action(Some(i), &PlaybackCmd::FadeStopCue)?;
                     }
-                }
-                CueType::Start => {
-                    let target: Option<f32> = model.current_target()?;
-                    if let Some(i) = target {
-                        model.cue_action(Some(i), &PlaybackCmd::PlayCue)?;
-                    }
-                }
-                CueType::Stop => {
-                    let target: Option<f32> = model.current_target()?;
-                    if let Some(i) = target {
-                        model.cue_action(Some(i), &PlaybackCmd::StopCue)?;
-                    }
-                }
-                CueType::Pause => {
-                    let target: Option<f32> = model.current_target()?;
-                    if let Some(i) = target {
-                        model.cue_action(Some(i), &PlaybackCmd::PauseCue)?;
-                    }
-                }
+                } // CueType::Start => {
+                  //     let target: Option<f32> = model.current_target()?;
+                  //     if let Some(i) = target {
+                  //         model.cue_action(Some(i), &PlaybackCmd::PlayCue)?;
+                  //     }
+                  // }
+                  // CueType::Stop => {
+                  //     let target: Option<f32> = model.current_target()?;
+                  //     if let Some(i) = target {
+                  //         model.cue_action(Some(i), &PlaybackCmd::StopCue)?;
+                  //     }
+                  // }
+                  // CueType::Pause => {
+                  //     let target: Option<f32> = model.current_target()?;
+                  //     if let Some(i) = target {
+                  //         model.cue_action(Some(i), &PlaybackCmd::PauseCue)?;
+                  //     }
+                  // }
             }
             model.go_next();
         }
         PlaybackCmd::PauseCue => {
-            let cue_type = model.current_type()?;
+            let cue_type = model.current_type();
 
-            if CueType::Audio == cue_type {
-                model.cue_action(None, &PlaybackCmd::PauseCue)?;
+            match cue_type {
+                Some(CueType::Audio(_)) => {
+                    model.cue_action(None, &PlaybackCmd::PauseCue)?;
+                }
+                Some(_) => {}
+                _ => {}
             }
             model.go_next();
         }
         PlaybackCmd::StopCue => {
-            let cue_type = model.current_type()?;
+            let cue_type = model.current_type();
 
-            if CueType::Audio == cue_type {
-                model.cue_action(None, &PlaybackCmd::StopCue)?;
+            match cue_type {
+                Some(CueType::Audio(_)) => {
+                    model.cue_action(None, &PlaybackCmd::StopCue)?;
+                }
+                Some(_) => {}
+                _ => {}
             }
             model.go_next();
         }
         PlaybackCmd::FadeStopCue => {
-            let cue_type = model.current_type()?;
+            let cue_type = model.current_type();
 
-            if CueType::Audio == cue_type {
-                model.cue_action(None, &PlaybackCmd::FadeStopCue)?;
+            match cue_type {
+                Some(CueType::Audio(_)) => {
+                    model.cue_action(None, &PlaybackCmd::FadeStopCue)?;
+                }
+                Some(_) => {}
+                _ => {}
             }
             model.go_next();
         }

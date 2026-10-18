@@ -34,43 +34,43 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
         &model.handler,
     )?;
 
-    model.set_items(vec![
-        Box::new(AudioCue::new(
-            1_f32,
-            String::from("test"),
-            1_f32,
-            FollowState::None,
-            None,
-        )),
-        Box::new(AudioCue::new(
-            2_f32,
-            String::from("file"),
-            1_f32,
-            FollowState::None,
-            Some(file1),
-        )),
-        Box::new(AudioCue::new(
-            2.5_f32,
-            String::from("boom"),
-            1_f32,
-            FollowState::None,
-            Some(file2),
-        )),
-        Box::new(FadeCue::new(
-            3_f32,
-            String::from("fade"),
-            1_f32,
-            FollowState::None,
-            Some(2_f32),
-        )),
-        Box::new(AudioCue::new(
-            3_f32,
-            String::from("test2"),
-            1_f32,
-            FollowState::None,
-            None,
-        )),
-    ]);
+    // model.set_items(vec![
+    //     Box::new(AudioCue::new(
+    //         1_f32,
+    //         String::from("test"),
+    //         1_f32,
+    //         FollowState::None,
+    //         None,
+    //     )),
+    //     Box::new(AudioCue::new(
+    //         2_f32,
+    //         String::from("file"),
+    //         1_f32,
+    //         FollowState::None,
+    //         Some(file1),
+    //     )),
+    //     Box::new(AudioCue::new(
+    //         2.5_f32,
+    //         String::from("boom"),
+    //         1_f32,
+    //         FollowState::None,
+    //         Some(file2),
+    //     )),
+    //     Box::new(FadeCue::new(
+    //         3_f32,
+    //         String::from("fade"),
+    //         1_f32,
+    //         FollowState::None,
+    //         Some(2_f32),
+    //     )),
+    //     Box::new(AudioCue::new(
+    //         3_f32,
+    //         String::from("test2"),
+    //         1_f32,
+    //         FollowState::None,
+    //         None,
+    //     )),
+    // ]);
 
     Ok(())
 }

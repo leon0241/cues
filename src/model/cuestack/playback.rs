@@ -1,7 +1,10 @@
 use color_eyre::eyre::eyre;
 
 use crate::model::{
-    cues::{Cue, cue_base::PlayState},
+    cues::{
+        Cue, CueType,
+        cue_base::{PlayState, PlayableCue},
+    },
     cuestack::CueStack,
     keymaps::PlaybackCmd,
 };
@@ -30,7 +33,7 @@ impl CueStack {
         Ok(())
     }
 
-    fn get_cue(&mut self, i: usize) -> color_eyre::Result<&mut Box<dyn Cue>> {
+    fn get_cue(&mut self, i: usize) -> color_eyre::Result<&mut Cue> {
         self.cues
             .get_mut(i)
             .ok_or_else(|| eyre!("index out of range"))
@@ -47,18 +50,22 @@ impl CueStack {
     fn pause_cue(&mut self, i: usize) -> color_eyre::Result<()> {
         let cue = self.get_cue(i)?;
 
-        // If pause is implemented
-        match cue.pause_cue() {
-            // Unpaused -> Paused
-            Some(true) => {
-                cue.set_status(PlayState::Stopped);
-            }
-            // Paused -> Unpaused
-            Some(false) => {
-                cue.set_status(PlayState::Playing);
-            }
-            // Else (no file / not playing)
-            _ => {}
+        match cue.cue_type() {
+            CueType::Audio(audio_cue) => {
+                match audio_cue.pause_cue() {
+                    // Unpaused -> Paused
+                    Some(true) => {
+                        cue.set_status(PlayState::Stopped);
+                    }
+                    // Paused -> Unpaused
+                    Some(false) => {
+                        cue.set_status(PlayState::Playing);
+                    }
+                    // Else (no file / not playing)
+                    _ => {}
+                }
+            } // If pause is implemented
+            CueType::Fade(_) => {}
         }
         Ok(())
     }
@@ -66,8 +73,13 @@ impl CueStack {
     fn stop_cue(&mut self, i: usize) -> color_eyre::Result<()> {
         let cue = self.get_cue(i)?;
 
-        if let Some(_i) = cue.stop_cue() {
-            cue.set_status(PlayState::Stopped);
+        match cue.cue_type() {
+            CueType::Audio(audio_cue) => {
+                if let Some(_i) = audio_cue.stop_cue() {
+                    cue.set_status(PlayState::Stopped);
+                }
+            }
+            CueType::Fade(_) => {}
         }
         Ok(())
     }
@@ -75,9 +87,14 @@ impl CueStack {
     fn fade_stop_cue(&mut self, i: usize) -> color_eyre::Result<()> {
         let cue = self.get_cue(i)?;
 
-        // If F+S is implemented
-        if let Some(_i) = cue.fade_stop_cue(3_f32) {
-            cue.set_status(PlayState::Fading);
+        match cue.cue_type() {
+            CueType::Audio(audio_cue) => {
+                // If F+S is implemented
+                if let Some(_i) = audio_cue.fade_stop_cue(3_f32) {
+                    cue.set_status(PlayState::Fading);
+                }
+            }
+            CueType::Fade(_) => {}
         }
         Ok(())
     }
