@@ -133,6 +133,10 @@ impl Cue {
         &self.cue_type
     }
 
+    pub const fn cue_type_mut(&mut self) -> &mut CueType {
+        &mut self.cue_type
+    }
+
     #[must_use]
     pub fn name(&self) -> String {
         self.name.clone()

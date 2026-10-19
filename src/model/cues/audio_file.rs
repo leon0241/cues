@@ -76,4 +76,23 @@ impl AudioFile {
         self.player.append(source);
         Ok(())
     }
+
+    #[must_use]
+    pub fn file_path(&self) -> &str {
+        &self.file_path
+    }
+
+    /// Sets the file path to the file.
+    /// **NOTE**: This does not read the file / store its contents
+    pub fn set_file_path(&mut self, file_path: &str) {
+        self.file_path = file_path.to_string();
+    }
+
+    /// # Errors
+    ///
+    /// Will return `Err` if error reading file
+    pub fn try_read(&mut self) -> color_eyre::Result<()> {
+        self.bytes = std::fs::read(self.file_path.clone())?.into();
+        Ok(())
+    }
 }

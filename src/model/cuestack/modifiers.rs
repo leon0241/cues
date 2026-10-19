@@ -1,5 +1,6 @@
 use crate::model::cues::Cue;
 use crate::model::cues::CueColumn;
+use crate::model::cues::CueType;
 use crate::model::cues::cue_base::FollowState;
 use crate::model::cuestack::CueStack;
 
@@ -55,7 +56,15 @@ impl CueStack {
             CueColumn::PreWait => cue.prewait().to_string(),
             CueColumn::PostWait => cue.postwait().to_string(),
             CueColumn::Follow => cue.follow().icon().to_string(),
-            CueColumn::Target => String::from("erm target"),
+            CueColumn::Target => match cue.cue_type() {
+                CueType::Audio(cue) => cue
+                    .file()
+                    .as_ref()
+                    .map_or(String::new(), |file| file.file_path().to_string()),
+                CueType::Fade(t) | CueType::Stop(t) | CueType::Pause(t) | CueType::Start(t) => {
+                    t.target().unwrap_or(String::new())
+                }
+            },
         }
     }
 
@@ -67,7 +76,14 @@ impl CueStack {
         Some(contents)
     }
 
-    pub fn set_cell_str(cue: &mut Cue, column: &CueColumn, value: String) {
+    /// # Errors
+    ///
+    /// Errors if the file cannot be read
+    pub fn set_cell_str(
+        cue: &mut Cue,
+        column: &CueColumn,
+        value: String,
+    ) -> color_eyre::Result<()> {
         fn parser(value: &str) -> f32 {
             value.parse::<f32>().unwrap_or_default()
         }
@@ -79,28 +95,51 @@ impl CueStack {
             CueColumn::PreWait => cue.set_prewait(parser(&value)),
             CueColumn::PostWait => cue.set_postwait(parser(&value)),
             CueColumn::Follow => cue.set_follow(FollowState::Follow),
-            CueColumn::Target => cue.set_target(value),
+            CueColumn::Target => match cue.cue_type_mut() {
+                CueType::Audio(cue) => {
+                    if let Some(i) = cue.file_mut().as_mut() {
+                        i.set_file_path(&value);
+                        i.try_read()?;
+                    }
+                }
+                CueType::Fade(_) | CueType::Stop(_) | CueType::Pause(_) | CueType::Start(_) => {
+                    cue.set_target(value);
+                }
+            },
         }
+        Ok(())
     }
 
-    pub fn set_current_cell_str(&mut self, value: String) {
+    /// # Errors
+    ///
+    /// Errors if a file that has been set cannot be read
+    pub fn set_current_cell_str(&mut self, value: String) -> color_eyre::Result<()> {
         let Some(current_column) = self.get_current_column() else {
-            return;
+            return Ok(());
         };
 
         let Some(current_cue) = self.get_current_cue_mut() else {
-            return;
+            return Ok(());
         };
 
-        Self::set_cell_str(current_cue.0, &current_column, value);
+        Self::set_cell_str(current_cue.0, &current_column, value)?;
+        Ok(())
     }
 
-    pub fn set_cell_from_col_str(&mut self, column: &CueColumn, value: String) {
+    /// # Errors
+    ///
+    /// Errors if a file that has been set cannot be read
+    pub fn set_cell_from_col_str(
+        &mut self,
+        column: &CueColumn,
+        value: String,
+    ) -> color_eyre::Result<()> {
         let Some(current_cue) = self.get_current_cue_mut() else {
-            return;
+            return Ok(());
         };
 
-        Self::set_cell_str(current_cue.0, column, value);
+        Self::set_cell_str(current_cue.0, column, value)?;
+        Ok(())
     }
 
     pub const fn copy_cue(&self) {}

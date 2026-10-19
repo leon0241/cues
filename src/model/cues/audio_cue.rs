@@ -208,6 +208,11 @@ impl AudioCue {
     }
 
     #[must_use]
+    pub const fn file_mut(&mut self) -> &mut Option<AudioFile> {
+        &mut self.file
+    }
+
+    #[must_use]
     pub fn as_icon(&self) -> &'static str {
         self.file.as_ref().map_or("", |_| "")
     }
