@@ -18,17 +18,18 @@ impl CueStack {
     }
 
     #[must_use]
-    pub fn get_current_cue(&self) -> Option<&Cue> {
+    pub fn get_current_cue(&self) -> Option<(&Cue, usize)> {
         let i = self.get_row_idx()?;
 
-        // idk why clippy wants this
-        self.cues.get(i)
+        self.cues.get(i).map_or_else(|| None, |cue| Some((cue, i)))
     }
 
-    fn get_current_cue_mut(&mut self) -> Option<&mut Cue> {
+    fn get_current_cue_mut(&mut self) -> Option<(&mut Cue, usize)> {
         let i = self.get_row_idx()?;
 
-        self.cues.get_mut(i)
+        self.cues
+            .get_mut(i)
+            .map_or_else(|| None, |cue| Some((cue, i)))
     }
 
     /// Delete Current Cue
@@ -49,18 +50,18 @@ impl CueStack {
     pub fn get_cell_str(&self, cue: &Cue, column: &CueColumn) -> String {
         match column {
             CueColumn::Playing | CueColumn::Duration => String::new(),
-            CueColumn::Name => cue.name.clone(),
-            CueColumn::Number => cue.number.clone(),
-            CueColumn::PreWait => cue.prewait.to_string(),
-            CueColumn::PostWait => cue.postwait.to_string(),
-            CueColumn::Follow => cue.follow.icon().to_string(),
+            CueColumn::Name => cue.name(),
+            CueColumn::Number => cue.number(),
+            CueColumn::PreWait => cue.prewait().to_string(),
+            CueColumn::PostWait => cue.postwait().to_string(),
+            CueColumn::Follow => cue.follow().icon().to_string(),
             CueColumn::Target => String::from("erm target"),
         }
     }
 
     pub fn get_current_cell_str(&mut self) -> Option<String> {
         let current_column: CueColumn = self.get_current_column()?;
-        let current_cue: &Cue = self.get_current_cue()?;
+        let current_cue: &Cue = self.get_current_cue()?.0;
 
         let contents = self.get_cell_str(current_cue, &current_column);
         Some(contents)
@@ -73,11 +74,11 @@ impl CueStack {
 
         match column {
             CueColumn::Playing | CueColumn::Duration => {}
-            CueColumn::Name => cue.name = value,
-            CueColumn::Number => cue.number = value,
-            CueColumn::PreWait => cue.prewait = parser(&value),
-            CueColumn::PostWait => cue.postwait = parser(&value),
-            CueColumn::Follow => cue.follow = FollowState::Follow,
+            CueColumn::Name => cue.set_name(value),
+            CueColumn::Number => cue.set_number(value),
+            CueColumn::PreWait => cue.set_prewait(parser(&value)),
+            CueColumn::PostWait => cue.set_postwait(parser(&value)),
+            CueColumn::Follow => cue.set_follow(FollowState::Follow),
             CueColumn::Target => cue.set_target(value),
         }
     }
@@ -91,7 +92,7 @@ impl CueStack {
             return;
         };
 
-        Self::set_cell_str(current_cue, &current_column, value);
+        Self::set_cell_str(current_cue.0, &current_column, value);
     }
 
     pub fn set_cell_from_col_str(&mut self, column: &CueColumn, value: String) {
@@ -99,15 +100,7 @@ impl CueStack {
             return;
         };
 
-        Self::set_cell_str(current_cue, column, value);
-    }
-
-    pub fn change_cell_from_col_str(&mut self, column: &CueColumn) {
-        let Some(current_cue) = self.get_current_cue_mut() else {
-            return;
-        };
-
-        Self::set_cell_str(current_cue, column, String::new());
+        Self::set_cell_str(current_cue.0, column, value);
     }
 
     pub const fn copy_cue(&self) {}
@@ -123,8 +116,24 @@ impl CueStack {
     /// # Errors
     ///
     /// TODO
-    pub const fn clear_cue(&self) -> color_eyre::Result<()> {
-        Ok(())
+    pub fn clear_cue(&mut self) {
+        // Current Cue
+        let Some(current_cue) = self.get_current_cue_mut() else {
+            return;
+        };
+
+        // Reference to free mutable ref after match
+        let idx = current_cue.1;
+
+        current_cue.0.set_name(String::new());
+        current_cue.0.set_number(String::new());
+        current_cue.0.set_target(String::new());
+        current_cue.0.set_prewait(0.0);
+        current_cue.0.set_postwait(0.0);
+        current_cue.0.set_follow(FollowState::None);
+
+        // cc > default start at name column
+        self.select_cell_state(idx, CueColumn::Name);
     }
 
     /// # Errors
@@ -132,16 +141,23 @@ impl CueStack {
     /// TODO
     pub fn delete_cell(&mut self, column: &CueColumn) {
         // Current Cue
-        if let Some(current_cue) = self.get_current_cue_mut() {
-            match column {
-                CueColumn::Playing | CueColumn::Duration => {}
-                CueColumn::Name => current_cue.name = String::new(),
-                CueColumn::Number => current_cue.number = String::new(),
-                CueColumn::Target => current_cue.set_target(String::new()),
-                CueColumn::PreWait => current_cue.prewait = 0.0,
-                CueColumn::PostWait => current_cue.postwait = 0.0,
-                CueColumn::Follow => current_cue.follow = FollowState::None,
-            }
+        let Some(current_cue) = self.get_current_cue_mut() else {
+            return;
+        };
+
+        // Reference to free mutable ref after match
+        let idx = current_cue.1;
+
+        match column {
+            CueColumn::Playing | CueColumn::Duration => {}
+            CueColumn::Name => current_cue.0.set_name(String::new()),
+            CueColumn::Number => current_cue.0.set_number(String::new()),
+            CueColumn::Target => current_cue.0.set_target(String::new()),
+            CueColumn::PreWait => current_cue.0.set_prewait(0.0),
+            CueColumn::PostWait => current_cue.0.set_postwait(0.0),
+            CueColumn::Follow => current_cue.0.set_follow(FollowState::None),
         }
+
+        self.select_cell_state(idx, *column);
     }
 }

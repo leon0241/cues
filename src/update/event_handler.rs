@@ -4,7 +4,7 @@ use ratatui::crossterm::event;
 
 use crate::{
     model::{
-        cues::{audio_cue::AudioCue, cue_base::FollowState, fade_cue::FadeCue},
+        cues::{Cue, CueType, audio_cue::AudioCue, cue_base::FollowState, target_cue::TargetCue},
         cuestack::CueStack,
         editor::{Editor, Mode},
         full_model::Model,
@@ -34,43 +34,43 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
         &model.handler,
     )?;
 
-    // model.set_items(vec![
-    //     Box::new(AudioCue::new(
-    //         1_f32,
-    //         String::from("test"),
-    //         1_f32,
-    //         FollowState::None,
-    //         None,
-    //     )),
-    //     Box::new(AudioCue::new(
-    //         2_f32,
-    //         String::from("file"),
-    //         1_f32,
-    //         FollowState::None,
-    //         Some(file1),
-    //     )),
-    //     Box::new(AudioCue::new(
-    //         2.5_f32,
-    //         String::from("boom"),
-    //         1_f32,
-    //         FollowState::None,
-    //         Some(file2),
-    //     )),
-    //     Box::new(FadeCue::new(
-    //         3_f32,
-    //         String::from("fade"),
-    //         1_f32,
-    //         FollowState::None,
-    //         Some(2_f32),
-    //     )),
-    //     Box::new(AudioCue::new(
-    //         3_f32,
-    //         String::from("test2"),
-    //         1_f32,
-    //         FollowState::None,
-    //         None,
-    //     )),
-    // ]);
+    model.set_items(vec![
+        Cue::new(
+            String::from("1"),
+            String::from("test"),
+            1_f32,
+            FollowState::None,
+            CueType::Audio(AudioCue::default()),
+        ),
+        Cue::new(
+            String::from("2"),
+            String::from("file"),
+            1_f32,
+            FollowState::None,
+            CueType::Audio(AudioCue::new(Some(file1))),
+        ),
+        Cue::new(
+            String::from("2.5"),
+            String::from("boom"),
+            1_f32,
+            FollowState::None,
+            CueType::Audio(AudioCue::new(Some(file2))),
+        ),
+        Cue::new(
+            String::from("3"),
+            String::from("fade"),
+            1_f32,
+            FollowState::None,
+            CueType::Fade(TargetCue::new(Some(String::from("2")))),
+        ),
+        Cue::new(
+            String::from("4"),
+            String::from("test2"),
+            1_f32,
+            FollowState::None,
+            CueType::Audio(AudioCue::default()),
+        ),
+    ]);
 
     Ok(())
 }

@@ -131,20 +131,23 @@ impl Sections {
 #[must_use]
 pub fn init_table(rows: Vec<Row>) -> Table {
     // Setting Header
-    let header: Row = Row::new(["", "", "Num", "Name", "Pre", "Duration", "Post", "F"])
-        .style(Style::new().bold())
-        .bottom_margin(1);
+    let header: Row = Row::new([
+        "", "", "Num", "Name", "Target", "Pre", "Duration", "Post", "F",
+    ])
+    .style(Style::new().bold())
+    .bottom_margin(1);
 
     // Setting Column Widths
-    let widths: [Constraint; 8] = [
-        Constraint::Length(2),
-        Constraint::Length(2),
-        Constraint::Length(5),
-        Constraint::Fill(1),
-        Constraint::Length(10),
-        Constraint::Length(10),
-        Constraint::Length(10),
-        Constraint::Length(2),
+    let widths: [Constraint; 9] = [
+        Constraint::Length(2),  // Now Playing
+        Constraint::Length(2),  // Icon
+        Constraint::Length(5),  // Number
+        Constraint::Fill(1),    // Name
+        Constraint::Length(5),  // Follow
+        Constraint::Length(10), // Pre
+        Constraint::Length(10), // Duration
+        Constraint::Length(10), // Post
+        Constraint::Length(2),  // Follow
     ];
 
     // Creating New Table

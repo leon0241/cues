@@ -6,7 +6,7 @@ use ratatui::widgets::TableState;
 
 use color_eyre::eyre::eyre;
 
-use crate::model::cues::CueType;
+use crate::model::cues::{CueColumn, CueType};
 use crate::model::{cues::Cue, keymaps::PlaybackCmd};
 
 use crate::model::audio_config::AudioDevice;
@@ -16,7 +16,7 @@ pub struct CueStack {
     pub cues: Vec<Cue>,
     pub current_state: TableState,
     pub handler: AudioDevice,
-    pub do_a_thing: String, // Test message output
+    pub current_cell_ref: (usize, CueColumn), // Test message output
 }
 
 impl CueStack {
@@ -46,7 +46,7 @@ impl CueStack {
     /// Will return `Err` if no cue is selected
     #[must_use]
     pub fn current_type(&self) -> Option<&CueType> {
-        let current_cue: &Cue = self.get_current_cue()?;
+        let current_cue: &Cue = self.get_current_cue()?.0;
 
         Some(current_cue.cue_type())
     }
@@ -58,7 +58,7 @@ impl CueStack {
     /// Will return `Err` if no cue is selected
     #[must_use]
     pub fn current_target(&self) -> Option<String> {
-        let current_cue: &Cue = self.get_current_cue()?;
+        let current_cue: &Cue = self.get_current_cue()?.0;
 
         Some(current_cue.get_target())
     }
@@ -110,5 +110,14 @@ impl CueStack {
                 0
             }
         }
+    }
+
+    #[must_use]
+    pub const fn current_cell_ref(&self) -> (usize, CueColumn) {
+        self.current_cell_ref
+    }
+
+    pub const fn set_current_cell_ref(&mut self, row: usize, column: CueColumn) {
+        self.current_cell_ref = (row, column);
     }
 }

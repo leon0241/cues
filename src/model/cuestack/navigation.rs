@@ -1,4 +1,4 @@
-use crate::model::cuestack::CueStack;
+use crate::model::{cues::CueColumn, cuestack::CueStack};
 
 impl CueStack {
     /// Select the previous column.
@@ -33,5 +33,14 @@ impl CueStack {
     // sure that the stored offset is also reset.
     pub const fn unselect(&mut self) {
         self.current_state.select(None);
+    }
+
+    // Unselect the currently selected item if any. The implementation of `TableState` makes
+    // sure that the stored offset is also reset.
+    pub const fn select_cell_state(&mut self, row: usize, column: CueColumn) {
+        self.current_state.select(Some(row));
+
+        let col_i = CueColumn::to_index(column);
+        self.current_state.select_column(Some(col_i));
     }
 }

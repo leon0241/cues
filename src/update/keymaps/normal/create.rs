@@ -1,5 +1,5 @@
 use crate::model::{
-    cues::{Cue, CueType, cue_base::TargetCue},
+    cues::{Cue, CueType, target_cue::TargetCue},
     cuestack::CueStack,
     editor::{ComboState, Editor},
     keymaps::{CreateCmd, Message},
@@ -21,15 +21,15 @@ pub fn create_handler(
         CreateCmd::CreateFade => {
             cuestack.new_cue(Cue::default_from_type(CueType::Fade(TargetCue::default())));
         }
-        _ => {} // CreateCmd::CreateStart => {
-                //     cuestack.new_cue(Box::new(StartCue::default()));
-                // }
-                // CreateCmd::CreateStop => {
-                //     cuestack.new_cue(Box::new(StopCue::default()));
-                // }
-                // CreateCmd::CreatePause => {
-                //     cuestack.new_cue(Box::new(PauseCue::default()));
-                // }
+        CreateCmd::CreateStart => {
+            cuestack.new_cue(Cue::default_from_type(CueType::Start(TargetCue::default())));
+        }
+        CreateCmd::CreateStop => {
+            cuestack.new_cue(Cue::default_from_type(CueType::Stop(TargetCue::default())));
+        }
+        CreateCmd::CreatePause => {
+            cuestack.new_cue(Cue::default_from_type(CueType::Pause(TargetCue::default())));
+        }
     }
     editor.set_combo_state(ComboState::None);
     Ok(None)

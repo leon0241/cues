@@ -1,7 +1,7 @@
 use crate::model::{
     cues::CueColumn,
     cuestack::CueStack,
-    editor::{ComboState, Editor},
+    editor::{ComboState, Editor, Mode},
     keymaps::{CueCmd, Message, ModKeyCmd},
 };
 
@@ -10,7 +10,7 @@ use crate::model::{
 /// TODO
 pub fn modkey_handler(
     editor: &mut Editor,
-    model: &mut CueStack,
+    cuestack: &mut CueStack,
     cmd: &ModKeyCmd,
 ) -> color_eyre::Result<Option<Message>> {
     const fn match_inner(cmd: CueCmd) -> Option<CueColumn> {
@@ -28,24 +28,27 @@ pub fn modkey_handler(
     match cmd {
         ModKeyCmd::Yank(cue_cmd) => {
             if *cue_cmd == CueCmd::Cue {
-                model.copy_cue();
+                cuestack.copy_cue();
             } else if let Some(i) = match_inner(*cue_cmd) {
-                model.copy_cell(&i);
+                cuestack.copy_cell(&i);
             }
         }
         ModKeyCmd::Delete(cue_cmd) => {
             if *cue_cmd == CueCmd::Cue {
-                model.delete_cue();
+                cuestack.delete_cue();
             } else if let Some(i) = match_inner(*cue_cmd) {
-                model.delete_cell(&i);
+                cuestack.delete_cell(&i);
             }
         }
         ModKeyCmd::Change(cue_cmd) => {
             if *cue_cmd == CueCmd::Cue {
-                model.clear_cue()?;
+                cuestack.clear_cue();
             } else if let Some(i) = match_inner(*cue_cmd) {
-                model.change_cell_from_col_str(&i);
+                cuestack.delete_cell(&i);
+                editor.reset_input_buffer();
+                editor.reset_cursor();
             }
+            editor.set_mode(Mode::Insert);
         }
     }
 

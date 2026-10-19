@@ -5,7 +5,7 @@ use num_traits::ToPrimitive;
 use rodio::Player;
 
 use crate::model::cues::{
-    audio_file::AudioFile, cue_base::PlayableCue
+    audio_file::AudioFile
 };
 
 /// Audio Cue
@@ -55,7 +55,42 @@ impl AudioCueFn for AudioCue {
     }
 }
 
+pub trait PlayableCue {
+    /// # Errors
+    ///
+    /// if it can't play a file properly i guess
+    fn play_cue(&self) -> color_eyre::Result<()>;
+
+    fn pause_cue(&self) -> Option<bool> {
+        None
+    }
+
+    fn stop_cue(&self) -> Option<bool> {
+        None
+    }
+
+    #[allow(unused_variables)]
+    fn fade_stop_cue(&self, time: f32) -> Option<bool> {
+        None
+    }
+}
+
 impl PlayableCue for AudioCue {
+    /// # Errors
+    ///
+    /// if it can't play a file properly i guess
+    fn play_cue(&self) -> color_eyre::Result<()> {
+        // Arc reference to now_playing. Can be read for parallel changes during a fade
+        if 
+            let Some(ref j) = self.file && // If there is a file
+            let Some(i) = self.now_playing() {// If file is currently playing
+            // self.player().empty() { this might not be redundant ngl
+                i.store(1, Ordering::Release);
+                j.play_file()?;
+        }
+        Ok(())
+    }
+
     fn pause_cue(&self) -> Option<bool> {
         // Pauses if currently playing, plays if currently paused, and returns opposite.
         fn toggle_pause(player: &Player, paused: bool) -> bool {
@@ -167,26 +202,13 @@ impl AudioCue {
         }
     }
 
-    fn play_cue(&self) -> color_eyre::Result<()> {
-        // Arc reference to now_playing. Can be read for parallel changes during a fade
-        if 
-            let Some(ref j) = self.file && // If there is a file
-            let Some(i) = self.now_playing() {// If file is currently playing
-            // self.player().empty() { this might not be redundant ngl
-                i.store(1, Ordering::Release);
-                j.play_file()?;
-        }
-        Ok(())
-    }
-
-
     #[must_use]
     pub const fn file(&self) -> &Option<AudioFile> {
         &self.file
     }
 
     #[must_use]
-    pub const fn as_icon(&self) -> &'static str {
-        ""
+    pub fn as_icon(&self) -> &'static str {
+        self.file.as_ref().map_or("", |_| "")
     }
 }
