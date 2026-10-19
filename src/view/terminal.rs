@@ -1,6 +1,14 @@
 use std::io::{self, Stdout, stdout};
 
-use crate::{model::full_model::Model, view::view_handler::view};
+use crate::{
+    model::{
+        cuestack::CueStack,
+        editor::{Editor, RunningState},
+        full_model::Model,
+    },
+    update::event_handler::{event_matcher, init_cues},
+    view::view_handler::view,
+};
 
 use ratatui::{
     Terminal,
@@ -66,4 +74,39 @@ impl Tui {
     pub fn clear(&mut self) -> color_eyre::Result<()> {
         Ok(self.terminal.clear()?)
     }
+}
+
+/// # Errors
+///
+/// TODO
+pub fn create_terminal() -> color_eyre::Result<Tui> {
+    let backend: CrosstermBackend<std::io::Stdout> = CrosstermBackend::new(std::io::stdout());
+    let terminal: Terminal<CrosstermBackend<std::io::Stdout>> = Terminal::new(backend)?;
+
+    Tui::init_terminal()?;
+    let mut tui = Tui::new(terminal);
+    tui.set_panic_hook();
+    tui.clear()?;
+
+    Ok(tui)
+}
+
+/// # Errors
+///
+/// TODO
+pub fn run_loop(mut tui: Tui) -> color_eyre::Result<()> {
+    let mut model: Model = Model::new(Editor::new(), CueStack::new());
+    // let mut model: CueStack = CueStack::new();
+    model.cuestack_mut().set_default_sink()?;
+    // maybe put mut back with insert/normal
+
+    init_cues(model.cuestack_mut())?;
+
+    while *model.editor().running_state() != RunningState::Done {
+        // Draw (all logic in the View files)
+        tui.draw(&mut model)?; // Calls view
+        //
+        event_matcher(&mut model)?;
+    }
+    Ok(())
 }

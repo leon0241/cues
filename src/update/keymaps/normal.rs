@@ -47,11 +47,6 @@ pub fn handle_normal(key: KeyCode, _modifier: KeyModifiers, editor: &Editor) -> 
 /// If the action is finished, returns ``None``.
 /// Otherwise, it returns another message to chain.
 ///
-/// # Example
-///
-/// ``Message::ModKey(ModKeyCmd::Change(CueCmd::Name))``
-/// -> ``Message::``
-///
 /// # Errors
 ///
 /// Will return `Err` if cannot handle a key

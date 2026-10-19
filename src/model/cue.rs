@@ -1,3 +1,8 @@
+//! # Cue
+//!
+//! Handler for individual cues of any type.
+//! Individual Cue types are split out with an Enum called ``CueType``
+
 pub mod audio_cue;
 pub mod audio_file;
 pub mod cue_base;
