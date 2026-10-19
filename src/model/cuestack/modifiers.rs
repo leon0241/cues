@@ -1,7 +1,7 @@
-use crate::model::cues::Cue;
-use crate::model::cues::CueColumn;
-use crate::model::cues::CueType;
-use crate::model::cues::cue_base::FollowState;
+use crate::model::cue::Cue;
+use crate::model::cue::CueType;
+use crate::model::cue::cue_base::CueColumn;
+use crate::model::cue::cue_base::FollowState;
 use crate::model::cuestack::CueStack;
 
 impl CueStack {

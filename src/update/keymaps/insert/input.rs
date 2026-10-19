@@ -6,7 +6,7 @@ use crate::model::{
 /// # Errors
 ///
 /// TODO
-pub fn input_handler(editor: &mut Editor, msg: &InputCmd) -> color_eyre::Result<Option<Message>> {
+pub fn input_handler(editor: &mut Editor, msg: &InputCmd) -> Option<Message> {
     match msg {
         InputCmd::DeleteChar => {
             editor.delete_char();
@@ -30,5 +30,5 @@ pub fn input_handler(editor: &mut Editor, msg: &InputCmd) -> color_eyre::Result<
             editor.finish_input();
         }
     }
-    Ok(None)
+    None
 }

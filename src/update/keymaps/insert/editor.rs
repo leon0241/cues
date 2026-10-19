@@ -6,7 +6,7 @@ use crate::model::{
 
 /// # Errors
 ///
-/// Will return `Err` if cannot handle a key
+/// Will return `Err` if an incorrect file path is provided
 pub fn i_editor_handler(
     editor: &mut Editor,
     cuestack: &mut CueStack,

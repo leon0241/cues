@@ -4,7 +4,7 @@ use num_traits::ToPrimitive;
 
 use rodio::Player;
 
-use crate::model::cues::{
+use crate::model::cue::{
     audio_file::AudioFile
 };
 

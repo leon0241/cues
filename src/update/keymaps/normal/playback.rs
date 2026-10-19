@@ -1,5 +1,5 @@
 use crate::model::{
-    cues::CueType,
+    cue::CueType,
     cuestack::CueStack,
     keymaps::{Message, PlaybackCmd},
 };

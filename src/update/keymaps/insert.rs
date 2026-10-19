@@ -25,13 +25,13 @@ pub fn handle_insert(key: KeyCode, _modifier: KeyModifiers, editor: &Editor) -> 
 
 /// # Errors
 ///
-/// Will return `Err` if cannot handle a key
+/// Will return `Err` if an incorrect file path is provided
 pub fn update_insert(model: &mut Model, msg: &Message) -> color_eyre::Result<Option<Message>> {
     let (editor, cuestack): (&mut Editor, &mut CueStack) = model.full_mut();
 
     let return_msg = match msg {
         Message::Editor(cmd) => i_editor_handler(editor, cuestack, cmd)?,
-        Message::Input(cmd) => input_handler(editor, cmd)?,
+        Message::Input(cmd) => input_handler(editor, cmd),
         _ => None,
     };
 

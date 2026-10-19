@@ -1,5 +1,5 @@
 use crate::model::{
-    cues::CueColumn,
+    cue::cue_base::CueColumn,
     cuestack::CueStack,
     editor::{ComboState, Editor, Mode},
     keymaps::{CueCmd, Message, ModKeyCmd},
