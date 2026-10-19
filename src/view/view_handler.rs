@@ -40,11 +40,11 @@ pub fn view(model: &mut Model, frame: &mut Frame) {
 
     let command_line = Line::from_iter([Span::from("CMD: ")])
         .bg(Color::DarkGray)
-        .fg(Color::Black);
+        .fg(Color::White);
 
     let command_line_text = Line::from_iter([Span::from(editor.input_buffer())])
         .bg(Color::DarkGray)
-        .fg(Color::Black);
+        .fg(Color::White);
 
     // frame.render_widget(paragraph, frame.area());
     // frame.render_widget(mode, layout.status_line);

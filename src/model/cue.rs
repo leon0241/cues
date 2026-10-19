@@ -94,8 +94,9 @@ impl Cue {
     }
 
     #[must_use]
-    pub fn default_from_type(cue_type: CueType) -> Self {
+    pub fn default_from_type(num: usize, cue_type: CueType) -> Self {
         Self {
+            number: num.to_string(),
             cue_type,
             ..Self::default()
         }

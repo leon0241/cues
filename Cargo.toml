@@ -3,6 +3,14 @@ name = "cues"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "cues"
+path = "src/lib.rs"
+
+[[bin]]
+name = "cues"
+path = "src/main.rs"
+
 [dependencies]
 color-eyre = "0.6.5"
 directories = "6.0.0"
