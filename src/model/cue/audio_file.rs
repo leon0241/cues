@@ -1,3 +1,7 @@
+//! # Audio File
+//!
+//! Rodio Backend for audio cues
+
 use color_eyre::eyre::eyre;
 use rodio::{Decoder, Player};
 use std::{
