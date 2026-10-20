@@ -3,7 +3,7 @@
 //! `CueType` structure for audio cues
 //! Uses Rodio as a backend
 
-use std::sync::{Arc, atomic::{AtomicU64, Ordering}};
+use std::sync::{Arc, atomic::{AtomicU16, Ordering}};
 
 use num_traits::ToPrimitive;
 
@@ -14,24 +14,23 @@ use crate::model::cue::{
 };
 
 /// Audio Cue
+///
+/// Contains an `AudioFile` field which is what
+/// the Rodio Player for the cue is implemented on.
 #[derive(Default)]
 pub struct AudioCue {
     file: Option<AudioFile>,
 }
 
 
+/// Audio Cue Specific Functions.
+///
+/// This can possibly be extended to video in the future?
 #[allow(dead_code)]
-/// Audio Cue Specific Functions
-trait AudioCueFn {
-    fn player(&self) -> Option<&Player>;
-
-    fn player_arc(&self) -> Option<Arc<Player>>;
-
-    fn now_playing(&self) -> Option<Arc<std::sync::atomic::AtomicU64>>;
-}
-
-impl AudioCueFn for AudioCue {
+impl AudioCue {
     /// Absolute reference to player
+    ///
+    /// This is a reference to the Rodio Player.
     fn player(&self) -> Option<&Player> {
         self.file
             .as_ref()
@@ -41,6 +40,12 @@ impl AudioCueFn for AudioCue {
     }
 
     /// Async capable reference to player
+    ///
+    /// This returns an Arc Clone of the Player. Useful for
+    /// when the reference needs to outlive the function
+    /// such as a play cue function.
+    ///
+    /// Returns None if there is no audio file
     fn player_arc(&self) -> Option<Arc<Player>> {
         self.file
             .as_ref()
@@ -49,9 +54,15 @@ impl AudioCueFn for AudioCue {
             )
     }
 
-    /// Async capable reference to status Atomic U64
+    /// Async capable reference to status Atomic U16
+    ///
+    /// This returns an Arc clone of the now playing variable
+    /// of the file (an `AtomicU16`) which tracks ownership of
+    /// a modifier. Useful for cues like fades which can override
+    /// each other.
+    ///
     /// Returns None if there is no audio file
-    fn now_playing(&self) -> Option<Arc<std::sync::atomic::AtomicU64>> {
+    fn now_playing(&self) -> Option<Arc<std::sync::atomic::AtomicU16>> {
         self.file
             .as_ref()
             .map_or_default(
@@ -60,30 +71,46 @@ impl AudioCueFn for AudioCue {
     }
 }
 
+/// Playable Cue Specific Functions.
+///
+/// This can possibly be extended to video in the future?
+#[allow(dead_code)]
 pub trait PlayableCue {
+    /// Plays a Cue
+    ///
+    /// Plays a cue from the `AudioFile`'s provided file
+    /// as bytes, using a Rodio Decoder.
+    /// 
     /// # Errors
     ///
-    /// if it can't play a file properly i guess
+    /// Will return `Err` if the decoder cannot read the file
     fn play_cue(&self) -> color_eyre::Result<()>;
 
-    fn pause_cue(&self) -> Option<bool> {
-        None
-    }
+    /// Pauses a cue
+    ///
+    /// - Returns None if there is no file
+    /// - Returns `Some(false)` when file is not currently playing
+    /// - Returns `Some(true)` when file goes play -> pause
+    /// - Returns `Some(false)` when file goes pause -> play
+    fn pause_cue(&self) -> Option<bool>;
 
-    fn stop_cue(&self) -> Option<bool> {
-        None
-    }
+    /// Stops a cue
+    ///
+    /// - Returns None if there is no file
+    /// - Returns `Some(true)` when file gets stopped
+    /// - Returns `Some(false)` when file is not currently playing
+    fn stop_cue(&self) -> Option<bool>;
 
+    /// Fade and Stops a cue
+    ///
+    /// - Returns None if there is no file
+    /// - Returns `Some(true)` when file gets stopped
+    /// - Returns `Some(false)` when file is not currently playing
     #[allow(unused_variables)]
-    fn fade_stop_cue(&self, time: f32) -> Option<bool> {
-        None
-    }
+    fn fade_stop_cue(&self, time: f32) -> Option<bool>;
 }
 
 impl PlayableCue for AudioCue {
-    /// # Errors
-    ///
-    /// if it can't play a file properly i guess
     fn play_cue(&self) -> color_eyre::Result<()> {
         // Arc reference to now_playing. Can be read for parallel changes during a fade
         if 
@@ -105,7 +132,7 @@ impl PlayableCue for AudioCue {
         // check If there is a file
         self.now_playing().map_or_default( 
             // there is a file (and therefore a AU64)
-            |i: Arc<AtomicU64> | 
+            |i: Arc<AtomicU16> | 
             // File is not playing -> None
             if i.load(Ordering::Acquire) == 0 {
                 None
@@ -124,7 +151,7 @@ impl PlayableCue for AudioCue {
             || Some(true),
 
             // there is a file (and therefore a AU64)
-            |i: Arc<AtomicU64>|
+            |i: Arc<AtomicU16>|
             // 0 means not currently playing
             if i.load(Ordering::Acquire) == 0 {
                 Some(false)
@@ -147,7 +174,7 @@ impl PlayableCue for AudioCue {
         let player: Arc<Player> = self.player_arc()?;
 
         // Arc reference to now_playing. Can be read for parallel changes during a fade
-        let now_playing: Arc<AtomicU64> = self.now_playing()?;
+        let now_playing: Arc<AtomicU16> = self.now_playing()?;
 
         // Current volume
         let vol: f32 = player.volume();
@@ -199,7 +226,11 @@ impl PlayableCue for AudioCue {
 
 }
 
+/// Other Methods
 impl AudioCue {
+    /// Creates an `AudioCue`
+    ///
+    /// To create an audio cue without a file use `AudioCue::default()`
     #[must_use]
     pub const fn new(file: Option<AudioFile>) -> Self {
         Self {
@@ -207,16 +238,27 @@ impl AudioCue {
         }
     }
 
+    /// Gets a reference to the `AudioFile`
+    ///
+    /// To get a mutable reference, use `file_mut()`
     #[must_use]
     pub const fn file(&self) -> &Option<AudioFile> {
         &self.file
     }
 
+    /// Gets a mutable reference to the `AudioFile`
+    ///
+    /// To get an absolute reference, use `file()`
     #[must_use]
     pub const fn file_mut(&mut self) -> &mut Option<AudioFile> {
         &mut self.file
     }
 
+    /// Returns a file's icon.
+    ///
+    /// This is solely for use in the Target field, where
+    /// a populated audio file will have the "" icon while
+    /// an unpopulated one will be blank.
     #[must_use]
     pub fn as_icon(&self) -> &'static str {
         self.file.as_ref().map_or("", |_| "")
