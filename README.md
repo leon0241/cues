@@ -9,11 +9,13 @@ Front end created with Ratatui, audio handled by Rodio
 - [ ] Implementing rest of cue types
 - [ ] Figuring out Groups
 - [ ] Control flow for all different keymaps
-- [ ] Duration editing for audio clips
+- [ ] Editing for audio clips (Duration/Gain/etc)
 
 ### Non-urgent Goals
 - [ ] Make the UI look nice
 - [ ] Reading and Writing files
+- [ ] Error handling to the command line
+- [ ] EOS Style Command line input
 - [ ] Improve audio buffer methods
 - [ ] Test suites and CI/CD
 - [ ] Platform compatibility

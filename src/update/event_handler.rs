@@ -37,7 +37,7 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
     model.set_items(vec![
         Cue::new(
             String::from("1"),
-            String::from("test"),
+            String::new(),
             1_f32,
             FollowState::None,
             CueType::Audio(AudioCue::default()),
@@ -49,27 +49,27 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
             FollowState::None,
             CueType::Audio(AudioCue::new(Some(file1))),
         ),
-        Cue::new(
-            String::from("2.5"),
-            String::from("boom"),
-            1_f32,
-            FollowState::None,
-            CueType::Audio(AudioCue::new(Some(file2))),
-        ),
-        Cue::new(
-            String::from("3"),
-            String::from("fade"),
-            1_f32,
-            FollowState::None,
-            CueType::Fade(TargetCue::new(Some(String::from("2")))),
-        ),
-        Cue::new(
-            String::from("4"),
-            String::from("test2"),
-            1_f32,
-            FollowState::None,
-            CueType::Audio(AudioCue::default()),
-        ),
+        // Cue::new(
+        //     String::from("2.5"),
+        //     String::from("boom"),
+        //     1_f32,
+        //     FollowState::None,
+        //     CueType::Audio(AudioCue::new(Some(file2))),
+        // ),
+        // Cue::new(
+        //     String::from("3"),
+        //     String::from("fade"),
+        //     1_f32,
+        //     FollowState::None,
+        //     CueType::Fade(TargetCue::new(Some(String::from("2")))),
+        // ),
+        // Cue::new(
+        //     String::from("4"),
+        //     String::from("test2"),
+        //     1_f32,
+        //     FollowState::None,
+        //     CueType::Audio(AudioCue::default()),
+        // ),
     ]);
 
     Ok(())
