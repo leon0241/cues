@@ -1,3 +1,4 @@
+use crate::model::cue::CopiedCell;
 use crate::model::cue::Cue;
 use crate::model::cue::CueType;
 use crate::model::cue::cue_base::CueColumn;
@@ -142,14 +143,40 @@ impl CueStack {
         Ok(())
     }
 
-    pub const fn copy_cue(&self) {}
+    #[must_use]
+    pub fn copy_cue(&self) -> Cue {
+        // Current Cue
+        let Some(current_cue) = self.get_current_cue() else {
+            return Cue::default();
+        };
+
+        current_cue.0.clone()
+    }
 
     /// # Errors
     ///
     /// TODO
-    pub fn copy_cell(&mut self, _column: &CueColumn) -> String {
-        if let Some(_i) = self.get_current_cue_mut() {}
-        String::new()
+    pub fn copy_cell(&mut self, column: &CueColumn) -> CopiedCell {
+        let Some(current_cue) = self.get_current_cue() else {
+            return CopiedCell::None;
+        };
+
+        match column {
+            CueColumn::Number => CopiedCell::CueNumber(current_cue.0.number()),
+            CueColumn::Name => CopiedCell::Name(current_cue.0.name()),
+            CueColumn::PreWait => CopiedCell::Time(current_cue.0.prewait()),
+            CueColumn::Playing | CueColumn::Duration => CopiedCell::None,
+            CueColumn::PostWait => CopiedCell::Time(current_cue.0.postwait()),
+            CueColumn::Follow => CopiedCell::Follow(current_cue.0.follow()),
+            CueColumn::Target => match current_cue.0.cue_type() {
+                CueType::Audio(file) => file.file().as_ref().map_or(CopiedCell::None, |file| {
+                    CopiedCell::File(file.file_path().to_string())
+                }),
+                CueType::Fade(t) | CueType::Stop(t) | CueType::Pause(t) | CueType::Start(t) => {
+                    CopiedCell::Target(t.clone())
+                }
+            },
+        }
     }
 
     /// # Errors

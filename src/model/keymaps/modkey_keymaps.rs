@@ -15,6 +15,7 @@ fn gen_mod_maps(mod_key: fn(CueCmd) -> ModKeyCmd) -> HashMap<KeyCode, Message> {
 
     HashMap::from([
         (KeyCode::Char('q'), wrapper(CueCmd::Number)),
+        (KeyCode::Char('t'), wrapper(CueCmd::Target)),
         (KeyCode::Char('n'), wrapper(CueCmd::Name)),
         (KeyCode::Char('p'), wrapper(CueCmd::PreWait)),
         (KeyCode::Char('P'), wrapper(CueCmd::PostWait)),

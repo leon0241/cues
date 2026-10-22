@@ -8,7 +8,7 @@
 /// Currently just has a "cue number" which is what links
 /// to an audio cue. Target cues in particular have no "play" functionality,
 /// rather they tell the update handler which Audio cue to play.
-#[derive(Default)]
+#[derive(Debug, Default, Clone)]
 pub struct TargetCue {
     number: Option<String>,
     // cue_type: CueType, // Don't know if this will ever be useful

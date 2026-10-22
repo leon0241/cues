@@ -16,12 +16,23 @@ use crate::model::audio_config::AudioDevice;
 /// Contains all the rodio logic required to play
 /// audio file cues.
 #[allow(dead_code)]
+#[derive(Clone)]
 pub struct AudioFile {
     name: String,
     file_path: String,
     bytes: Arc<[u8]>,
     player: Arc<Player>,
     now_playing: Arc<AtomicU16>,
+}
+
+// Manual implementation of Debug as Player doesn't impl it.
+impl std::fmt::Debug for AudioFile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Point")
+            .field("name", &self.name)
+            .field("file_path", &self.file_path)
+            .finish_non_exhaustive()
+    }
 }
 
 impl AudioFile {

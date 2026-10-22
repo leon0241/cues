@@ -1,7 +1,7 @@
 use crate::model::{
-    cue::cue_base::CueColumn,
+    cue::{CopiedCell, cue_base::CueColumn},
     cuestack::CueStack,
-    editor::{ComboState, Editor, Mode},
+    editor::{Clipboard, ComboState, Editor, Mode},
     keymaps::{CueCmd, Message, ModKeyCmd},
 };
 
@@ -28,9 +28,11 @@ pub fn modkey_handler(
     match cmd {
         ModKeyCmd::Yank(cue_cmd) => {
             if *cue_cmd == CueCmd::Cue {
-                cuestack.copy_cue();
+                let cue_to_copy = cuestack.copy_cue();
+                editor.clipboard_copy_cue(cue_to_copy);
             } else if let Some(i) = match_inner(*cue_cmd) {
-                cuestack.copy_cell(&i);
+                let cell_to_copy: CopiedCell = cuestack.copy_cell(&i);
+                editor.clipboard_copy_cell(cell_to_copy);
             }
         }
         ModKeyCmd::Delete(cue_cmd) => {
@@ -49,6 +51,18 @@ pub fn modkey_handler(
                 editor.reset_cursor();
             }
             editor.set_mode(Mode::Insert);
+        }
+        ModKeyCmd::Paste => {
+            let clipboard: Clipboard = editor.clipboard_paste();
+
+            match clipboard {
+                Clipboard::Cue(cue) => cuestack.new_cue(cue),
+                Clipboard::Cues(_cues) => {}
+                Clipboard::Cell(cell) => cuestack.set_current_cell_str(cell.as_str())?,
+                Clipboard::Text(text) => cuestack.set_current_cell_str(text)?,
+                Clipboard::Cells(_cells) => {}
+                Clipboard::None => {}
+            }
         }
     }
 

@@ -1,16 +1,34 @@
+//! # Editor
+//!
+//! Handler for the editor as a whole
+//! Includes stuff like normal mode.
+
 pub mod input;
 
-use crate::model::keymaps::KeyMaps;
+use crate::model::{
+    cue::{CopiedCell, Cue},
+    keymaps::KeyMaps,
+};
 
+/// Current Editor Mode
+///
+/// These follow the same modes as Vim
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone)]
 pub enum Mode {
+    /// Normal - Movements and such
     #[default]
     Normal,
+    /// Insert - text input. For this application Insert mode
+    /// locks input within the command line
     Insert,
+    /// Visual - Selection of cells / cues
     Visual,
 }
 
 impl Mode {
+    /// Returns a string variant of the mode
+    ///
+    /// Used for rendering to Ratatui
     #[must_use]
     pub const fn as_str(self) -> &'static str {
         match self {
@@ -21,17 +39,32 @@ impl Mode {
     }
 }
 
+/// Current Combo State
+///
+/// This is for combo keys such as delete or yank
+/// which require two keys to form a keymap.
+///
+/// When a key is pressed, The key checker will match
+/// against the combo state and get a relevant keymap from there
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone)]
 pub enum ComboState {
+    /// None - Regular Keymaps
     #[default]
     None,
-    Delete, // d ->
-    Create, // o ->
-    Change, // c ->
-    Yank,   // y ->
+    /// Delete Mode (d_)
+    Delete,
+    /// Create/Open Mode (o_)
+    Create,
+    /// Change/Clear Mode (c_).
+    Change,
+    /// Yank/Copy Mode (y_).
+    Yank,
 }
 
 impl ComboState {
+    /// Returns a string variant of the mode
+    ///
+    /// Used for rendering to Ratatui
     #[must_use]
     pub const fn as_str(self) -> &'static str {
         match self {
@@ -44,11 +77,39 @@ impl ComboState {
     }
 }
 
+/// Current Running State
+///
+/// Should always be running, done quits the app
 #[derive(Debug, Default, PartialEq, Eq)]
 pub enum RunningState {
+    /// App currently Running.
     #[default]
     Running,
+    /// App finished or panicked.
     Done,
+}
+
+#[derive(Debug, Default, Clone)]
+pub enum Clipboard {
+    #[default]
+    None,
+    Text(String),
+    Cue(Cue),
+    Cues(Vec<Cue>),
+    Cell(CopiedCell),
+    Cells(Vec<CopiedCell>),
+}
+
+impl Clipboard {
+    #[must_use]
+    pub const fn from_cue(cue: Cue) -> Self {
+        Self::Cue(cue)
+    }
+
+    #[must_use]
+    pub const fn from_cell(cell: CopiedCell) -> Self {
+        Self::Cell(cell)
+    }
 }
 
 #[derive(Debug, Default)]
@@ -59,7 +120,7 @@ pub struct Editor {
     keymaps: KeyMaps,
     input_buffer: String,
     cursor_idx: usize,
-    // clipboard:
+    clipboard: Clipboard,
 }
 
 impl Editor {
@@ -111,5 +172,17 @@ impl Editor {
 
     pub fn reset_input_buffer(&mut self) {
         self.input_buffer = String::new();
+    }
+
+    pub fn clipboard_copy_cue(&mut self, cue: Cue) {
+        self.clipboard = Clipboard::Cue(cue);
+    }
+
+    pub fn clipboard_copy_cell(&mut self, cell: CopiedCell) {
+        self.clipboard = Clipboard::Cell(cell);
+    }
+
+    pub fn clipboard_paste(&mut self) -> Clipboard {
+        self.clipboard.clone()
     }
 }

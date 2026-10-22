@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use ratatui::crossterm::event::KeyCode;
 
-use crate::model::keymaps::{ComboCmd, EditorCmd, Message, NavigationCmd, PlaybackCmd};
+use crate::model::keymaps::{ComboCmd, EditorCmd, Message, ModKeyCmd, NavigationCmd, PlaybackCmd};
 
 #[must_use]
 pub fn init_nmaps() -> HashMap<KeyCode, Message> {
@@ -24,7 +24,7 @@ pub fn init_nmaps() -> HashMap<KeyCode, Message> {
             Message::Navigation(NavigationCmd::RightCol),
         ),
         (KeyCode::Char(' '), Message::Playback(PlaybackCmd::PlayCue)),
-        (KeyCode::Char('p'), Message::Playback(PlaybackCmd::PauseCue)),
+        (KeyCode::Char('p'), Message::ModKey(ModKeyCmd::Paste)),
         (
             KeyCode::Char('x'),
             Message::Playback(PlaybackCmd::FadeStopCue),

@@ -4,7 +4,7 @@ use ratatui::crossterm::event;
 
 use crate::{
     model::{
-        cue::{Cue, CueType, audio_cue::AudioCue, cue_base::FollowState, target_cue::TargetCue},
+        cue::{Cue, CueType, audio_cue::AudioCue, cue_base::FollowState},
         cuestack::CueStack,
         editor::{Editor, Mode},
         full_model::Model,
@@ -28,7 +28,7 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
         String::from("project/audio/test.wav"),
         &model.handler,
     )?;
-    let file2: AudioFile = AudioFile::new(
+    let _file2: AudioFile = AudioFile::new(
         String::from("boom"),
         String::from("project/audio/boom.wav"),
         &model.handler,

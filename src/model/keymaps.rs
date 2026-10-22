@@ -95,6 +95,7 @@ pub enum ModKeyCmd {
     Yank(CueCmd),
     Delete(CueCmd),
     Change(CueCmd),
+    Paste,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

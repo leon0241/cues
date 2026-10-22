@@ -16,6 +16,7 @@ use crate::model::cue::{
 
 use ratatui::widgets::Row;
 
+#[derive(Debug, Clone)]
 pub enum CueType {
     Audio(AudioCue),
     Fade(TargetCue),
@@ -43,12 +44,39 @@ impl CueType {
     }
 }
 
+/// Copyable cell data for use in yanking
+#[derive(Debug, Default, Clone)]
+pub enum CopiedCell {
+    #[default]
+    None,
+    CueNumber(String),
+    Name(String),
+    Follow(FollowState),
+    Time(f32),
+    Target(TargetCue),
+    File(String),
+}
+
+impl CopiedCell {
+    #[must_use]
+    pub fn as_str(&self) -> String {
+        match self {
+            Self::None => String::new(),
+            Self::CueNumber(c) | Self::Name(c) | Self::File(c) => c.clone(),
+            Self::Follow(c) => c.as_str().to_string(),
+            Self::Time(c) => c.to_string(),
+            Self::Target(c) => c.target().unwrap_or(String::new()),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Cue {
     #[allow(clippy::struct_field_names)]
     cue_type: CueType,
-    number: String,
-    name: String,
-    follow: FollowState,
+    number: String,      // of type CueNumber(String)
+    name: String,        // of type Text(String)
+    follow: FollowState, // of type FollowState
     prewait: f32,
     duration: f32,
     postwait: f32,

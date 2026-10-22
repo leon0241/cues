@@ -35,6 +35,15 @@ impl FollowState {
             Self::Continue => "",
         }
     }
+
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::None => "",
+            Self::Follow => "Follow",
+            Self::Continue => "Continue",
+        }
+    }
 }
 
 /// Currently playing status of a cue
@@ -42,7 +51,7 @@ impl FollowState {
 /// This is most commonly changed by playback cues
 /// such as start/stop cues, and the status can be displayed
 /// in the leftmost `Playing` column
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum PlayState {
     /// Used to show a cue is not active
     None,

@@ -17,7 +17,7 @@ use crate::model::cue::{
 ///
 /// Contains an `AudioFile` field which is what
 /// the Rodio Player for the cue is implemented on.
-#[derive(Default)]
+#[derive(Debug, Default, Clone)]
 pub struct AudioCue {
     file: Option<AudioFile>,
 }
