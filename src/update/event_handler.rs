@@ -4,7 +4,7 @@ use ratatui::crossterm::event;
 
 use crate::{
     model::{
-        cue::{Cue, CueType, audio_cue::AudioCue, cue_base::FollowState},
+        cue::{AudioCue, Cue, CueType, FollowState, audio_file::AudioFile},
         cuestack::CueStack,
         editor::{Editor, Mode},
         full_model::Model,
@@ -16,8 +16,6 @@ use crate::{
         visual::{handle_visual, update_visual},
     },
 };
-
-use crate::model::cue::audio_file::AudioFile;
 
 /// # Errors
 ///

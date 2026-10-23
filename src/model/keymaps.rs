@@ -108,6 +108,7 @@ pub enum CueCmd {
     PreWait,
     PostWait,
     Follow,
+    Current,
 }
 
 #[derive(Debug)]

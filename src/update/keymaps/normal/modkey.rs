@@ -1,5 +1,5 @@
 use crate::model::{
-    cue::{CopiedCell, cue_base::CueColumn},
+    cue::{CopiedCell, CueColumn},
     cuestack::CueStack,
     editor::{Clipboard, ComboState, Editor, Mode},
     keymaps::{CueCmd, Message, ModKeyCmd},
@@ -15,7 +15,7 @@ pub fn modkey_handler(
 ) -> color_eyre::Result<Option<Message>> {
     const fn match_inner(cmd: CueCmd) -> Option<CueColumn> {
         match cmd {
-            CueCmd::Cue => None,
+            CueCmd::Cue | CueCmd::Current => None,
             CueCmd::Number => Some(CueColumn::Number),
             CueCmd::Name => Some(CueColumn::Name),
             CueCmd::Target => Some(CueColumn::Target),
@@ -30,6 +30,9 @@ pub fn modkey_handler(
             if *cue_cmd == CueCmd::Cue {
                 let cue_to_copy = cuestack.copy_cue();
                 editor.clipboard_copy_cue(cue_to_copy);
+            } else if *cue_cmd == CueCmd::Current {
+                let cell_to_copy: CopiedCell = cuestack.copy_current_cell();
+                editor.clipboard_copy_cell(cell_to_copy);
             } else if let Some(i) = match_inner(*cue_cmd) {
                 let cell_to_copy: CopiedCell = cuestack.copy_cell(&i);
                 editor.clipboard_copy_cell(cell_to_copy);
@@ -38,6 +41,8 @@ pub fn modkey_handler(
         ModKeyCmd::Delete(cue_cmd) => {
             if *cue_cmd == CueCmd::Cue {
                 cuestack.delete_cue();
+            } else if *cue_cmd == CueCmd::Current {
+                cuestack.delete_current_cell();
             } else if let Some(i) = match_inner(*cue_cmd) {
                 cuestack.delete_cell(&i);
             }
@@ -45,6 +50,10 @@ pub fn modkey_handler(
         ModKeyCmd::Change(cue_cmd) => {
             if *cue_cmd == CueCmd::Cue {
                 cuestack.clear_cue();
+            } else if *cue_cmd == CueCmd::Current {
+                cuestack.delete_current_cell();
+                editor.reset_input_buffer();
+                editor.reset_cursor();
             } else if let Some(i) = match_inner(*cue_cmd) {
                 cuestack.delete_cell(&i);
                 editor.reset_input_buffer();

@@ -14,6 +14,8 @@ fn gen_mod_maps(mod_key: fn(CueCmd) -> ModKeyCmd) -> HashMap<KeyCode, Message> {
     let wrapper = |cmd: CueCmd| Message::ModKey(mod_key(cmd));
 
     HashMap::from([
+        (KeyCode::Char('i'), wrapper(CueCmd::Current)),
+        (KeyCode::Char('a'), wrapper(CueCmd::Current)),
         (KeyCode::Char('q'), wrapper(CueCmd::Number)),
         (KeyCode::Char('t'), wrapper(CueCmd::Target)),
         (KeyCode::Char('n'), wrapper(CueCmd::Name)),

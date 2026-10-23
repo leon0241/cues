@@ -1,8 +1,4 @@
-use crate::model::cue::CopiedCell;
-use crate::model::cue::Cue;
-use crate::model::cue::CueType;
-use crate::model::cue::cue_base::CueColumn;
-use crate::model::cue::cue_base::FollowState;
+use crate::model::cue::{CopiedCell, Cue, CueColumn, CueType, FollowState};
 use crate::model::cuestack::CueStack;
 
 impl CueStack {
@@ -39,13 +35,6 @@ impl CueStack {
         let col_idx = self.get_column_idx()?.clamp(0, 8);
 
         CueColumn::from_index(col_idx)
-    }
-
-    /// Delete Current Cue
-    pub fn delete_cue(&mut self) {
-        if let Some(i) = self.get_row_idx() {
-            self.cues.remove(i);
-        }
     }
 
     #[must_use]
@@ -170,13 +159,21 @@ impl CueStack {
             CueColumn::Follow => CopiedCell::Follow(current_cue.0.follow()),
             CueColumn::Target => match current_cue.0.cue_type() {
                 CueType::Audio(file) => file.file().as_ref().map_or(CopiedCell::None, |file| {
-                    CopiedCell::File(file.file_path().to_string())
+                    CopiedCell::FilePath(file.file_path().to_string())
                 }),
                 CueType::Fade(t) | CueType::Stop(t) | CueType::Pause(t) | CueType::Start(t) => {
                     CopiedCell::Target(t.clone())
                 }
             },
         }
+    }
+
+    pub fn copy_current_cell(&mut self) -> CopiedCell {
+        let Some(current_col) = self.get_current_column() else {
+            return CopiedCell::None;
+        };
+
+        self.copy_cell(&current_col)
     }
 
     /// # Errors
@@ -202,6 +199,13 @@ impl CueStack {
         self.select_cell_state(idx, CueColumn::Name);
     }
 
+    /// Delete Current Cue
+    pub fn delete_cue(&mut self) {
+        if let Some(i) = self.get_row_idx() {
+            self.cues.remove(i);
+        }
+    }
+
     /// # Errors
     ///
     /// TODO
@@ -225,5 +229,13 @@ impl CueStack {
         }
 
         self.select_cell_state(idx, *column);
+    }
+
+    pub fn delete_current_cell(&mut self) {
+        let Some(current_col) = self.get_current_column() else {
+            return;
+        };
+
+        self.delete_cell(&current_col);
     }
 }

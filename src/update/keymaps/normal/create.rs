@@ -1,5 +1,5 @@
 use crate::model::{
-    cue::{Cue, CueType, audio_cue::AudioCue, target_cue::TargetCue},
+    cue::{AudioCue, Cue, CueType, TargetCue},
     cuestack::CueStack,
     editor::{ComboState, Editor},
     keymaps::{CreateCmd, Message},

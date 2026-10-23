@@ -1,5 +1,5 @@
 use crate::model::{
-    cue::{Cue, CueType, audio_cue::PlayableCue, cue_base::PlayState},
+    cue::{Cue, CueType, PlayState, audio_cue::PlayableCue},
     cuestack::CueStack,
     keymaps::PlaybackCmd,
 };

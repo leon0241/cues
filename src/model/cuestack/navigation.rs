@@ -1,4 +1,4 @@
-use crate::model::{cue::cue_base::CueColumn, cuestack::CueStack};
+use crate::model::{cue::CueColumn, cuestack::CueStack};
 
 impl CueStack {
     /// Select the previous column.

@@ -1,6 +1,7 @@
 //! # Audio Cue
 //!
 //! `CueType` structure for audio cues
+//!
 //! Uses Rodio as a backend
 
 use std::sync::{Arc, atomic::{AtomicU16, Ordering}};

@@ -6,9 +6,10 @@ use ratatui::widgets::TableState;
 
 use color_eyre::eyre::eyre;
 
-use crate::model::cue::CueType;
-use crate::model::cue::cue_base::CueColumn;
-use crate::model::{cue::Cue, keymaps::PlaybackCmd};
+use crate::model::{
+    cue::{Cue, CueColumn, CueType},
+    keymaps::PlaybackCmd,
+};
 
 use crate::model::audio_config::AudioDevice;
 

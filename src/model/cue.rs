@@ -5,70 +5,20 @@
 
 pub mod audio_cue;
 pub mod audio_file;
-pub mod cue_base;
+pub mod copied_cell;
+pub mod cue_column;
+pub mod cue_type;
+pub mod follow_state;
+pub mod play_state;
 pub mod target_cue;
 
-use crate::model::cue::{
-    audio_cue::AudioCue,
-    cue_base::{FollowState, PlayState},
-    target_cue::TargetCue,
+// Expose Submodules
+pub use crate::model::cue::{
+    audio_cue::AudioCue, copied_cell::CopiedCell, cue_column::CueColumn, cue_type::CueType,
+    follow_state::FollowState, play_state::PlayState, target_cue::TargetCue,
 };
 
 use ratatui::widgets::Row;
-
-#[derive(Debug, Clone)]
-pub enum CueType {
-    Audio(AudioCue),
-    Fade(TargetCue),
-    Stop(TargetCue),
-    Pause(TargetCue),
-    Start(TargetCue),
-}
-
-impl Default for CueType {
-    fn default() -> Self {
-        Self::Audio(AudioCue::default())
-    }
-}
-
-impl CueType {
-    #[must_use]
-    pub const fn icon(&self) -> &'static str {
-        match self {
-            Self::Audio(_) => "",
-            Self::Fade(_) => "",
-            Self::Stop(_) => "",
-            Self::Pause(_) => "",
-            Self::Start(_) => "",
-        }
-    }
-}
-
-/// Copyable cell data for use in yanking
-#[derive(Debug, Default, Clone)]
-pub enum CopiedCell {
-    #[default]
-    None,
-    CueNumber(String),
-    Name(String),
-    Follow(FollowState),
-    Time(f32),
-    Target(TargetCue),
-    File(String),
-}
-
-impl CopiedCell {
-    #[must_use]
-    pub fn as_str(&self) -> String {
-        match self {
-            Self::None => String::new(),
-            Self::CueNumber(c) | Self::Name(c) | Self::File(c) => c.clone(),
-            Self::Follow(c) => c.as_str().to_string(),
-            Self::Time(c) => c.to_string(),
-            Self::Target(c) => c.target().unwrap_or(String::new()),
-        }
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct Cue {
