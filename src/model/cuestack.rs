@@ -62,7 +62,7 @@ impl CueStack {
     pub fn current_target(&self) -> Option<String> {
         let current_cue: &Cue = self.get_current_cue()?.0;
 
-        Some(current_cue.get_target())
+        Some(current_cue.get_target_str())
     }
 
     /// Get the action of a chosen target cue

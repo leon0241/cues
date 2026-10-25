@@ -2,7 +2,19 @@ use crate::model::cue::{CopiedCell, Cue, CueColumn, CueType, FollowState};
 use crate::model::cuestack::CueStack;
 
 impl CueStack {
-    pub fn new_cue(&mut self, new_cue: Cue) {
+    pub fn new_cue(&mut self, mut new_cue: Cue) {
+        let last_cue_num: String = self
+            .cues
+            .last()
+            .map_or(2_usize, |cue| {
+                cue.number()
+                    .parse::<usize>()
+                    .unwrap_or(1_usize)
+                    .wrapping_add(1)
+            })
+            .to_string();
+
+        new_cue.set_number(last_cue_num);
         self.cues.push(new_cue);
     }
 

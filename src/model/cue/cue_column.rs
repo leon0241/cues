@@ -41,6 +41,14 @@ impl CueColumn {
     ///
     /// Column 1 is the cue type, and is not included.
     /// Likewise with any usize larger than 8
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use cues::model::cue::CueColumn;
+    /// let column = CueColumn::from_index(5);
+    /// assert_eq!(column, Some(CueColumn::PreWait));
+    /// ```
     #[must_use]
     pub const fn from_index(i: usize) -> Option<Self> {
         match i {
@@ -59,6 +67,16 @@ impl CueColumn {
     }
 
     /// Gets an index from a cue column
+    ///
+    /// This can be any value 0 -> 8 except 1
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use cues::model::cue::CueColumn;
+    /// let idx = CueColumn::to_index(CueColumn::PreWait);
+    /// assert_eq!(idx, 5);
+    /// ```
     #[must_use]
     pub const fn to_index(column: Self) -> usize {
         match column {
@@ -71,5 +89,48 @@ impl CueColumn {
             Self::PostWait => 7,
             Self::Follow => 8,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_from_index() {
+        assert_eq!(CueColumn::from_index(0), Some(CueColumn::Playing));
+        assert_eq!(CueColumn::from_index(1), None);
+        assert_eq!(CueColumn::from_index(2), Some(CueColumn::Number));
+        assert_eq!(CueColumn::from_index(3), Some(CueColumn::Name));
+        assert_eq!(CueColumn::from_index(4), Some(CueColumn::Target));
+        assert_eq!(CueColumn::from_index(5), Some(CueColumn::PreWait));
+        assert_eq!(CueColumn::from_index(6), Some(CueColumn::Duration));
+        assert_eq!(CueColumn::from_index(7), Some(CueColumn::PostWait));
+        assert_eq!(CueColumn::from_index(8), Some(CueColumn::Follow));
+        assert_eq!(CueColumn::from_index(9), None);
+        assert_eq!(CueColumn::from_index(10), None);
+    }
+
+    #[test]
+    fn test_to_index() {
+        assert_eq!(CueColumn::to_index(CueColumn::Playing), 0);
+        assert_eq!(CueColumn::to_index(CueColumn::Number), 2);
+        assert_eq!(CueColumn::to_index(CueColumn::Name), 3);
+        assert_eq!(CueColumn::to_index(CueColumn::Target), 4);
+        assert_eq!(CueColumn::to_index(CueColumn::PreWait), 5);
+        assert_eq!(CueColumn::to_index(CueColumn::Duration), 6);
+        assert_eq!(CueColumn::to_index(CueColumn::PostWait), 7);
+        assert_eq!(CueColumn::to_index(CueColumn::Follow), 8);
+    }
+
+    #[test]
+    fn test_implementations() {
+        let col1 = CueColumn::Name;
+        let col2 = CueColumn::PreWait;
+
+        assert_eq!(Some(col1), CueColumn::from_index(3));
+        assert_eq!(CueColumn::to_index(col1), 3);
+        assert_eq!(Some(col2), CueColumn::from_index(5));
+        assert_eq!(CueColumn::to_index(col2), 5);
     }
 }

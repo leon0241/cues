@@ -95,7 +95,7 @@ pub fn create_terminal() -> color_eyre::Result<Tui> {
 ///
 /// TODO
 pub fn run_loop(mut tui: Tui) -> color_eyre::Result<()> {
-    let mut model: Model = Model::new(Editor::new(), CueStack::new());
+    let mut model: Model = Model::new();
     // let mut model: CueStack = CueStack::new();
     model.cuestack_mut().set_default_sink()?;
     // maybe put mut back with insert/normal

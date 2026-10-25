@@ -13,44 +13,22 @@ pub fn create_handler(
     editor: &mut Editor,
     cmd: &CreateCmd,
 ) -> color_eyre::Result<Option<Message>> {
-    let last_cue_num: usize = cuestack.cues.last().map_or(2_usize, |cue| {
-        cue.number()
-            .parse::<usize>()
-            .unwrap_or(1_usize)
-            .wrapping_add(1)
-    });
-
     match cmd {
         CreateCmd::CreateAudio => {
-            cuestack.new_cue(Cue::default_from_type(
-                last_cue_num,
-                CueType::Audio(AudioCue::default()),
-            ));
+            cuestack.new_cue(Cue::default_from_type(CueType::Audio(AudioCue::default())));
         }
         // TODO: add these back in
         CreateCmd::CreateFade => {
-            cuestack.new_cue(Cue::default_from_type(
-                last_cue_num,
-                CueType::Fade(TargetCue::default()),
-            ));
+            cuestack.new_cue(Cue::default_from_type(CueType::Fade(TargetCue::default())));
         }
         CreateCmd::CreateStart => {
-            cuestack.new_cue(Cue::default_from_type(
-                last_cue_num,
-                CueType::Start(TargetCue::default()),
-            ));
+            cuestack.new_cue(Cue::default_from_type(CueType::Start(TargetCue::default())));
         }
         CreateCmd::CreateStop => {
-            cuestack.new_cue(Cue::default_from_type(
-                last_cue_num,
-                CueType::Stop(TargetCue::default()),
-            ));
+            cuestack.new_cue(Cue::default_from_type(CueType::Stop(TargetCue::default())));
         }
         CreateCmd::CreatePause => {
-            cuestack.new_cue(Cue::default_from_type(
-                last_cue_num,
-                CueType::Pause(TargetCue::default()),
-            ));
+            cuestack.new_cue(Cue::default_from_type(CueType::Pause(TargetCue::default())));
         }
     }
     editor.set_combo_state(ComboState::None);
