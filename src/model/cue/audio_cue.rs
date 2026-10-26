@@ -255,6 +255,13 @@ impl AudioCue {
         &mut self.file
     }
 
+    /// Gets a mutable reference to the `AudioFile`
+    ///
+    /// To get an absolute reference, use `file()`
+    pub fn set_file(&mut self, audio_file: AudioFile) {
+        self.file = Some(audio_file);
+    }
+
     /// Returns a file's icon.
     ///
     /// This is solely for use in the Target field, where

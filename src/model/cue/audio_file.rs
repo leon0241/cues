@@ -44,9 +44,14 @@ impl AudioFile {
     /// # Errors
     ///
     /// Will return `Err` if no default sink can be found.
-    pub fn new(name: String, file_path: String, mixer: &AudioDevice) -> color_eyre::Result<Self> {
+    pub fn new(
+        name: impl Into<String>,
+        file_path: impl Into<String>,
+        mixer: &AudioDevice,
+    ) -> color_eyre::Result<Self> {
+        let path = file_path.into();
         // Read File info. Arc it so it can be referenced repeatedly using a cursor
-        let bytes: Arc<[u8]> = std::fs::read(&file_path)?.into();
+        let bytes: Arc<[u8]> = std::fs::read(&path)?.into();
 
         let mixer_sink = mixer
             .sink
@@ -59,12 +64,50 @@ impl AudioFile {
         let now_playing: Arc<AtomicU16> = Arc::new(AtomicU16::new(0));
 
         Ok(Self {
-            name,
-            file_path,
+            name: name.into(),
+            file_path: path,
             bytes,
             player,
             now_playing,
         })
+    }
+
+    /// Creates a minimal `AudioFile` without reading or setting up a player.
+    ///
+    /// Note that you will need to manually call `try_read()` before you are able to play an
+    /// audio file. The same is true for `set_mixer()`.
+    ///
+    /// # Errors
+    ///
+    /// Will return `Err` if no default sink can be found.
+    #[must_use]
+    pub fn unchecked_new(name: impl Into<String>, file_path: impl Into<String>) -> Self {
+        // Read File info. Arc it so it can be referenced repeatedly using a cursor
+
+        let now_playing: Arc<AtomicU16> = Arc::new(AtomicU16::new(0));
+
+        Self {
+            name: name.into(),
+            file_path: file_path.into(),
+            bytes: Arc::default(),
+            player: Arc::new(Player::new().0),
+            now_playing,
+        }
+    }
+
+    /// Creates a player using the default mixer.
+    ///
+    /// # Errors
+    ///
+    /// Returns an Error if no mixer is found
+    pub fn set_mixer(mixer: &AudioDevice) -> color_eyre::Result<Arc<Player>> {
+        let mixer_sink = mixer
+            .sink
+            .as_ref()
+            .ok_or_else(|| eyre!("Error no mixer"))?
+            .mixer();
+
+        Ok(Arc::new(Player::connect_new(mixer_sink)))
     }
 
     /// Absolute reference to player
@@ -126,8 +169,8 @@ impl AudioFile {
     /// **NOTE**: This does not read the file / store its contents.
     /// This means that `try_read()` will have to be called every time
     /// a new `file_path` is set.
-    pub fn set_file_path(&mut self, file_path: &str) {
-        self.file_path = file_path.to_string();
+    pub fn set_file_path(&mut self, file_path: impl Into<String>) {
+        self.file_path = file_path.into();
     }
 
     /// Reads byes from the stored file path

@@ -34,15 +34,15 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
 
     model.set_items(vec![
         Cue::new(
-            String::from("1"),
-            String::new(),
+            "1",
+            "",
             1_f32,
             FollowState::None,
             CueType::Audio(AudioCue::default()),
         ),
         Cue::new(
-            String::from("2"),
-            String::from("file"),
+            "2",
+            "file",
             1_f32,
             FollowState::None,
             CueType::Audio(AudioCue::new(Some(file1))),

@@ -55,20 +55,26 @@ impl Default for Cue {
 impl Cue {
     /// Creates a new cue with specified parameters
     ///
-    /// Cue alternatively implements Default, as well as
-    /// a `default_from_type()` function as Default will always
-    /// create an audio cue.
+    /// Cue alternatively implements Default, as well as a `default_from_type()` function as Default
+    /// will always create an audio cue.
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::cue::{Cue, FollowState, CueType, AudioCue};
+    ///
+    /// let cue = Cue::new("1", "Test", 3.0, FollowState::None, CueType::Audio(AudioCue::default()));
+    /// ```
     #[must_use]
-    pub const fn new(
-        number: String,
-        name: String,
+    pub fn new(
+        number: impl Into<String>,
+        name: impl Into<String>,
         duration: f32,
         follow: FollowState,
         cue_type: CueType,
     ) -> Self {
         Self {
-            number,
-            name,
+            number: number.into(),
+            name: name.into(),
             duration,
             follow,
             cue_type,
@@ -81,8 +87,15 @@ impl Cue {
 
     /// Creates a specified blank cue type
     ///
-    /// Cue alternatively implements Default, which will
-    /// create an audio file
+    /// Cue alternatively implements Default, which will create a blank audio file. Note that having
+    /// a default type requires you to use `CueType` as well as `AudioCue` or `TargetCue`.
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::cue::{Cue, CueType, AudioCue};
+    ///
+    /// let audio_cue = Cue::default_from_type(CueType::Audio(AudioCue::default()));
+    /// ```
     #[must_use]
     pub fn default_from_type(cue_type: CueType) -> Self {
         Self {
@@ -93,7 +106,17 @@ impl Cue {
 
     /// Gets a Ratatui format `Row`
     ///
-    /// All the fields in a `Row` are of type String
+    /// All the fields in a `Row` are of type String. The fields are in the following order:
+    /// Status | Type | Number | Name | Target | Pre | Duration | Post | Follow
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::cue::Cue;
+    ///
+    /// let new_cue = Cue::default();
+    ///
+    /// let row = new_cue.get_row();
+    /// ```
     #[must_use]
     pub fn get_row(&self) -> Row<'_> {
         Row::new(vec![
@@ -118,28 +141,49 @@ impl Cue {
         ])
     }
 
-    /// Gets the Cue target
+    /// Gets the Cue target (for reference)
     ///
-    /// This will either be an icon of a file for an Audio File
-    /// or a target to another cue for any targetable cue types.
+    /// - If the cue is a populated Audio Cue, it returns the file path
+    /// - If the cue is an unpopulated Audio Cue, it returns None
+    /// - If the cue is a populated Target Cue, it returns the target number
+    /// - If the cue is an unpopulated Target cue, it returns None
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::cue::{Cue, CueType, AudioCue, TargetCue};
+    ///
+    /// let mut audio_cue = Cue::default_from_type(CueType::Audio(AudioCue::default()));
+    ///
+    /// assert_eq!(audio_cue.get_target(), None);
+    /// ```
     #[must_use]
     pub fn get_target(&self) -> Option<String> {
         match self.cue_type {
-            CueType::Audio(ref audio_cue) => audio_cue
-                .file()
-                .as_ref()
-                .map_or(None, |f| Some(f.file_path().to_string())),
+            CueType::Audio(ref audio_cue) => {
+                audio_cue.file().as_ref().map(|f| f.file_path().to_string())
+            }
             CueType::Fade(ref t)
             | CueType::Stop(ref t)
             | CueType::Pause(ref t)
-            | CueType::Start(ref t) => t.target().map_or(None, |f| Some(f)),
+            | CueType::Start(ref t) => t.target(),
         }
     }
 
-    /// Gets the Cue target
+    /// Gets the Cue target (for formatting)
     ///
-    /// This will either be an icon of a file for an Audio File
-    /// or a target to another cue for any targetable cue types.
+    /// - If the cue is a populated Audio Cue, it returns an icon of a file ()
+    /// - If the cue is an unpopulated Audio Cue, it returns ""
+    /// - If the cue is a populated Target Cue, it returns the target number
+    /// - If the cue is an unpopulated Target cue, it returns ""
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::cue::{Cue, CueType, AudioCue, TargetCue};
+    ///
+    /// let mut audio_cue = Cue::default_from_type(CueType::Audio(AudioCue::default()));
+    ///
+    /// assert_eq!(audio_cue.get_target_str(), String::from(""));
+    /// ```
     #[must_use]
     pub fn get_target_str(&self) -> String {
         match self.cue_type {
@@ -153,15 +197,30 @@ impl Cue {
 
     /// Sets the Cue target
     ///
-    /// This function only works for Targetable cues, setting
-    /// the file path for an audio cue is set through `cue.file().target()`
-    pub fn set_target(&mut self, value: String) {
+    /// - If the cue is a populated Audio Cue, it sets the file path
+    /// - If the cue is a populated Target Cue, it sets the target number
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::cue::{Cue, CueType, AudioCue, TargetCue};
+    ///
+    /// let mut audio_cue = Cue::default_from_type(CueType::Audio(AudioCue::default()));
+    /// let mut fade_cue = Cue::default_from_type(CueType::Fade(TargetCue::default()));
+    ///
+    /// audio_cue.set_target(String::from("/test/file/path"));
+    /// fade_cue.set_target(String::from("3"));
+    /// ```
+    pub fn set_target(&mut self, value: impl Into<String>) {
         match self.cue_type {
-            CueType::Audio(_) => {}
+            CueType::Audio(ref mut a) => {
+                if let Some(b) = a.file_mut() {
+                    b.set_file_path(value.into());
+                }
+            }
             CueType::Fade(ref mut t)
             | CueType::Stop(ref mut t)
             | CueType::Pause(ref mut t)
-            | CueType::Start(ref mut t) => t.set_target(value),
+            | CueType::Start(ref mut t) => t.set_target(value.into()),
         }
     }
 }
@@ -403,7 +462,27 @@ impl Cue {
 }
 
 mod tests {
+    use crate::model::cue::audio_file::AudioFile;
+
     use super::*;
+
+    #[test]
+    fn new() {
+        let new_cue = Cue::new(
+            "1",
+            "test",
+            0.0,
+            FollowState::Follow,
+            CueType::Audio(AudioCue::default()),
+        );
+
+        assert_eq!(new_cue.number(), String::from("1"));
+        assert_eq!(new_cue.name(), String::from("test"));
+        assert_eq!(new_cue.follow(), FollowState::Follow);
+        assert_eq!(new_cue.prewait(), 0.0);
+        assert_eq!(new_cue.postwait(), 0.0);
+        assert!(matches!(new_cue.status(), PlayState::None));
+    }
 
     #[test]
     fn new_default_cue() {
@@ -437,12 +516,80 @@ mod tests {
         assert_eq!(cue.get_row(), match_row);
     }
 
-    // TODO: come back to this!
-    fn get_target_audio() {
+    #[test]
+    fn get_target_blank_audio() {
         // Type is Audio
         let cue = Cue::default();
 
-        assert!(matches!(cue.cue_type(), CueType::Audio(_)));
+        assert_eq!(cue.get_target(), None);
+    }
+
+    #[test]
+    fn get_target_populated_audio() {
+        // Type is Audio
+        let mut cue = Cue::default();
+
+        if let CueType::Audio(q) = cue.cue_type_mut() {
+            q.set_file(AudioFile::unchecked_new("name", "/file/path"));
+        }
+
+        assert_eq!(cue.get_target(), Some(String::from("/file/path")));
+    }
+
+    #[test]
+    fn get_target_blank_fade() {
+        // Type is Audio
+        let cue = Cue::default_from_type(CueType::Fade(TargetCue::default()));
+
+        assert_eq!(cue.get_target(), None);
+    }
+
+    #[test]
+    fn get_target_populated_fade() {
+        // Type is Audio
+        let mut cue = Cue::default_from_type(CueType::Fade(TargetCue::default()));
+
+        cue.set_target("3");
+
+        assert_eq!(cue.get_target(), Some(String::from("3")));
+    }
+
+    #[test]
+    fn get_target_str_blank_audio() {
+        // Type is Audio
+        let cue = Cue::default();
+
+        assert_eq!(cue.get_target_str(), String::new());
+    }
+
+    #[test]
+    fn get_target_str_populated_audio() {
+        // Type is Audio
+        let mut cue = Cue::default();
+
+        if let CueType::Audio(q) = cue.cue_type_mut() {
+            q.set_file(AudioFile::unchecked_new("name", "/file/path"));
+        }
+
+        assert_eq!(cue.get_target_str(), String::from(""));
+    }
+
+    #[test]
+    fn get_target_str_blank_fade() {
+        // Type is Audio
+        let cue = Cue::default_from_type(CueType::Fade(TargetCue::default()));
+
+        assert_eq!(cue.get_target_str(), String::new());
+    }
+
+    #[test]
+    fn get_target_str_populated_fade() {
+        // Type is Audio
+        let mut cue = Cue::default_from_type(CueType::Fade(TargetCue::default()));
+
+        cue.set_target("3");
+
+        assert_eq!(cue.get_target_str(), String::from("3"));
     }
 
     #[test]
