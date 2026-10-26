@@ -1,9 +1,24 @@
+//! # Normal Mode Keymaps
+//!
+//! Handles the mapping of normal mode commands (without any combos). This also handles the
+//! movement into a combo layer for Modkey commands
+
 use std::collections::HashMap;
 
 use ratatui::crossterm::event::KeyCode;
 
 use crate::model::keymaps::{ComboCmd, EditorCmd, Message, ModKeyCmd, NavigationCmd, PlaybackCmd};
 
+/// Initialises Normal mode Keymaps.
+///
+/// These are all single press commands, and anything bigger goes into `modkey_keymaps.rs`.
+///
+/// # Examples
+/// ```
+/// use cues::model::keymaps::normal_keymaps::init_nmaps;
+///
+/// let nmaps = init_nmaps();
+/// ```
 #[must_use]
 pub fn init_nmaps() -> HashMap<KeyCode, Message> {
     HashMap::from([

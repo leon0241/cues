@@ -24,25 +24,25 @@ pub fn playback_handler(
                 CueType::Fade(_) => {
                     let target: Option<String> = model.current_target();
                     if let Some(i) = target {
-                        model.cue_action(Some(i), &PlaybackCmd::FadeStopCue)?;
+                        model.cue_action(Some(&i), &PlaybackCmd::FadeStopCue)?;
                     }
                 }
                 CueType::Start(_) => {
                     let target: Option<String> = model.current_target();
                     if let Some(i) = target {
-                        model.cue_action(Some(i), &PlaybackCmd::PlayCue)?;
+                        model.cue_action(Some(&i), &PlaybackCmd::PlayCue)?;
                     }
                 }
                 CueType::Stop(_) => {
                     let target: Option<String> = model.current_target();
                     if let Some(i) = target {
-                        model.cue_action(Some(i), &PlaybackCmd::StopCue)?;
+                        model.cue_action(Some(&i), &PlaybackCmd::StopCue)?;
                     }
                 }
                 CueType::Pause(_) => {
                     let target: Option<String> = model.current_target();
                     if let Some(i) = target {
-                        model.cue_action(Some(i), &PlaybackCmd::PauseCue)?;
+                        model.cue_action(Some(&i), &PlaybackCmd::PauseCue)?;
                     }
                 }
             }

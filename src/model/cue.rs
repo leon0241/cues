@@ -459,6 +459,73 @@ impl Cue {
     pub const fn set_follow(&mut self, follow: FollowState) {
         self.follow = follow;
     }
+
+    /// Returns a string value for a specified `CueColumn`.
+    ///
+    /// The function will call the required string function for whatever column is selected
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::cue::{Cue, CueColumn};
+    ///
+    /// let mut cue = Cue::default();
+    ///
+    /// assert_eq!(cue.get_cell_str(CueColumn::PreWait), String::from("0"));
+    /// ```
+    #[must_use]
+    pub fn get_cell_str(&self, column: CueColumn) -> String {
+        match column {
+            CueColumn::Playing | CueColumn::Duration => String::new(),
+            CueColumn::Name => self.name(),
+            CueColumn::Number => self.number(),
+            CueColumn::PreWait => self.prewait().to_string(),
+            CueColumn::PostWait => self.postwait().to_string(),
+            CueColumn::Follow => self.follow().icon().to_string(),
+            CueColumn::Target => match self.cue_type() {
+                CueType::Audio(cue) => cue
+                    .file()
+                    .as_ref()
+                    .map_or(String::new(), |file| file.file_path().to_string()),
+                CueType::Fade(t) | CueType::Stop(t) | CueType::Pause(t) | CueType::Start(t) => {
+                    t.target().unwrap_or(String::new())
+                }
+            },
+        }
+    }
+
+    /// Parses a string value and sets it for a specified `CueColumn`.
+    ///
+    /// The function will call the required parsing function for whatever column is selected
+    ///
+    /// # Errors
+    ///
+    /// Errors if the column is a File target, and the file cannot be read
+    pub fn set_cell_str(&mut self, column: &CueColumn, value: String) -> color_eyre::Result<()> {
+        fn parser(value: &str) -> f32 {
+            value.parse::<f32>().unwrap_or_default()
+        }
+
+        match column {
+            CueColumn::Playing | CueColumn::Duration => {}
+            CueColumn::Name => self.set_name(value),
+            CueColumn::Number => self.set_number(value),
+            CueColumn::PreWait => self.set_prewait(parser(&value)),
+            CueColumn::PostWait => self.set_postwait(parser(&value)),
+            CueColumn::Follow => self.set_follow(FollowState::Follow),
+            CueColumn::Target => match self.cue_type_mut() {
+                CueType::Audio(cue) => {
+                    if let Some(i) = cue.file_mut().as_mut() {
+                        i.set_file_path(&value);
+                        i.try_read()?;
+                    }
+                }
+                CueType::Fade(_) | CueType::Stop(_) | CueType::Pause(_) | CueType::Start(_) => {
+                    self.set_target(value);
+                }
+            },
+        }
+        Ok(())
+    }
 }
 
 mod tests {
