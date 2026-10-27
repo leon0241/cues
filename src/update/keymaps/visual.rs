@@ -1,3 +1,7 @@
+//! # Visual Mode Update Handler
+//!
+//! Everything you need to update in Visual Mode.
+
 use ratatui::crossterm::event::{KeyCode, KeyModifiers};
 
 use crate::model::{
@@ -6,6 +10,11 @@ use crate::model::{
     keymaps::Message,
 };
 
+/// # Visual Mode
+///
+/// Turns a `KeyCode` into a `Message`
+///
+/// Matches against any `KeyMaps`.
 #[must_use]
 pub fn handle_visual(key: KeyCode, _modifier: KeyModifiers, editor: &Editor) -> Option<Message> {
     let keymaps = editor.keymaps();
@@ -23,9 +32,13 @@ pub fn handle_visual(key: KeyCode, _modifier: KeyModifiers, editor: &Editor) -> 
     }
 }
 
+/// # Visual Mode
+///
+/// Reads a Message and updates the `CueStack` or `Editor` in response
+///
 /// # Errors
 ///
-/// Will return `Err` if cannot handle a key
+/// Will return `Err` if a file cell is set and the file path cannot be read.
 pub const fn update_visual(
     _model: &mut Model,
     _msg: &Message,

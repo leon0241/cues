@@ -1,3 +1,7 @@
+//! # Insert Mode Update Handler
+//!
+//! Everything you need to update in Insert Mode.
+
 pub mod editor;
 pub mod input;
 
@@ -13,6 +17,11 @@ use crate::{
     update::keymaps::insert::{editor::i_editor_handler, input::input_handler},
 };
 
+/// # Insert Mode
+///
+/// Turns a `KeyCode` into a `Message`
+///
+/// Matches against any `KeyMaps` as well as the charmaps for typing
 #[must_use]
 pub fn handle_insert(key: KeyCode, _modifier: KeyModifiers, editor: &Editor) -> Option<Message> {
     let keymaps = editor.keymaps();
@@ -23,9 +32,13 @@ pub fn handle_insert(key: KeyCode, _modifier: KeyModifiers, editor: &Editor) -> 
     imaps.map_or_else(|| insert_char_map(key), Some)
 }
 
+/// # Insert Mode
+///
+/// Reads a Message and updates the `CueStack` or `Editor` in response
+///
 /// # Errors
 ///
-/// Will return `Err` if an incorrect file path is provided
+/// Will return `Err` if a file cell is set and the file path cannot be read.
 pub fn update_insert(model: &mut Model, msg: &Message) -> color_eyre::Result<Option<Message>> {
     let (editor, cuestack): (&mut Editor, &mut CueStack) = model.full_mut();
 

@@ -1,3 +1,7 @@
+//! # Event Handler
+//!
+//! A magical machine that turns keyboard input into `Message`s
+
 use std::time::Duration;
 
 use ratatui::crossterm::event;
@@ -17,9 +21,13 @@ use crate::{
     },
 };
 
+/// Init some cues
+///
+/// This shouldn't be here to be honest
+///
 /// # Errors
 ///
-/// Will return `Err` if something went wrong in the files
+/// Will return `Err` if a file couldn't be read
 pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
     let file1: AudioFile = AudioFile::new(
         String::from("funkytown"),
@@ -73,21 +81,37 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
     Ok(())
 }
 
+/// Polls for events and passes it to `handle_key()` if there is anything notable
+///
+/// Passes an `Editor` and a `Mode`. Notably this should never touch `CueStack`
+///
 /// # Errors
 ///
-/// Will return `Err` if cannot handle a key
+/// Will return `Err` if something went wrong in `event::read()`
+///
+/// # Examples
+/// ```
+/// use cues::model::editor::{Editor, Mode};
+/// use cues::update::event_handler::handle_event;
+///
+/// assert!(matches!(handle_event(&Editor::new(), Mode::Normal), Ok(None)));
+/// ```
 pub fn handle_event(editor: &Editor, mode: Mode) -> color_eyre::Result<Option<Message>> {
     if event::poll(Duration::from_millis(250))?
         && let event::Event::Key(key) = event::read()?
         && key.kind == event::KeyEventKind::Press
     {
-        return Ok(handle_key(key, mode, editor));
+        return Ok(handle_key(key, editor, mode));
     }
     Ok(None)
 }
 
+/// Matches against the current `Mode` to the mode's respective handler function.
+///
+/// Returns None if the handler has completed its function, but can also return a Message, in
+/// which case the function could perform a second message and so forth
 #[must_use]
-pub fn handle_key(key: event::KeyEvent, mode: Mode, editor: &Editor) -> Option<Message> {
+pub fn handle_key(key: event::KeyEvent, editor: &Editor, mode: Mode) -> Option<Message> {
     let (code, modifiers) = (key.code, key.modifiers);
 
     match mode {
@@ -97,9 +121,11 @@ pub fn handle_key(key: event::KeyEvent, mode: Mode, editor: &Editor) -> Option<M
     }
 }
 
+/// Matches against the current `Message`, and continues matching until the `Message` is `None`
+///
 /// # Errors
 ///
-/// TODO
+/// Returns an Error if either `handle_event()` fails, or any of the update functions propagates up.
 pub fn event_matcher(model: &mut Model) -> color_eyre::Result<()> {
     // Start on Normal mode (default)
     let current_mode: Mode = model.editor().mode();

@@ -1,11 +1,13 @@
+//! # Insert Input Handler
+//!
+//! Handles key presses in the command line when in Insert mode.
+
 use crate::model::{
     editor::Editor,
     keymaps::{InputCmd, Message},
 };
 
-/// # Errors
-///
-/// TODO
+/// Handler for Insert mode typing commands. Will always return None probably
 pub fn input_handler(editor: &mut Editor, msg: &InputCmd) -> Option<Message> {
     match msg {
         InputCmd::DeleteChar => {

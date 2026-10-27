@@ -528,6 +528,7 @@ impl Cue {
     }
 }
 
+#[cfg(test)]
 mod tests {
     use crate::model::cue::audio_file::AudioFile;
 

@@ -1,3 +1,5 @@
+//! # Handling Keymaps and Updates for every mode
+
 pub mod insert;
-pub mod visual;
 pub mod normal;
+pub mod visual;

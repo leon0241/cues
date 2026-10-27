@@ -1,3 +1,7 @@
+//! # View Handler
+//!
+//! The home of Ratatui Rendering
+
 use crate::model::{
     cuestack::CueStack,
     editor::{Editor, Mode},
@@ -12,6 +16,7 @@ use ratatui::{
     widgets::{Block, Row, Table},
 };
 
+/// Crude view function
 pub fn view(model: &mut Model, frame: &mut Frame) {
     let (editor, cuestack): (&mut Editor, &mut CueStack) = model.full_mut();
     // Vec of ListItems (which comes from a decompiled list of Cues)
@@ -128,6 +133,9 @@ impl Sections {
     }
 }
 
+/// Creates a table for rendering a `CueStack`
+///
+/// Takes a `Vec` of `Rows` which are taken by iterating the `CueStack`
 #[must_use]
 pub fn init_table(rows: Vec<Row>) -> Table {
     // Setting Header

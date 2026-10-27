@@ -1,12 +1,16 @@
+//! # Normal Mode Editor Handler
+//!
+//! Handles `Editor` updates when in Normal mode, mostly `Mode` changes
+
 use crate::model::{
     cuestack::CueStack,
     editor::{Editor, Mode},
     keymaps::{EditorCmd, Message},
 };
 
-/// # Errors
+/// Handler for Normal mode Editor commands.
 ///
-/// Will return `Err` if cannot handle a key
+/// Should always return None
 pub fn n_editor_handler(
     editor: &mut Editor,
     cuestack: &mut CueStack,

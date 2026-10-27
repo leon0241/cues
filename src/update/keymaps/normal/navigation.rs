@@ -1,9 +1,15 @@
+//! # Normal Mode Navigation Handler
+//!
+//! Handles movement in Normal Mode
+
 use crate::model::{
     cuestack::CueStack,
     keymaps::{Message, NavigationCmd},
 };
 
 /// # Handler for movement within the cuestack
+///
+/// Should always return None
 pub fn navigation_handler(model: &mut CueStack, cmd: &NavigationCmd) -> Option<Message> {
     match cmd {
         NavigationCmd::LeftCol => {

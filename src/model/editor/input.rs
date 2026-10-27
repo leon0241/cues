@@ -8,6 +8,15 @@ impl Editor {
     /// Get Index of Cursor
     ///
     /// Returns the `cursor_idx` variable
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::editor::Editor;
+    ///
+    /// let new_editor = Editor::new();
+    ///
+    /// assert_eq!(new_editor.cursor_idx(), 0)
+    /// ```
     #[must_use]
     pub const fn cursor_idx(&self) -> usize {
         self.cursor_idx
@@ -16,6 +25,15 @@ impl Editor {
     /// Set Index of Cursor
     ///
     /// Sets the `cursor_idx` variable
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::editor::Editor;
+    ///
+    /// let mut new_editor = Editor::new();
+    ///
+    /// new_editor.set_cursor_idx(1);
+    /// ```
     pub const fn set_cursor_idx(&mut self, idx: usize) {
         self.cursor_idx = idx;
     }
@@ -23,22 +41,38 @@ impl Editor {
     /// Reset Index of Cursor
     ///
     /// Sets the `cursor_idx` variable to 0
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::editor::Editor;
+    ///
+    /// let mut new_editor = Editor::new();
+    ///
+    /// new_editor.reset_cursor();
+    /// ```
     pub const fn reset_cursor(&mut self) {
         self.cursor_idx = 0;
     }
 
     /// Clamp Cursor
     ///
-    /// Ensures cursor stays within the bounds of the
-    /// typed text in the command line
+    /// Ensures cursor stays within the bounds of the typed text in the command line
     fn clamp_cursor(&self, new_cursor_pos: usize) -> usize {
         new_cursor_pos.clamp(0, self.input_buffer.chars().count())
     }
 
     /// Move Cursor Left
     ///
-    /// Moves the cursor 1 step to the left via a
-    /// saturating subtract (never goes below 0)
+    /// Moves the cursor 1 step to the left via a saturating subtract (never goes below 0)
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::editor::Editor;
+    ///
+    /// let mut new_editor = Editor::new();
+    ///
+    /// new_editor.move_cursor_left();
+    /// ```
     pub fn move_cursor_left(&mut self) {
         let moved_left = self.cursor_idx.saturating_sub(1);
         self.cursor_idx = self.clamp_cursor(moved_left);
@@ -48,6 +82,15 @@ impl Editor {
     ///
     /// Moves the cursor 1 step to the right via a
     /// saturating addition (never goes above usize max)
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::editor::Editor;
+    ///
+    /// let mut new_editor = Editor::new();
+    ///
+    /// new_editor.move_cursor_right();
+    /// ```
     pub fn move_cursor_right(&mut self) {
         let moved_right = self.cursor_idx.saturating_add(1);
         self.cursor_idx = self.clamp_cursor(moved_right);
@@ -68,6 +111,15 @@ impl Editor {
     /// Move Cursor to end of text
     ///
     /// Moves the cursor to the final character
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::editor::Editor;
+    ///
+    /// let mut new_editor = Editor::new();
+    ///
+    /// new_editor.move_cursor_end();
+    /// ```
     pub fn move_cursor_end(&mut self) {
         let final_char = self.input_buffer.chars().count();
         self.cursor_idx = self.clamp_cursor(final_char);
@@ -78,6 +130,15 @@ impl Editor {
     /// Sets the index to the `byte_index`, and inserts
     /// a given character at that location. The character
     /// is of rust native `char` type.
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::editor::Editor;
+    ///
+    /// let mut new_editor = Editor::new();
+    ///
+    /// new_editor.input_char('a');
+    /// ```
     pub fn input_char(&mut self, new_char: char) {
         let index = self.byte_index();
         self.input_buffer.insert(index, new_char);
@@ -88,6 +149,15 @@ impl Editor {
     ///
     /// To be perfectly honest this is just copied from
     /// Ratatui tutorial docs so refer to that.
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::editor::Editor;
+    ///
+    /// let mut new_editor = Editor::new();
+    ///
+    /// new_editor.delete_char();
+    /// ```
     pub fn delete_char(&mut self) {
         let is_not_cursor_leftmost = self.cursor_idx != 0;
         if is_not_cursor_leftmost {
@@ -113,6 +183,15 @@ impl Editor {
     /// Clears the buffer and returns the string
     ///
     /// This also resets cursor to position 0.
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::editor::Editor;
+    ///
+    /// let mut new_editor = Editor::new();
+    ///
+    /// assert_eq!(new_editor.finish_input(), String::new());
+    /// ```
     pub fn finish_input(&mut self) -> String {
         let msg: String = self.input_buffer.clone();
         self.input_buffer.clear();

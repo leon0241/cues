@@ -21,6 +21,13 @@ impl Mode {
     /// Returns a string variant of the mode
     ///
     /// Used for rendering to Ratatui
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::editor::Mode;
+    ///
+    /// assert_eq!(Mode::Normal.as_str(), "Normal");
+    /// ```
     #[must_use]
     pub const fn as_str(self) -> &'static str {
         match self {

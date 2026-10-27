@@ -1,12 +1,18 @@
+//! # Insert Mode Editor Handler
+//!
+//! Handles `Editor` updates when in Insert mode.
+
 use crate::model::{
     cuestack::CueStack,
     editor::{Editor, Mode},
     keymaps::{EditorCmd, InputCmd, Message},
 };
 
+/// Handler for Insert mode Editor commands
+///
 /// # Errors
 ///
-/// Will return `Err` if an incorrect file path is provided
+/// Will return `Err` if a file cell is set and the file path cannot be read.
 pub fn i_editor_handler(
     editor: &mut Editor,
     cuestack: &mut CueStack,

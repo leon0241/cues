@@ -1,16 +1,29 @@
+//! # Cuestack Playback
+//!
+//! Implementation for any playback based functions within the cuestack
+
+// TODO: these are all private methods so don't need docs but should do it anyways
+
 use crate::model::{
-    cue::{Cue, CueType, PlayState, audio_cue::PlayableCue},
+    cue::{CueType, PlayState, audio_cue::PlayableCue},
     cuestack::CueStack,
     keymaps::PlaybackCmd,
 };
 
 impl CueStack {
+    /// Performs an action on a specified cue index.
+    ///
+    /// This will only work for Audio Cues.
+    ///
+    /// # Errors
+    ///
+    /// This will return an error when trying to play a cue which cannot be played.
     pub(crate) fn playback_action(
         &mut self,
         i: usize,
-        selection: PlaybackCmd,
+        action: PlaybackCmd,
     ) -> color_eyre::Result<()> {
-        match selection {
+        match action {
             PlaybackCmd::PlayCue => {
                 self.play_cue(i)?;
             }
@@ -28,12 +41,13 @@ impl CueStack {
         Ok(())
     }
 
-    fn get_cue(&mut self, i: usize) -> Option<&mut Cue> {
-        self.cues.get_mut(i)
-    }
-
+    /// Plays the Audio Cue at index i. This also updates the `PlayState` of the cue
+    ///
+    /// See `Cue::play_cue()` for more information.
+    ///
+    /// Returns if the cue does not exist, or if the cue is not an Audio cue
     fn play_cue(&mut self, i: usize) -> color_eyre::Result<()> {
-        let Some(cue) = self.get_cue(i) else {
+        let Some(cue) = self.cues.get_mut(i) else {
             return Ok(());
         };
 
@@ -44,8 +58,13 @@ impl CueStack {
         Ok(())
     }
 
+    /// Pauses the Audio Cue at index i. This also updates the `PlayState` of the cue
+    ///
+    /// See `Cue::pause_cue()` for more information.
+    ///
+    /// Returns if the cue does not exist, or if the cue is not an Audio cue
     fn pause_cue(&mut self, i: usize) {
-        let Some(cue) = self.get_cue(i) else {
+        let Some(cue) = self.cues.get_mut(i) else {
             return;
         };
 
@@ -65,8 +84,13 @@ impl CueStack {
         } // If pause is implemented
     }
 
+    /// Stops the Audio Cue at index i. This also updates the `PlayState` of the cue
+    ///
+    /// See `Cue::stop_cue()` for more information.
+    ///
+    /// Returns if the cue does not exist, or if the cue is not an Audio cue
     fn stop_cue(&mut self, i: usize) {
-        let Some(cue) = self.get_cue(i) else {
+        let Some(cue) = self.cues.get_mut(i) else {
             return;
         };
 
@@ -77,8 +101,13 @@ impl CueStack {
         }
     }
 
+    /// Fade and Stops the Audio Cue at index i. This also updates the `PlayState` of the cue
+    ///
+    /// See `Cue::fade_stop_cue()` for more information.
+    ///
+    /// Returns if the cue does not exist, or if the cue is not an Audio cue
     fn fade_stop_cue(&mut self, i: usize) {
-        let Some(cue) = self.get_cue(i) else {
+        let Some(cue) = self.cues.get_mut(i) else {
             return;
         };
 

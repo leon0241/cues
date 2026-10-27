@@ -1,3 +1,7 @@
+//! # Full Model
+//!
+//! Combining Editor and Cuestack to pass through functions easier.
+
 use crate::model::cuestack::CueStack;
 use crate::model::editor::Editor;
 

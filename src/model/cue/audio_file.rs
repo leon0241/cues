@@ -39,7 +39,7 @@ impl AudioFile {
     /// Creates a new `AudioFile`
     ///
     /// A (relative) file path is needed, as well as an `AudioDevice`
-    /// More information can be found in [`model/audio_config.rs`]
+    /// More information can be found in `model/audio_config.rs`
     ///
     /// # Errors
     ///

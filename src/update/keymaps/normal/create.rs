@@ -1,3 +1,7 @@
+//! # Normal Mode Create Handler
+//!
+//! Handles the creation of new cues
+
 use crate::model::{
     cue::{AudioCue, Cue, CueType, TargetCue},
     cuestack::CueStack,
@@ -5,14 +9,14 @@ use crate::model::{
     keymaps::{CreateCmd, Message},
 };
 
-/// # Errors
+/// Creates cues matched to a specific message
 ///
-/// Will return `Err` if cannot handle a key
+/// Should always return None
 pub fn create_handler(
     cuestack: &mut CueStack,
     editor: &mut Editor,
     cmd: &CreateCmd,
-) -> color_eyre::Result<Option<Message>> {
+) -> Option<Message> {
     match cmd {
         CreateCmd::CreateAudio => {
             cuestack.new_cue(Cue::default_from_type(CueType::Audio(AudioCue::default())));
@@ -32,5 +36,5 @@ pub fn create_handler(
         }
     }
     editor.set_combo_state(ComboState::None);
-    Ok(None)
+    None
 }

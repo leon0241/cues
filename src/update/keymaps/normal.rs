@@ -1,3 +1,7 @@
+//! # Normal Update Handler
+//!
+//! Everything you need to update in Insert Mode.
+
 pub mod combo;
 pub mod create;
 pub mod editor;
@@ -22,8 +26,9 @@ use crate::{
 
 /// # Normal Mode
 ///
-/// Takes a ``KeyCode`` and returns a ``Message``
-/// If there is no map, then returns ``None``
+/// Turns a `KeyCode` into a `Message`.
+///
+/// Matches against any `KeyMaps`.
 #[must_use]
 pub fn handle_normal(key: KeyCode, _modifier: KeyModifiers, editor: &Editor) -> Option<Message> {
     let keymaps = editor.keymaps();
@@ -43,13 +48,11 @@ pub fn handle_normal(key: KeyCode, _modifier: KeyModifiers, editor: &Editor) -> 
 
 /// # Normal Mode
 ///
-/// Takes a ``Message`` and processes a functions.
-/// If the action is finished, returns ``None``.
-/// Otherwise, it returns another message to chain.
+/// Reads a Message and updates the `CueStack` or `Editor` in response
 ///
 /// # Errors
 ///
-/// Will return `Err` if cannot handle a key
+/// Will return `Err` if an update function is propagated up
 pub fn update_normal(model: &mut Model, msg: &Message) -> color_eyre::Result<Option<Message>> {
     // TODO: check all these guys for errors
 
@@ -60,11 +63,11 @@ pub fn update_normal(model: &mut Model, msg: &Message) -> color_eyre::Result<Opt
         Message::Playback(cmd) => playback_handler(cuestack, cmd)?,
         Message::Editor(cmd) => n_editor_handler(editor, cuestack, cmd),
         Message::ModKey(cmd) => modkey_handler(editor, cuestack, cmd)?,
-        Message::Combo(cmd) => combo_handler(editor, cmd)?,
+        Message::Combo(cmd) => combo_handler(editor, cmd),
         // TODO: this
         Message::None => None,
         Message::Input(_cmd) => None, // only insert
-        Message::Create(cmd) => create_handler(cuestack, editor, cmd)?,
+        Message::Create(cmd) => create_handler(cuestack, editor, cmd),
     };
 
     return_msg.map_or_else(|| Ok(None), |i| Ok(Some(i)))

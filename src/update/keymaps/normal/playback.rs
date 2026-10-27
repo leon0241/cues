@@ -1,12 +1,18 @@
+//! # Normal Mode Playback Handler
+//!
+//! Handles playing, pausing, etc for audio cues
+//!
 use crate::model::{
     cue::cue_type::CueType,
     cuestack::CueStack,
     keymaps::{Message, PlaybackCmd},
 };
 
+/// Handler for changing the playback of cues
+///
 /// # Errors
 ///
-/// Will return `Err` if cannot handle a key
+/// Will return `Err` if things cannot be played
 pub fn playback_handler(
     model: &mut CueStack,
     cmd: &PlaybackCmd,

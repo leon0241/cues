@@ -1,3 +1,7 @@
+//! # Normal Mode Mod Key Handler
+//!
+//! Handles combo'd `ModKeys` in Normal Mode.
+
 use crate::model::{
     cue::{CopiedCell, CueColumn},
     cuestack::CueStack,
@@ -5,9 +9,11 @@ use crate::model::{
     keymaps::{CueCmd, Message, ModKeyCmd},
 };
 
+/// Handler for Modkey commands
+///
 /// # Errors
 ///
-/// TODO
+/// Will return `Err` if a file cell is set and the file path cannot be read.
 pub fn modkey_handler(
     editor: &mut Editor,
     cuestack: &mut CueStack,

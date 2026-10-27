@@ -22,9 +22,14 @@ pub enum FollowState {
 impl FollowState {
     /// Get Icon of Follow State
     ///
-    /// Returns a `str` matched against the
-    /// follow state, for use in rendering in the
-    /// "Follow" column of the TUI.
+    /// Returns a `str` matched against the follow state, for use in rendering in the "Follow" column of the TUI.
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::cue::FollowState;
+    ///
+    /// assert_eq!(FollowState::Follow.icon(), "");
+    /// ```
     #[must_use]
     pub const fn icon(self) -> &'static str {
         match self {
@@ -34,6 +39,16 @@ impl FollowState {
         }
     }
 
+    /// Get String value of Follow State
+    ///
+    /// Returns a `str` matched against the follow state, for rendering to the command line
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::cue::FollowState;
+    ///
+    /// assert_eq!(FollowState::Follow.as_str(), "Follow");
+    /// ```
     #[must_use]
     pub const fn as_str(self) -> &'static str {
         match self {
