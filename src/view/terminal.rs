@@ -51,6 +51,14 @@ impl Tui {
     /// # Errors
     ///
     /// Will return `Err` if either `EnterAlternateScreen` or `enable_raw_mode()` fails
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::view::terminal::Tui;
+    ///
+    /// // never unwrap in prod!
+    /// Tui::init_terminal().unwrap();
+    /// ```
     pub fn init_terminal() -> color_eyre::Result<()> {
         execute!(stdout(), EnterAlternateScreen)?;
         enable_raw_mode()?;
@@ -161,6 +169,13 @@ impl Tui {
 /// # Errors
 ///
 /// Errors if shit goes wrong (endless propagations)
+///
+/// # Examples
+/// ```
+/// use cues::view::terminal::create_terminal;
+///
+/// let tui = create_terminal();
+/// ```
 pub fn create_terminal() -> color_eyre::Result<Tui> {
     let backend: CrosstermBackend<std::io::Stdout> = CrosstermBackend::new(std::io::stdout());
     let terminal: Terminal<CrosstermBackend<std::io::Stdout>> = Terminal::new(backend)?;

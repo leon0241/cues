@@ -31,9 +31,9 @@ impl Mode {
     #[must_use]
     pub const fn as_str(self) -> &'static str {
         match self {
-            Self::Normal => "Normal",
-            Self::Insert => "Insert",
-            Self::Visual => "Visual",
+            Self::Normal => " NORMAL ",
+            Self::Insert => " INSERT ",
+            Self::Visual => " VISUAL ",
         }
     }
 }

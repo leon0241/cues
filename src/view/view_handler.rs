@@ -35,27 +35,29 @@ pub fn view(model: &mut Model, frame: &mut Frame) {
         .fg(Color::Black)
         .centered();
 
-    let status_line = Line::from_iter([
-        Span::from(editor.mode().as_str())
-            .bold()
-            .bg(Color::LightBlue),
-        Span::from(editor.combo_state().as_str()).fg(Color::White),
-    ])
-    .bg(Color::Black);
+    let cue_name = Line::from_iter([Span::from(
+        cuestack
+            .get_current_cue()
+            .map_or(String::new(), |f| f.0.name()),
+    )])
+    .bg(Color::DarkGray)
+    .fg(Color::White);
 
-    let command_line = Line::from_iter([Span::from("CMD: ")])
-        .bg(Color::DarkGray)
-        .fg(Color::White);
+    let command_line = StatusLine::style_command_line();
 
-    let command_line_text = Line::from_iter([Span::from(editor.input_buffer())])
-        .bg(Color::DarkGray)
-        .fg(Color::White);
+    let status_line = StatusLine::style_status_line(editor.mode().as_str(), editor.mode());
+
+    let input_buffer_text: String = editor.input_buffer();
+
+    let input_buffer = StatusLine::style_input_buffer(&input_buffer_text);
+
+    frame.render_widget(cue_name, layout.cue_info.cue_name);
 
     // frame.render_widget(paragraph, frame.area());
     // frame.render_widget(mode, layout.status_line);
     frame.render_widget(title, layout.tab_line);
-    frame.render_widget(command_line, layout.command_line);
-    frame.render_widget(status_line, layout.status_line);
+    frame.render_widget(command_line, layout.status_lines.command_line);
+    frame.render_widget(status_line, layout.status_lines.status_line);
 
     match editor.mode() {
         // Hide the cursor. `Frame` does this by default, so we don't need to do anything here
@@ -69,25 +71,101 @@ pub fn view(model: &mut Model, frame: &mut Frame) {
             frame.set_cursor_position(Position::new(
                 // Draw the cursor at the current position in the input field.
                 // This position can be controlled via the left and right arrow key
-                layout.command_line_textbox.x.wrapping_add(idx),
+                layout.status_lines.input_buffer.x.wrapping_add(idx),
                 // Move one line down, from the border to the input line
-                layout.command_line.y,
+                layout.status_lines.input_buffer.y,
             ));
         }
     }
 
-    frame.render_widget(command_line_text, layout.command_line_textbox);
+    frame.render_widget(input_buffer, layout.status_lines.input_buffer);
 
     frame.render_stateful_widget(table, layout.middle, &mut cuestack.current_state);
+}
+
+struct StatusLine {
+    pub command_line: Rect,
+    pub input_buffer: Rect,
+    pub status_line: Rect,
+}
+
+impl StatusLine {
+    pub fn init(space: Rect) -> Self {
+        // Set up cmd and status line
+        let verticals: Layout = Layout::vertical([
+            // Command Line of height 1
+            Constraint::Length(1),
+            // Status Line of height 1
+            Constraint::Length(1),
+        ])
+        .spacing(0);
+
+        let command_line: Layout = Layout::horizontal([
+            // Text saying: "CMD: "
+            Constraint::Length(5),
+            // Input buffer
+            Constraint::Fill(1),
+        ])
+        .spacing(0);
+
+        let [command_line_bar, status_line_bar] = space.layout(&verticals);
+
+        let [cmd_text, input_buffer] = command_line_bar.layout(&command_line);
+
+        Self {
+            command_line: command_line_bar,
+            input_buffer,
+            status_line: status_line_bar,
+        }
+    }
+
+    pub fn style_command_line() -> Line<'static> {
+        Line::from_iter([Span::from("CMD: ")])
+            .bg(Color::DarkGray)
+            .fg(Color::White)
+    }
+
+    pub fn style_status_line(text: &str, mode: Mode) -> Line<'_> {
+        let mode_span = Span::from(text).bold().patch_style(mode.style());
+
+        Line::from_iter([mode_span]).bg(Color::Black)
+    }
+
+    pub fn style_input_buffer(text: &str) -> Line<'_> {
+        Line::from_iter([Span::from(text)])
+            .bg(Color::DarkGray)
+            .fg(Color::White)
+    }
+}
+
+struct CueInfo {
+    pub cue_name: Rect,
+    pub duration: Rect,
+}
+
+impl CueInfo {
+    pub fn init(space: Rect) -> Self {
+        // Set up cmd and status line
+        let verticals: Layout = Layout::vertical([
+            // Name
+            Constraint::Length(1),
+            // Rest of it
+            Constraint::Fill(1),
+        ])
+        .spacing(0);
+
+        let [cue_name, duration] = space.layout(&verticals);
+
+        Self { cue_name, duration }
+    }
 }
 
 #[allow(dead_code)]
 struct Sections {
     pub tab_line: Rect,
     pub main: Rect,
-    pub command_line: Rect,
-    pub command_line_textbox: Rect,
-    pub status_line: Rect,
+    pub cue_info: CueInfo,
+    pub status_lines: StatusLine,
     pub left: Rect,
     pub middle: Rect,
     pub right: Rect,
@@ -96,17 +174,16 @@ struct Sections {
 impl Sections {
     pub fn new(frame: &Frame) -> Self {
         let vertical = Layout::vertical([
+            // Title
             Constraint::Length(1),
+            // Cuestack
             Constraint::Fill(1),
+            // CMD/Status line
+            Constraint::Length(7),
+            // CMD/Status line
             Constraint::Length(2),
         ])
         .spacing(0);
-
-        let bottom_lines =
-            Layout::vertical([Constraint::Length(1), Constraint::Length(1)]).spacing(0);
-
-        let command_line_split =
-            Layout::horizontal([Constraint::Length(4), Constraint::Fill(1)]).spacing(0);
 
         let horizontal = Layout::horizontal([
             Constraint::Percentage(5),
@@ -115,17 +192,18 @@ impl Sections {
         ])
         .spacing(1);
 
-        let [tab_line, main, bottom] = frame.area().layout(&vertical);
-        let [command_line_bar, status_line] = bottom.layout(&bottom_lines);
-        let [command_line, command_line_textbox] = command_line_bar.layout(&command_line_split);
+        let [tab_line, main, cue_info_box, bottom] = frame.area().layout(&vertical);
         let [left, middle, right] = main.layout(&horizontal);
+
+        let cue_info = CueInfo::init(cue_info_box);
+
+        let status_lines = StatusLine::init(bottom);
 
         Self {
             tab_line,
             main,
-            command_line,
-            command_line_textbox,
-            status_line,
+            cue_info,
+            status_lines,
             left,
             middle,
             right,

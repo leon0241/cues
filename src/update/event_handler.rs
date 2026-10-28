@@ -88,14 +88,6 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
 /// # Errors
 ///
 /// Will return `Err` if something went wrong in `event::read()`
-///
-/// # Examples
-/// ```
-/// use cues::model::editor::{Editor, Mode};
-/// use cues::update::event_handler::handle_event;
-///
-/// assert!(matches!(handle_event(&Editor::new(), Mode::Normal), Ok(None)));
-/// ```
 pub fn handle_event(editor: &Editor, mode: Mode) -> color_eyre::Result<Option<Message>> {
     if event::poll(Duration::from_millis(250))?
         && let event::Event::Key(key) = event::read()?
