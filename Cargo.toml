@@ -1,7 +1,15 @@
-[package]
-name = "cues"
+[workspace]
+resolver = "3"
+members = ["audio-tools"]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
+
+[package]
+name = "cues"
+version.workspace = true
+version.edition = true
 
 [lib]
 name = "cues"
@@ -24,7 +32,7 @@ num-traits = "0.2.19"
 notify = "8.2.0"
 
 # DON'T PANIC! https://www.namtao.com/rust-dont-panic/
-[lints.clippy]
+[workspace.lints.clippy]
 pedantic = { level = "deny", priority = -1 }
 nursery = { level = "deny", priority = -1 }
 # DENY PANICS:
@@ -41,3 +49,6 @@ panic_in_result_fn = "deny"
 panic = "deny"
 exit = "deny"
 as_conversions = "deny"
+
+[lints]
+workspace = true

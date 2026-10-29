@@ -1,7 +1,4 @@
-use ratatui::{
-    style::{Color, Style},
-    widgets::Table,
-};
+use ratatui::style::{Color, Style};
 
 use crate::model::editor::Mode;
 

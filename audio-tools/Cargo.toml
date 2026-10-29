@@ -1,0 +1,10 @@
+[package]
+name = "audio-tools"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+symphonia = "0.6.1"
+
+[lints]
+workspace = true
