@@ -537,7 +537,7 @@ impl Cue {
     ///
     /// let mut cue = Cue::default();
     ///
-    /// assert_eq!(cue.get_cell_str(CueColumn::PreWait), String::from("0"));
+    /// assert_eq!(cue.get_cell_str(CueColumn::PreWait), "0");
     /// ```
     #[must_use]
     pub fn get_cell_str(&self, column: CueColumn) -> &str {
@@ -638,15 +638,15 @@ mod tests {
     fn get_row() {
         let cue = Cue::default();
         let match_row = Row::new(vec![
-            String::from(" "), // Currently playing
-            String::from(""), // Cue Type
-            String::new(),     // Number
-            String::new(),     // Name
-            String::new(),     // Target (not actually part of cue)
-            String::from("0"), // Prewait
-            String::from("0"), // Duration
-            String::from("0"), // Postwait
-            String::from(" "), // Follow
+            " ", // Currently playing
+            "", // Cue Type
+            "",  // Number
+            "",  // Name
+            "",  // Target (not actually part of cue)
+            "0", // Prewait
+            "0", // Duration
+            "0", // Postwait
+            " ", // Follow
         ]);
 
         assert_eq!(cue.get_row(), match_row);
