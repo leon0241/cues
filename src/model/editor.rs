@@ -295,7 +295,7 @@ impl Editor {
     /// new_editor.reset_input_buffer();
     /// ```
     pub fn reset_input_buffer(&mut self) {
-        self.input_buffer = String::new();
+        self.input_buffer.clear();
     }
 
     /// Copies a specified Cue to the stored `Clipboard`

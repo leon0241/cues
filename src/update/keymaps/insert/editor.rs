@@ -20,19 +20,15 @@ pub fn i_editor_handler(
 ) -> color_eyre::Result<Option<Message>> {
     let return_msg = match cmd {
         EditorCmd::CancelInsertEnterNormal => {
-            editor.reset_input_buffer();
-            editor.reset_cursor();
+            editor.finish_input();
 
             editor.set_mode(Mode::Normal);
 
             Some(Message::Input(InputCmd::FinishInput))
         }
         EditorCmd::SaveInsertEnterNormal => {
-            let string: &str = editor.input_buffer();
+            let string: String = editor.finish_input();
             cuestack.set_current_cell_str(string)?;
-
-            editor.reset_input_buffer();
-            editor.reset_cursor();
 
             editor.set_mode(Mode::Normal);
 
