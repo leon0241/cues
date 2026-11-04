@@ -9,7 +9,7 @@ edition = "2024"
 [package]
 name = "cues"
 version.workspace = true
-version.edition = true
+edition.workspace = true
 
 [lib]
 name = "cues"
