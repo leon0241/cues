@@ -119,7 +119,9 @@ impl CueStack {
     pub fn current_target(&self) -> Option<String> {
         let current_cue: &Cue = self.get_current_cue()?.0;
 
-        Some(current_cue.get_target_str())
+        // Note this has to be a String in order to match against it and perform
+        // functions within Model
+        Some(current_cue.get_target_str().to_string())
     }
 
     /// Performs an action on a chosen cue.

@@ -193,6 +193,7 @@ impl Editor {
     /// assert_eq!(new_editor.finish_input(), String::new());
     /// ```
     pub fn finish_input(&mut self) -> String {
+        // TODO: fixed lifetime this to drop after the value has been passed down
         let msg: String = self.input_buffer.clone();
         self.input_buffer.clear();
         self.reset_cursor();

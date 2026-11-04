@@ -36,9 +36,7 @@ pub fn view(model: &mut Model, frame: &mut Frame) {
         .centered();
 
     let cue_name = Line::from_iter([Span::from(
-        cuestack
-            .get_current_cue()
-            .map_or(String::new(), |f| f.0.name()),
+        cuestack.get_current_cue().map_or("", |f| f.0.name()),
     )])
     .bg(Color::DarkGray)
     .fg(Color::White);
@@ -47,9 +45,9 @@ pub fn view(model: &mut Model, frame: &mut Frame) {
 
     let status_line = StatusLine::style_status_line(editor.mode().as_str(), editor.mode());
 
-    let input_buffer_text: String = editor.input_buffer();
+    let input_buffer_text: &str = editor.input_buffer();
 
-    let input_buffer = StatusLine::style_input_buffer(&input_buffer_text);
+    let input_buffer = StatusLine::style_input_buffer(input_buffer_text);
 
     frame.render_widget(cue_name, layout.cue_info.cue_name);
 

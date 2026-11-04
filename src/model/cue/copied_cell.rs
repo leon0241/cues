@@ -4,7 +4,7 @@
 //! Used so that 'paste' has shared behaviour depending
 //! on which type of cell it is
 
-use crate::model::cue::{FollowState, TargetCue};
+use crate::model::cue::{FollowState, TargetCue, Time};
 
 /// Copyable cell data for use in yanking
 ///
@@ -21,7 +21,7 @@ pub enum CopiedCell {
     /// Follow - `FollowState`
     Follow(FollowState),
     /// Time (Pre-wait/Post-wait) - `f32`
-    Time(f32),
+    Time(Time),
     /// Target - `TargetCue`
     Target(TargetCue),
     /// File Path - `String`
@@ -35,13 +35,13 @@ impl CopiedCell {
     ///
     /// Various methods matched against the type of cell it is.
     #[must_use]
-    pub fn as_str(&self) -> String {
+    pub fn as_str(&self) -> &str {
         match self {
-            Self::None => String::new(),
-            Self::CueNumber(c) | Self::Name(c) | Self::FilePath(c) => c.clone(),
-            Self::Follow(c) => c.as_str().to_string(),
-            Self::Time(c) => c.to_string(),
-            Self::Target(c) => c.target().unwrap_or(String::new()),
+            Self::None => "",
+            Self::CueNumber(c) | Self::Name(c) | Self::FilePath(c) => c,
+            Self::Follow(c) => c.as_str(),
+            Self::Time(c) => c.as_str(),
+            Self::Target(c) => c.target().unwrap_or(""),
         }
     }
 }

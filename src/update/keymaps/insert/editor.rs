@@ -28,7 +28,7 @@ pub fn i_editor_handler(
             Some(Message::Input(InputCmd::FinishInput))
         }
         EditorCmd::SaveInsertEnterNormal => {
-            let string: String = editor.input_buffer();
+            let string: &str = editor.input_buffer();
             cuestack.set_current_cell_str(string)?;
 
             editor.reset_input_buffer();

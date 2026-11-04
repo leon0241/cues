@@ -23,12 +23,13 @@ impl TargetCue {
     /// ```
     /// // Target Cue pointing to Cue 1
     /// # use cues::model::cue::target_cue::TargetCue;
-    /// let string: String = String::from("1");
-    /// let new_cue: TargetCue = TargetCue::new(Some(string));
+    /// let new_cue: TargetCue = TargetCue::new(Some("1"));
     /// ```
     #[must_use]
-    pub const fn new(number: Option<String>) -> Self {
-        Self { number }
+    pub fn new(number: Option<impl Into<String>>) -> Self {
+        let expanded: Option<String> = number.map(std::convert::Into::into);
+
+        Self { number: expanded }
     }
 
     /// Gets the target cue. Note, this is non-mutable
@@ -37,13 +38,13 @@ impl TargetCue {
     /// ```
     /// // Target Cue pointing to Cue 1
     /// # use cues::model::cue::target_cue::TargetCue;
-    /// let string: String = String::from("1");
-    /// let new_cue: TargetCue = TargetCue::new(Some(string));
-    /// assert_eq!(new_cue.target().unwrap_or_default(), String::from("1"));
+    ///
+    /// let new_cue: TargetCue = TargetCue::new(Some("1"));
+    /// assert_eq!(new_cue.target().unwrap_or_default(), "1");
     /// ```
     #[must_use]
-    pub fn target(&self) -> Option<String> {
-        self.number.clone()
+    pub fn target(&self) -> Option<&str> {
+        self.number.as_deref()
     }
 
     /// Set the target cue from a string.
@@ -52,12 +53,11 @@ impl TargetCue {
     /// ```
     /// // Target Cue pointing to Cue 1
     /// # use cues::model::cue::target_cue::TargetCue;
-    /// let string: String = String::from("1");
-    /// let mut new_cue: TargetCue = TargetCue::new(Some(string));
-    /// new_cue.set_target(String::from("2"));
-    /// assert_eq!(new_cue.target().unwrap_or_default(), String::from("2"));
+    /// let mut new_cue: TargetCue = TargetCue::new(Some("1"));
+    /// new_cue.set_target("2");
+    /// assert_eq!(new_cue.target().unwrap_or_default(), "2");
     /// ```
-    pub fn set_target(&mut self, value: String) {
-        self.number = Some(value);
+    pub fn set_target(&mut self, value: impl Into<String>) {
+        self.number = Some(value.into());
     }
 }

@@ -20,6 +20,72 @@ pub use crate::model::cue::{
 
 use ratatui::widgets::Row;
 
+/// Time
+///
+/// Time struct featuring a time in both f32 format as well as str format
+/// And probably more later
+#[derive(Debug, Clone)]
+pub struct Time {
+    time: f32,
+    time_str: String,
+}
+
+impl std::fmt::Display for Time {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.time_str)
+    }
+}
+
+impl Default for Time {
+    fn default() -> Self {
+        Self {
+            time: Default::default(),
+            time_str: String::from("0"),
+        }
+    }
+}
+
+impl Time {
+    /// Creates a new Time
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::cue::Time;
+    ///
+    /// let time = Time::new(0.0);
+    /// ```
+    #[must_use]
+    pub fn new(time: f32) -> Self {
+        Self {
+            time,
+            time_str: time.to_string(),
+        }
+    }
+
+    const fn set_from_f32(&mut self, time: f32) {
+        self.time = time;
+    }
+
+    /// Returns Time in f32 format
+    ///
+    /// # Examples
+    /// ```
+    /// use cues::model::cue::Time;
+    ///
+    /// let time = Time::new(0.0);
+    ///
+    /// assert_eq!(time.as_f32(), 0.0);
+    /// ```
+    #[must_use]
+    pub const fn as_f32(&self) -> f32 {
+        self.time
+    }
+
+    fn as_str(&self) -> &str {
+        &self.time_str
+    }
+}
+
 /// Cue
 ///
 /// This is an individual cue in a cuestack
@@ -30,9 +96,9 @@ pub struct Cue {
     number: String,
     name: String,
     follow: FollowState,
-    prewait: f32,
-    duration: f32,
-    postwait: f32,
+    prewait: Time,
+    duration: Time,
+    postwait: Time,
     status: PlayState,
     // parent: Option<TargetCue>,
 }
@@ -40,8 +106,8 @@ pub struct Cue {
 impl Default for Cue {
     fn default() -> Self {
         Self::new(
-            String::new(),
-            String::new(),
+            "",
+            "",
             0_f32,
             FollowState::None,
             CueType::Audio(AudioCue::default()),
@@ -75,11 +141,11 @@ impl Cue {
         Self {
             number: number.into(),
             name: name.into(),
-            duration,
+            duration: Time::new(duration),
             follow,
             cue_type,
-            prewait: 0_f32,
-            postwait: 0_f32,
+            prewait: Time::default(),
+            postwait: Time::default(),
             status: PlayState::None,
             // parent: None,
         }
@@ -129,7 +195,7 @@ impl Cue {
             // Cue Name
             self.name.clone(),
             // Cue Target
-            self.get_target_str(),
+            self.get_target_str().to_string(),
             // Cue Prewait
             self.prewait.to_string(),
             // Cue Duration
@@ -157,11 +223,12 @@ impl Cue {
     /// assert_eq!(audio_cue.get_target(), None);
     /// ```
     #[must_use]
-    pub fn get_target(&self) -> Option<String> {
+    pub fn get_target(&self) -> Option<&str> {
         match self.cue_type {
-            CueType::Audio(ref audio_cue) => {
-                audio_cue.file().as_ref().map(|f| f.file_path().to_string())
-            }
+            CueType::Audio(ref audio_cue) => audio_cue
+                .file()
+                .as_ref()
+                .map(audio_file::AudioFile::file_path),
             CueType::Fade(ref t)
             | CueType::Stop(ref t)
             | CueType::Pause(ref t)
@@ -182,16 +249,16 @@ impl Cue {
     ///
     /// let mut audio_cue = Cue::default_from_type(CueType::Audio(AudioCue::default()));
     ///
-    /// assert_eq!(audio_cue.get_target_str(), String::from(""));
+    /// assert_eq!(audio_cue.get_target_str(), "");
     /// ```
     #[must_use]
-    pub fn get_target_str(&self) -> String {
+    pub fn get_target_str(&self) -> &str {
         match self.cue_type {
-            CueType::Audio(ref audio_cue) => audio_cue.as_icon().to_string(),
+            CueType::Audio(ref audio_cue) => audio_cue.as_icon(),
             CueType::Fade(ref t)
             | CueType::Stop(ref t)
             | CueType::Pause(ref t)
-            | CueType::Start(ref t) => t.target().unwrap_or_else(String::new),
+            | CueType::Start(ref t) => t.target().unwrap_or(""),
         }
     }
 
@@ -207,8 +274,8 @@ impl Cue {
     /// let mut audio_cue = Cue::default_from_type(CueType::Audio(AudioCue::default()));
     /// let mut fade_cue = Cue::default_from_type(CueType::Fade(TargetCue::default()));
     ///
-    /// audio_cue.set_target(String::from("/test/file/path"));
-    /// fade_cue.set_target(String::from("3"));
+    /// audio_cue.set_target("/test/file/path");
+    /// fade_cue.set_target("3");
     /// ```
     pub fn set_target(&mut self, value: impl Into<String>) {
         match self.cue_type {
@@ -269,11 +336,11 @@ impl Cue {
     ///
     /// let cue = Cue::default();
     ///
-    /// assert_eq!(cue.name(), String::new());
+    /// assert_eq!(cue.name(), "");
     /// ```
     #[must_use]
-    pub fn name(&self) -> String {
-        self.name.clone()
+    pub fn name(&self) -> &str {
+        &self.name
     }
 
     /// Sets the name of a cue
@@ -285,10 +352,10 @@ impl Cue {
     /// use cues::model::cue::Cue;
     ///
     /// let mut cue = Cue::default();
-    /// cue.set_name(String::from("label"));
+    /// cue.set_name("label");
     /// ```
-    pub fn set_name(&mut self, name: String) {
-        self.name = name;
+    pub fn set_name(&mut self, name: impl Into<String>) {
+        self.name = name.into();
     }
 
     /// Gets the cue number of a cue
@@ -302,11 +369,11 @@ impl Cue {
     ///
     /// let cue = Cue::default();
     ///
-    /// assert_eq!(cue.number(), String::new());
+    /// assert_eq!(cue.number(), "");
     /// ```
     #[must_use]
-    pub fn number(&self) -> String {
-        self.number.clone()
+    pub fn number(&self) -> &str {
+        &self.number
     }
 
     /// Sets the cue number of a cue
@@ -320,10 +387,10 @@ impl Cue {
     ///
     /// let mut cue = Cue::default();
     ///
-    /// cue.set_number(String::from("3"));
+    /// cue.set_number("3");
     /// ```
-    pub fn set_number(&mut self, number: String) {
-        self.number = number;
+    pub fn set_number(&mut self, number: impl Into<String>) {
+        self.number = number.into();
     }
 
     /// Gets the playing status of a cue
@@ -367,15 +434,15 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::Cue;
+    /// use cues::model::cue::{Cue, Time};
     ///
     /// let cue = Cue::default();
     ///
-    /// assert_eq!(cue.prewait(), 0.0);
+    /// assert_eq!(cue.prewait().as_f32(), 0.0);
     /// ```
     #[must_use]
-    pub const fn prewait(&self) -> f32 {
-        self.prewait
+    pub const fn prewait(&self) -> &Time {
+        &self.prewait
     }
 
     /// Sets the prewait of a cue
@@ -391,7 +458,7 @@ impl Cue {
     /// cue.set_prewait(0.2);
     /// ```
     pub const fn set_prewait(&mut self, prewait: f32) {
-        self.prewait = prewait;
+        self.prewait.set_from_f32(prewait);
     }
 
     /// Gets the post wait of a cue
@@ -400,15 +467,15 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::Cue;
+    /// use cues::model::cue::{Cue, Time};
     ///
     /// let cue = Cue::default();
     ///
-    /// assert_eq!(cue.postwait(), 0.0);
+    /// assert_eq!(cue.postwait().as_f32(), 0.0);
     /// ```
     #[must_use]
-    pub const fn postwait(&self) -> f32 {
-        self.postwait
+    pub const fn postwait(&self) -> &Time {
+        &self.postwait
     }
 
     /// Sets the post wait of a cue
@@ -424,7 +491,7 @@ impl Cue {
     /// cue.set_postwait(0.2);
     /// ```
     pub const fn set_postwait(&mut self, postwait: f32) {
-        self.postwait = postwait;
+        self.postwait.set_from_f32(postwait);
     }
 
     /// Gets the follow state of a cue
@@ -473,21 +540,18 @@ impl Cue {
     /// assert_eq!(cue.get_cell_str(CueColumn::PreWait), String::from("0"));
     /// ```
     #[must_use]
-    pub fn get_cell_str(&self, column: CueColumn) -> String {
+    pub fn get_cell_str(&self, column: CueColumn) -> &str {
         match column {
-            CueColumn::Playing | CueColumn::Duration => String::new(),
+            CueColumn::Playing | CueColumn::Duration => "",
             CueColumn::Name => self.name(),
             CueColumn::Number => self.number(),
-            CueColumn::PreWait => self.prewait().to_string(),
-            CueColumn::PostWait => self.postwait().to_string(),
-            CueColumn::Follow => self.follow().icon().to_string(),
+            CueColumn::PreWait => self.prewait().as_str(),
+            CueColumn::PostWait => self.postwait().as_str(),
+            CueColumn::Follow => self.follow().icon(),
             CueColumn::Target => match self.cue_type() {
-                CueType::Audio(cue) => cue
-                    .file()
-                    .as_ref()
-                    .map_or(String::new(), |file| file.file_path().to_string()),
+                CueType::Audio(cue) => cue.file().as_ref().map_or("", |file| file.file_path()),
                 CueType::Fade(t) | CueType::Stop(t) | CueType::Pause(t) | CueType::Start(t) => {
-                    t.target().unwrap_or(String::new())
+                    t.target().unwrap_or_default()
                 }
             },
         }
@@ -500,7 +564,11 @@ impl Cue {
     /// # Errors
     ///
     /// Errors if the column is a File target, and the file cannot be read
-    pub fn set_cell_str(&mut self, column: &CueColumn, value: String) -> color_eyre::Result<()> {
+    pub fn set_cell_str(
+        &mut self,
+        column: &CueColumn,
+        value: impl Into<String>,
+    ) -> color_eyre::Result<()> {
         fn parser(value: &str) -> f32 {
             value.parse::<f32>().unwrap_or_default()
         }
@@ -509,18 +577,18 @@ impl Cue {
             CueColumn::Playing | CueColumn::Duration => {}
             CueColumn::Name => self.set_name(value),
             CueColumn::Number => self.set_number(value),
-            CueColumn::PreWait => self.set_prewait(parser(&value)),
-            CueColumn::PostWait => self.set_postwait(parser(&value)),
+            CueColumn::PreWait => self.set_prewait(parser(&value.into())),
+            CueColumn::PostWait => self.set_postwait(parser(&value.into())),
             CueColumn::Follow => self.set_follow(FollowState::Follow),
             CueColumn::Target => match self.cue_type_mut() {
                 CueType::Audio(cue) => {
                     if let Some(i) = cue.file_mut().as_mut() {
-                        i.set_file_path(&value);
+                        i.set_file_path(value.into());
                         i.try_read()?;
                     }
                 }
                 CueType::Fade(_) | CueType::Stop(_) | CueType::Pause(_) | CueType::Start(_) => {
-                    self.set_target(value);
+                    self.set_target(value.into());
                 }
             },
         }
@@ -544,11 +612,11 @@ mod tests {
             CueType::Audio(AudioCue::default()),
         );
 
-        assert_eq!(new_cue.number(), String::from("1"));
-        assert_eq!(new_cue.name(), String::from("test"));
+        assert_eq!(new_cue.number(), "1");
+        assert_eq!(new_cue.name(), "test");
         assert_eq!(new_cue.follow(), FollowState::Follow);
-        assert_eq!(new_cue.prewait(), 0.0);
-        assert_eq!(new_cue.postwait(), 0.0);
+        assert_eq!(new_cue.prewait().as_f32(), 0_f32);
+        assert_eq!(new_cue.postwait().as_f32(), 0_f32);
         assert!(matches!(new_cue.status(), PlayState::None));
     }
 
@@ -601,7 +669,7 @@ mod tests {
             q.set_file(AudioFile::unchecked_new("name", "/file/path"));
         }
 
-        assert_eq!(cue.get_target(), Some(String::from("/file/path")));
+        assert_eq!(cue.get_target(), Some("/file/path"));
     }
 
     #[test]
@@ -619,7 +687,7 @@ mod tests {
 
         cue.set_target("3");
 
-        assert_eq!(cue.get_target(), Some(String::from("3")));
+        assert_eq!(cue.get_target(), Some("3"));
     }
 
     #[test]
@@ -627,7 +695,7 @@ mod tests {
         // Type is Audio
         let cue = Cue::default();
 
-        assert_eq!(cue.get_target_str(), String::new());
+        assert_eq!(cue.get_target_str(), "");
     }
 
     #[test]
@@ -639,7 +707,7 @@ mod tests {
             q.set_file(AudioFile::unchecked_new("name", "/file/path"));
         }
 
-        assert_eq!(cue.get_target_str(), String::from(""));
+        assert_eq!(cue.get_target_str(), "");
     }
 
     #[test]
@@ -647,7 +715,7 @@ mod tests {
         // Type is Audio
         let cue = Cue::default_from_type(CueType::Fade(TargetCue::default()));
 
-        assert_eq!(cue.get_target_str(), String::new());
+        assert_eq!(cue.get_target_str(), "");
     }
 
     #[test]
@@ -657,31 +725,31 @@ mod tests {
 
         cue.set_target("3");
 
-        assert_eq!(cue.get_target_str(), String::from("3"));
+        assert_eq!(cue.get_target_str(), "3");
     }
 
     #[test]
     fn name() {
-        assert_eq!(Cue::default().name(), String::new());
+        assert_eq!(Cue::default().name(), "");
     }
 
     #[test]
     fn set_name() {
         let mut cue = Cue::default();
-        cue.set_name(String::from("label"));
-        assert_eq!(cue.name(), String::from("label"));
+        cue.set_name("label");
+        assert_eq!(cue.name(), "label");
     }
 
     #[test]
     fn number() {
-        assert_eq!(Cue::default().number(), String::new());
+        assert_eq!(Cue::default().number(), "");
     }
 
     #[test]
     fn set_number() {
         let mut cue = Cue::default();
-        cue.set_number(String::from("3"));
-        assert_eq!(cue.number(), String::from("3"));
+        cue.set_number("3");
+        assert_eq!(cue.number(), "3");
     }
 
     #[test]
@@ -698,26 +766,26 @@ mod tests {
 
     #[test]
     fn prewait() {
-        assert_eq!(Cue::default().prewait(), 0.0);
+        assert_eq!(Cue::default().prewait().as_f32(), 0.0);
     }
 
     #[test]
     fn set_prewait() {
         let mut cue = Cue::default();
         cue.set_prewait(0.2);
-        assert_eq!(cue.prewait(), 0.2);
+        assert_eq!(cue.prewait().as_f32(), 0.2);
     }
 
     #[test]
     fn postwait() {
-        assert_eq!(Cue::default().postwait(), 0.0);
+        assert_eq!(Cue::default().postwait().as_f32(), 0.0);
     }
 
     #[test]
     fn set_postwait() {
         let mut cue = Cue::default();
         cue.set_postwait(0.2);
-        assert_eq!(cue.postwait(), 0.2);
+        assert_eq!(cue.postwait().as_f32(), 0.2);
     }
 
     #[test]

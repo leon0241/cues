@@ -263,11 +263,11 @@ impl Editor {
     ///
     /// let mut new_editor = Editor::new();
     ///
-    /// assert_eq!(new_editor.input_buffer(), String::new());
+    /// assert_eq!(new_editor.input_buffer(), "");
     /// ```
     #[must_use]
-    pub fn input_buffer(&self) -> String {
-        self.input_buffer.clone()
+    pub fn input_buffer(&self) -> &str {
+        &self.input_buffer
     }
 
     /// Sets the current Input buffer. This can be &str or a String.

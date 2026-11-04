@@ -29,16 +29,8 @@ use crate::{
 ///
 /// Will return `Err` if a file couldn't be read
 pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
-    let file1: AudioFile = AudioFile::new(
-        String::from("funkytown"),
-        String::from("project/audio/test.wav"),
-        &model.handler,
-    )?;
-    let _file2: AudioFile = AudioFile::new(
-        String::from("boom"),
-        String::from("project/audio/boom.wav"),
-        &model.handler,
-    )?;
+    let file1: AudioFile = AudioFile::new("funkytown", "project/audio/test.wav", &model.handler)?;
+    let _file2: AudioFile = AudioFile::new("boom", "project/audio/boom.wav", &model.handler)?;
 
     model.set_items(vec![
         Cue::new(
@@ -56,22 +48,22 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
             CueType::Audio(AudioCue::new(Some(file1))),
         ),
         // Cue::new(
-        //     String::from("2.5"),
-        //     String::from("boom"),
+        //     "2.5",
+        //     "boom",
         //     1_f32,
         //     FollowState::None,
         //     CueType::Audio(AudioCue::new(Some(file2))),
         // ),
         // Cue::new(
-        //     String::from("3"),
-        //     String::from("fade"),
+        //     "3",
+        //     "fade",
         //     1_f32,
         //     FollowState::None,
-        //     CueType::Fade(TargetCue::new(Some(String::from("2")))),
+        //     CueType::Fade(TargetCue::new(Some("2"))),
         // ),
         // Cue::new(
-        //     String::from("4"),
-        //     String::from("test2"),
+        //     "4",
+        //     "test2",
         //     1_f32,
         //     FollowState::None,
         //     CueType::Audio(AudioCue::default()),

@@ -122,9 +122,9 @@ impl CueStack {
     /// // manually move to the number column of cue 1...
     /// cuestack.go_next(); cuestack.go_right(); cuestack.go_right(); cuestack.go_right();
     ///
-    /// assert_eq!(cuestack.get_current_cell_str().unwrap(), String::new());
+    /// assert_eq!(cuestack.get_current_cell_str().unwrap(), "");
     /// ```
-    pub fn get_current_cell_str(&mut self) -> Option<String> {
+    pub fn get_current_cell_str(&mut self) -> Option<&str> {
         let current_column: CueColumn = self.get_current_column()?;
         let current_cue: &Cue = self.get_current_cue()?.0;
 
@@ -150,9 +150,9 @@ impl CueStack {
     /// // manually move to the number column of cue 1...
     /// cuestack.go_next(); cuestack.go_right(); cuestack.go_right(); cuestack.go_right();
     ///
-    /// cuestack.set_current_cell_str(String::from("1"));
+    /// cuestack.set_current_cell_str("1");
     /// ```
-    pub fn set_current_cell_str(&mut self, value: String) -> color_eyre::Result<()> {
+    pub fn set_current_cell_str(&mut self, value: impl Into<String>) -> color_eyre::Result<()> {
         let Some(current_column) = self.get_current_column() else {
             return Ok(());
         };
@@ -182,12 +182,12 @@ impl CueStack {
     ///
     /// cuestack.go_next();
     ///
-    /// cuestack.set_cell_from_col_str(&CueColumn::Number, String::from("1"));
+    /// cuestack.set_cell_from_col_str(&CueColumn::Number, "1");
     /// ```
     pub fn set_cell_from_col_str(
         &mut self,
         column: &CueColumn,
-        value: String,
+        value: impl Into<String>,
     ) -> color_eyre::Result<()> {
         let Some(current_cue) = self.get_current_cue_mut() else {
             return Ok(());
@@ -240,11 +240,11 @@ impl CueStack {
         };
 
         match column {
-            CueColumn::Number => CopiedCell::CueNumber(current_cue.0.number()),
-            CueColumn::Name => CopiedCell::Name(current_cue.0.name()),
-            CueColumn::PreWait => CopiedCell::Time(current_cue.0.prewait()),
+            CueColumn::Number => CopiedCell::CueNumber(current_cue.0.number().to_string()),
+            CueColumn::Name => CopiedCell::Name(current_cue.0.name().to_string()),
+            CueColumn::PreWait => CopiedCell::Time(current_cue.0.prewait().clone()),
             CueColumn::Playing | CueColumn::Duration => CopiedCell::None,
-            CueColumn::PostWait => CopiedCell::Time(current_cue.0.postwait()),
+            CueColumn::PostWait => CopiedCell::Time(current_cue.0.postwait().clone()),
             CueColumn::Follow => CopiedCell::Follow(current_cue.0.follow()),
             CueColumn::Target => match current_cue.0.cue_type() {
                 CueType::Audio(file) => file.file().as_ref().map_or(CopiedCell::None, |file| {
@@ -303,9 +303,9 @@ impl CueStack {
         // Reference to free mutable ref after match
         let idx = current_cue.1;
 
-        current_cue.0.set_name(String::new());
-        current_cue.0.set_number(String::new());
-        current_cue.0.set_target(String::new());
+        current_cue.0.set_name("");
+        current_cue.0.set_number("");
+        current_cue.0.set_target("");
         current_cue.0.set_prewait(0.0);
         current_cue.0.set_postwait(0.0);
         current_cue.0.set_follow(FollowState::None);
@@ -356,9 +356,9 @@ impl CueStack {
 
         match column {
             CueColumn::Playing | CueColumn::Duration => {}
-            CueColumn::Name => current_cue.0.set_name(String::new()),
-            CueColumn::Number => current_cue.0.set_number(String::new()),
-            CueColumn::Target => current_cue.0.set_target(String::new()),
+            CueColumn::Name => current_cue.0.set_name(""),
+            CueColumn::Number => current_cue.0.set_number(""),
+            CueColumn::Target => current_cue.0.set_target(""),
             CueColumn::PreWait => current_cue.0.set_prewait(0.0),
             CueColumn::PostWait => current_cue.0.set_postwait(0.0),
             CueColumn::Follow => current_cue.0.set_follow(FollowState::None),
