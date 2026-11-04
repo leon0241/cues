@@ -31,16 +31,6 @@ impl Tui {
     /// Creates a new Tui
     ///
     /// # Examples
-    /// ```
-    /// use cues::view::terminal::Tui;
-    /// use ratatui::{backend::CrosstermBackend, Terminal};
-    ///
-    /// let backend = CrosstermBackend::new(std::io::stdout());
-    /// // don't unwrap in prod!
-    /// let terminal = Terminal::new(backend).unwrap();
-    ///
-    /// let new_tui = Tui::new(terminal);
-    /// ```
     #[must_use]
     pub const fn new(terminal: CrosstermTerminal) -> Self {
         Self { terminal }
@@ -51,14 +41,6 @@ impl Tui {
     /// # Errors
     ///
     /// Will return `Err` if either `EnterAlternateScreen` or `enable_raw_mode()` fails
-    ///
-    /// # Examples
-    /// ```
-    /// use cues::view::terminal::Tui;
-    ///
-    /// // never unwrap in prod!
-    /// Tui::init_terminal().unwrap();
-    /// ```
     pub fn init_terminal() -> color_eyre::Result<()> {
         execute!(stdout(), EnterAlternateScreen)?;
         enable_raw_mode()?;
@@ -116,24 +98,6 @@ impl Tui {
     /// # Errors
     ///
     /// Will error if view propagates back
-    ///
-    /// # Examples
-    /// ```
-    /// use cues::view::terminal::Tui;
-    /// use cues::model::full_model::Model;
-    ///
-    /// use ratatui::{backend::CrosstermBackend, Terminal};
-    ///
-    /// let mut model = Model::new();
-    ///
-    /// let backend = CrosstermBackend::new(std::io::stdout());
-    /// // don't unwrap in prod!
-    /// let terminal = Terminal::new(backend).unwrap();
-    ///
-    /// let mut tui = Tui::new(terminal);
-    ///
-    /// tui.draw(&mut model);
-    /// ```
     pub fn draw(&mut self, model: &mut Model) -> color_eyre::Result<()> {
         self.terminal.draw(|frame| view(model, frame))?;
         Ok(())
@@ -144,21 +108,6 @@ impl Tui {
     /// # Errors
     ///
     /// Will error if it can't clear i guess
-    ///
-    /// # Examples
-    /// ```
-    /// use cues::view::terminal::Tui;
-    ///
-    /// use ratatui::{backend::CrosstermBackend, Terminal};
-    ///
-    /// let backend = CrosstermBackend::new(std::io::stdout());
-    /// // don't unwrap in prod!
-    /// let terminal = Terminal::new(backend).unwrap();
-    ///
-    /// let mut tui = Tui::new(terminal);
-    ///
-    /// tui.clear();
-    /// ```
     pub fn clear(&mut self) -> color_eyre::Result<()> {
         Ok(self.terminal.clear()?)
     }

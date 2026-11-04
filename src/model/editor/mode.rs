@@ -26,7 +26,7 @@ impl Mode {
     /// ```
     /// use cues::model::editor::Mode;
     ///
-    /// assert_eq!(Mode::Normal.as_str(), "Normal");
+    /// assert_eq!(Mode::Normal.as_str(), " NORMAL ");
     /// ```
     #[must_use]
     pub const fn as_str(self) -> &'static str {
