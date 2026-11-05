@@ -22,17 +22,10 @@ pub fn create_handler(
             cuestack.new_cue(Cue::default_from_type(CueType::Audio(AudioCue::default())));
         }
         // TODO: add these back in
-        CreateCmd::CreateFade => {
-            cuestack.new_cue(Cue::default_from_type(CueType::Fade(TargetCue::default())));
-        }
-        CreateCmd::CreateStart => {
-            cuestack.new_cue(Cue::default_from_type(CueType::Start(TargetCue::default())));
-        }
-        CreateCmd::CreateStop => {
-            cuestack.new_cue(Cue::default_from_type(CueType::Stop(TargetCue::default())));
-        }
-        CreateCmd::CreatePause => {
-            cuestack.new_cue(Cue::default_from_type(CueType::Pause(TargetCue::default())));
+        CreateCmd::CreateTargetable(t) => {
+            cuestack.new_cue(Cue::default_from_type(CueType::Targetable(
+                TargetCue::default_from_type(*t),
+            )));
         }
     }
     editor.set_combo_state(ComboState::None);

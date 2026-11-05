@@ -2,7 +2,7 @@
 //!
 //! Implementation for any cue based modification within the cuestack.
 
-use crate::model::cue::{CopiedCell, Cue, CueColumn, CueType, FollowState};
+use crate::model::cue::{AudioCue, CopiedCell, Cue, CueColumn, CueType, FollowState};
 use crate::model::cuestack::CueStack;
 
 impl CueStack {
@@ -247,12 +247,11 @@ impl CueStack {
             CueColumn::PostWait => CopiedCell::Time(current_cue.0.postwait().clone()),
             CueColumn::Follow => CopiedCell::Follow(current_cue.0.follow()),
             CueColumn::Target => match current_cue.0.cue_type() {
-                CueType::Audio(file) => file.file().as_ref().map_or(CopiedCell::None, |file| {
-                    CopiedCell::FilePath(file.file_path().to_string())
-                }),
-                CueType::Fade(t) | CueType::Stop(t) | CueType::Pause(t) | CueType::Start(t) => {
-                    CopiedCell::Target(t.clone())
+                CueType::Audio(AudioCue::Empty) => CopiedCell::None,
+                CueType::Audio(AudioCue::Populated(f)) => {
+                    CopiedCell::FilePath(f.file_path().to_string())
                 }
+                CueType::Targetable(t) => CopiedCell::Target(t.clone()),
             },
         }
     }

@@ -5,7 +5,7 @@
 // TODO: these are all private methods so don't need docs but should do it anyways
 
 use crate::model::{
-    cue::{CueType, PlayState, audio_cue::PlayableCue},
+    cue::{AudioCue, CueType, PlayState, audio_cue::PlayableCue},
     cuestack::CueStack,
     keymaps::PlaybackCmd,
 };
@@ -51,8 +51,8 @@ impl CueStack {
             return Ok(());
         };
 
-        if let CueType::Audio(audio_cue) = cue.cue_type() {
-            audio_cue.play_cue()?;
+        if let CueType::Audio(AudioCue::Populated(f)) = cue.cue_type() {
+            f.play_cue()?;
             cue.set_status(PlayState::Playing);
         }
         Ok(())
@@ -68,8 +68,8 @@ impl CueStack {
             return;
         };
 
-        if let CueType::Audio(audio_cue) = cue.cue_type() {
-            match audio_cue.pause_cue() {
+        if let CueType::Audio(AudioCue::Populated(f)) = cue.cue_type() {
+            match f.pause_cue() {
                 // Unpaused -> Paused
                 Some(true) => {
                     cue.set_status(PlayState::Stopped);
@@ -94,8 +94,8 @@ impl CueStack {
             return;
         };
 
-        if let CueType::Audio(audio_cue) = cue.cue_type()
-            && let Some(_i) = audio_cue.stop_cue()
+        if let CueType::Audio(AudioCue::Populated(f)) = cue.cue_type()
+            && let Some(_i) = f.stop_cue()
         {
             cue.set_status(PlayState::Stopped);
         }
@@ -111,8 +111,8 @@ impl CueStack {
             return;
         };
 
-        if let CueType::Audio(audio_cue) = cue.cue_type()
-            && let Some(_i) = audio_cue.fade_stop_cue(3_f32)
+        if let CueType::Audio(AudioCue::Populated(f)) = cue.cue_type()
+            && let Some(_i) = f.fade_stop_cue(3_f32)
         {
             cue.set_status(PlayState::Fading);
         }

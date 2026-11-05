@@ -4,7 +4,7 @@
 //! Currently can either be an Audio Cue, or
 //! a target cue of some sort.
 
-use crate::model::cue::{AudioCue, TargetCue};
+use crate::model::cue::{AudioCue, TargetCue, target_cue::TargetType};
 
 /// Type of Cue
 ///
@@ -15,13 +15,7 @@ pub enum CueType {
     /// Audio Cue with an Audio File
     Audio(AudioCue),
     /// Fade Cue with a Cue Target
-    Fade(TargetCue),
-    /// Stop Cue with a Cue Target
-    Stop(TargetCue),
-    /// Pause Cue with a Cue Target
-    Pause(TargetCue),
-    /// Start Cue with a Cue Target
-    Start(TargetCue),
+    Targetable(TargetCue),
 }
 
 impl Default for CueType {
@@ -29,7 +23,7 @@ impl Default for CueType {
     ///
     /// The default cue is a blank audio cue
     fn default() -> Self {
-        Self::Audio(AudioCue::default())
+        Self::Audio(AudioCue::Empty)
     }
 }
 
@@ -41,10 +35,12 @@ impl CueType {
     pub const fn icon(&self) -> &'static str {
         match self {
             Self::Audio(_) => "",
-            Self::Fade(_) => "",
-            Self::Stop(_) => "",
-            Self::Pause(_) => "",
-            Self::Start(_) => "",
+            Self::Targetable(t) => match t.target_type() {
+                TargetType::Fade => "",
+                TargetType::Stop => "",
+                TargetType::Pause => "",
+                TargetType::Start => "",
+            },
         }
     }
 }

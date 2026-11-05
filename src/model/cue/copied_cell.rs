@@ -41,7 +41,7 @@ impl CopiedCell {
             Self::CueNumber(c) | Self::Name(c) | Self::FilePath(c) => c,
             Self::Follow(c) => c.as_str(),
             Self::Time(c) => c.as_str(),
-            Self::Target(c) => c.target().unwrap_or(""),
+            Self::Target(c) => c.target().unwrap_or_default(),
         }
     }
 }

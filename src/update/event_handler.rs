@@ -45,7 +45,7 @@ pub fn init_cues(model: &mut CueStack) -> color_eyre::Result<()> {
             "file",
             1_f32,
             FollowState::None,
-            CueType::Audio(AudioCue::new(Some(file1))),
+            CueType::Audio(AudioCue::Populated(file1)),
         ),
         // Cue::new(
         //     "2.5",

@@ -27,28 +27,11 @@ pub fn playback_handler(
                 CueType::Audio(_) => {
                     model.cue_action(None, &PlaybackCmd::PlayCue)?;
                 }
-                CueType::Fade(_) => {
+                CueType::Targetable(t) => {
                     let target: Option<String> = model.current_target();
+                    let action: PlaybackCmd = t.target_type().action();
                     if let Some(i) = target {
-                        model.cue_action(Some(&i), &PlaybackCmd::FadeStopCue)?;
-                    }
-                }
-                CueType::Start(_) => {
-                    let target: Option<String> = model.current_target();
-                    if let Some(i) = target {
-                        model.cue_action(Some(&i), &PlaybackCmd::PlayCue)?;
-                    }
-                }
-                CueType::Stop(_) => {
-                    let target: Option<String> = model.current_target();
-                    if let Some(i) = target {
-                        model.cue_action(Some(&i), &PlaybackCmd::StopCue)?;
-                    }
-                }
-                CueType::Pause(_) => {
-                    let target: Option<String> = model.current_target();
-                    if let Some(i) = target {
-                        model.cue_action(Some(&i), &PlaybackCmd::PauseCue)?;
+                        model.cue_action(Some(&i), &action)?;
                     }
                 }
             }

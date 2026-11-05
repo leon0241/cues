@@ -9,7 +9,10 @@ use std::collections::HashMap;
 
 use ratatui::crossterm::event::KeyCode;
 
-use crate::model::keymaps::{CreateCmd, CueCmd, Message, ModKeyCmd};
+use crate::model::{
+    cue::target_cue::TargetType,
+    keymaps::{CreateCmd, CueCmd, Message, ModKeyCmd},
+};
 
 /// Helper function to initialise general maps for a specified modkey
 ///
@@ -122,9 +125,21 @@ pub fn init_create_maps() -> HashMap<KeyCode, Message> {
 
     HashMap::from([
         (KeyCode::Char('o'), wrapper(CreateCmd::CreateAudio)),
-        (KeyCode::Char('f'), wrapper(CreateCmd::CreateFade)),
-        (KeyCode::Char('s'), wrapper(CreateCmd::CreateStart)),
-        (KeyCode::Char('x'), wrapper(CreateCmd::CreateStop)),
-        (KeyCode::Char('p'), wrapper(CreateCmd::CreatePause)),
+        (
+            KeyCode::Char('f'),
+            wrapper(CreateCmd::CreateTargetable(TargetType::Fade)),
+        ),
+        (
+            KeyCode::Char('s'),
+            wrapper(CreateCmd::CreateTargetable(TargetType::Start)),
+        ),
+        (
+            KeyCode::Char('x'),
+            wrapper(CreateCmd::CreateTargetable(TargetType::Stop)),
+        ),
+        (
+            KeyCode::Char('p'),
+            wrapper(CreateCmd::CreateTargetable(TargetType::Pause)),
+        ),
     ])
 }

@@ -10,10 +10,13 @@ use std::collections::HashMap;
 
 use ratatui::crossterm::event::KeyCode;
 
-use crate::model::keymaps::{
-    insert_keymaps::init_imaps,
-    modkey_keymaps::{init_change_maps, init_create_maps, init_delete_maps, init_yank_maps},
-    normal_keymaps::init_nmaps,
+use crate::model::{
+    cue::target_cue::TargetType,
+    keymaps::{
+        insert_keymaps::init_imaps,
+        modkey_keymaps::{init_change_maps, init_create_maps, init_delete_maps, init_yank_maps},
+        normal_keymaps::init_nmaps,
+    },
 };
 
 pub mod insert_keymaps;
@@ -132,14 +135,8 @@ pub enum ComboCmd {
 pub enum CreateCmd {
     /// Create an Audio Cue
     CreateAudio,
-    /// Create a Fade Cue
-    CreateFade,
-    /// Create a Start Cue
-    CreateStart,
-    /// Create a Stop Cue
-    CreateStop,
-    /// Create a Pause Cue
-    CreatePause,
+    /// Create a Targetable Cue (Start, Fade, Stop, etc)
+    CreateTargetable(TargetType),
 }
 
 /// Sends Mod Key combo commands to process.

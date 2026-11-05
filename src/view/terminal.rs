@@ -29,8 +29,6 @@ pub struct Tui {
 
 impl Tui {
     /// Creates a new Tui
-    ///
-    /// # Examples
     #[must_use]
     pub const fn new(terminal: CrosstermTerminal) -> Self {
         Self { terminal }
@@ -52,14 +50,6 @@ impl Tui {
     /// # Errors
     ///
     /// Will return `Err` if either `LeaveAlternateScreen` or `disable_raw_mode()` fails
-    ///
-    /// # Examples
-    /// ```
-    /// use cues::view::terminal::Tui;
-    ///
-    /// // never unwrap in prod!
-    /// Tui::restore_terminal().unwrap();
-    /// ```
     pub fn restore_terminal() -> color_eyre::Result<()> {
         stdout().execute(LeaveAlternateScreen)?;
         disable_raw_mode()?;
@@ -74,14 +64,6 @@ impl Tui {
     /// # Panics
     ///
     /// Takes over hook to leave alternate screen and disable raw mode
-    ///
-    /// # Examples
-    /// ```
-    /// use cues::view::terminal::Tui;
-    ///
-    /// // never unwrap in prod!
-    /// Tui::set_panic_hook();
-    /// ```
     pub fn set_panic_hook() {
         let hook = std::panic::take_hook();
         std::panic::set_hook(Box::new(move |panic_info| {
@@ -118,13 +100,6 @@ impl Tui {
 /// # Errors
 ///
 /// Errors if shit goes wrong (endless propagations)
-///
-/// # Examples
-/// ```
-/// use cues::view::terminal::create_terminal;
-///
-/// let tui = create_terminal();
-/// ```
 pub fn create_terminal() -> color_eyre::Result<Tui> {
     let backend: CrosstermBackend<std::io::Stdout> = CrosstermBackend::new(std::io::stdout());
     let terminal: Terminal<CrosstermBackend<std::io::Stdout>> = Terminal::new(backend)?;
