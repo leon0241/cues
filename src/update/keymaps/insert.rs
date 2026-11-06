@@ -8,12 +8,10 @@ pub mod input;
 use ratatui::crossterm::event::{KeyCode, KeyModifiers};
 
 use crate::{
-    model::{
-        cuestack::CueStack,
-        editor::Editor,
-        full_model::Model,
-        keymaps::{Message, insert_keymaps::insert_char_map},
-    },
+    cues::cuestack::CueStack,
+    editor::Editor,
+    keymaps::{Message, insert_char_map},
+    model::full_model::Model,
     update::keymaps::insert::{editor::i_editor_handler, input::input_handler},
 };
 

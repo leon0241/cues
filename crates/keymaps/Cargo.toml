@@ -1,0 +1,11 @@
+[package]
+name = "cue_keymaps"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+color-eyre = "0.6.5"
+ratatui = "0.30.2"
+
+[lints]
+workspace = true

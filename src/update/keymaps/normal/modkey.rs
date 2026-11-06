@@ -2,9 +2,11 @@
 //!
 //! Handles combo'd `ModKeys` in Normal Mode.
 
-use crate::model::{
-    cue::{CopiedCell, CueColumn},
-    cuestack::CueStack,
+use crate::{
+    cues::{
+        cue::{CopiedCell, CueColumn},
+        cuestack::CueStack,
+    },
     editor::{Clipboard, ComboState, Editor, Mode},
     keymaps::{CueCmd, Message, ModKeyCmd},
 };

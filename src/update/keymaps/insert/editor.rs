@@ -2,8 +2,8 @@
 //!
 //! Handles `Editor` updates when in Insert mode.
 
-use crate::model::{
-    cuestack::CueStack,
+use crate::{
+    cues::cuestack::CueStack,
     editor::{Editor, Mode},
     keymaps::{EditorCmd, InputCmd, Message},
 };

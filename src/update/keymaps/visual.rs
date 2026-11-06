@@ -4,10 +4,10 @@
 
 use ratatui::crossterm::event::{KeyCode, KeyModifiers};
 
-use crate::model::{
+use crate::{
     editor::{ComboState, Editor},
-    full_model::Model,
     keymaps::Message,
+    model::full_model::Model,
 };
 
 /// # Visual Mode

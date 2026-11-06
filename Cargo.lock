@@ -94,16 +94,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "audio-tools"
-version = "0.1.0"
-dependencies = [
- "audio-waveform",
- "audio-waveform-render",
- "color-eyre",
- "symphonia 0.6.1",
-]
-
-[[package]]
 name = "audio-waveform"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -472,11 +462,65 @@ dependencies = [
 ]
 
 [[package]]
+name = "cue_audio"
+version = "0.1.0"
+dependencies = [
+ "audio-waveform",
+ "audio-waveform-render",
+ "color-eyre",
+ "num-traits",
+ "rodio",
+ "symphonia 0.6.1",
+]
+
+[[package]]
+name = "cue_cues"
+version = "0.1.0"
+dependencies = [
+ "color-eyre",
+ "cue_audio",
+ "cue_keymaps",
+ "ratatui",
+]
+
+[[package]]
+name = "cue_editor"
+version = "0.1.0"
+dependencies = [
+ "color-eyre",
+ "cue_cues",
+ "cue_keymaps",
+ "ratatui",
+]
+
+[[package]]
+name = "cue_keymaps"
+version = "0.1.0"
+dependencies = [
+ "color-eyre",
+ "ratatui",
+]
+
+[[package]]
+name = "cue_tui_core"
+version = "0.1.0"
+dependencies = [
+ "color-eyre",
+ "cue_editor",
+ "ratatui",
+]
+
+[[package]]
 name = "cues"
 version = "0.1.0"
 dependencies = [
  "cli-log",
  "color-eyre",
+ "cue_audio",
+ "cue_cues",
+ "cue_editor",
+ "cue_keymaps",
+ "cue_tui_core",
  "directories",
  "notify",
  "num-traits",

@@ -2,8 +2,8 @@
 //!
 //! Handles `Editor` updates when in Normal mode, mostly `Mode` changes
 
-use crate::model::{
-    cuestack::CueStack,
+use crate::{
+    cues::cuestack::CueStack,
     editor::{Editor, Mode},
     keymaps::{EditorCmd, Message},
 };
@@ -18,7 +18,7 @@ pub fn n_editor_handler(
 ) -> Option<Message> {
     match cmd {
         EditorCmd::Quit => {
-            editor.set_running_state(crate::model::editor::RunningState::Done);
+            editor.set_running_state(crate::editor::RunningState::Done);
         }
         EditorCmd::EnterInsertStart => {
             // Get current cell value

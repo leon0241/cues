@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["audio-tools"]
+members = ["crates/keymaps", "crates/audio", "crates/cues", "crates/editor", "crates/tui-core"]
 
 [workspace.package]
 version = "0.1.0"
@@ -20,6 +20,12 @@ name = "cues"
 path = "src/main.rs"
 
 [dependencies]
+cue_keymaps = { path = "crates/keymaps" }
+cue_cues = { path = "crates/cues" }
+cue_audio = { path = "crates/audio" }
+cue_editor = { path = "crates/editor" }
+cue_tui_core = { path = "crates/tui-core" }
+
 color-eyre = "0.6.5"
 directories = "6.0.0"
 ratatui = "0.30.2"

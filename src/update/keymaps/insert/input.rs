@@ -2,7 +2,7 @@
 //!
 //! Handles key presses in the command line when in Insert mode.
 
-use crate::model::{
+use crate::{
     editor::Editor,
     keymaps::{InputCmd, Message},
 };

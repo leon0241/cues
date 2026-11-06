@@ -2,9 +2,8 @@
 //!
 //! Handles playing, pausing, etc for audio cues
 //!
-use crate::model::{
-    cue::cue_type::CueType,
-    cuestack::CueStack,
+use crate::{
+    cues::{cue::cue_type::CueType, cuestack::CueStack},
     keymaps::{Message, PlaybackCmd},
 };
 

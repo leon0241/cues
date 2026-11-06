@@ -2,7 +2,7 @@
 //!
 //! Handles the changing of `ComboState` for combo presses
 
-use crate::model::{
+use crate::{
     editor::{ComboState, Editor},
     keymaps::{ComboCmd, Message},
 };

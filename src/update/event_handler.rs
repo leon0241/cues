@@ -4,22 +4,48 @@
 
 use std::time::Duration;
 
+use cue_editor::RunningState;
+use cue_tui_core::terminal::Tui;
 use ratatui::crossterm::event;
 
 use crate::{
-    model::{
-        cue::{AudioCue, Cue, CueType, FollowState, audio_file::AudioFile},
+    audio::audio_file::AudioFile,
+    cues::{
+        cue::{AudioCue, Cue, CueType, FollowState},
         cuestack::CueStack,
-        editor::{Editor, Mode},
-        full_model::Model,
-        keymaps::Message,
     },
+    editor::{Editor, Mode},
+    keymaps::Message,
+    model::full_model::Model,
     update::keymaps::{
         insert::{handle_insert, update_insert},
         normal::{handle_normal, update_normal},
         visual::{handle_visual, update_visual},
     },
+    view::view_handler::view,
 };
+
+/// Main run loop of the program
+///
+/// # Errors
+///
+/// endless propagation
+pub fn run_loop(mut tui: Tui) -> color_eyre::Result<()> {
+    let mut model: Model = Model::new();
+    // let mut model: CueStack = CueStack::new();
+    model.cuestack_mut().set_default_sink()?;
+    // maybe put mut back with insert/normal
+
+    init_cues(model.cuestack_mut())?;
+
+    while *model.editor().running_state() != RunningState::Done {
+        // Draw (all logic in the View files)
+        tui.terminal().draw(|frame| view(&mut model, frame))?;
+        //
+        event_matcher(&mut model)?;
+    }
+    Ok(())
+}
 
 /// Init some cues
 ///

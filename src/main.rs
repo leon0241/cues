@@ -1,7 +1,10 @@
 //! TUI Based Audio Cue playback tool
 //! Very much WIP!
 
-use cues::view::terminal::{Tui, create_terminal, run_loop};
+use cues::{
+    tui_core::terminal::{Tui, create_terminal},
+    update::event_handler::run_loop,
+};
 
 use color_eyre::Result;
 

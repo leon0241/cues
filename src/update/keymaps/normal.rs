@@ -12,12 +12,10 @@ pub mod playback;
 use ratatui::crossterm::event::{KeyCode, KeyModifiers};
 
 use crate::{
-    model::{
-        cuestack::CueStack,
-        editor::{ComboState, Editor},
-        full_model::Model,
-        keymaps::Message,
-    },
+    cues::cuestack::CueStack,
+    editor::{ComboState, Editor},
+    keymaps::Message,
+    model::Model,
     update::keymaps::normal::{
         combo::combo_handler, create::create_handler, editor::n_editor_handler,
         modkey::modkey_handler, navigation::navigation_handler, playback::playback_handler,

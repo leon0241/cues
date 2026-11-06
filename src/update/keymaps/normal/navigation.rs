@@ -2,8 +2,8 @@
 //!
 //! Handles movement in Normal Mode
 
-use crate::model::{
-    cuestack::CueStack,
+use crate::{
+    cues::cuestack::CueStack,
     keymaps::{Message, NavigationCmd},
 };
 

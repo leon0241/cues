@@ -1,0 +1,13 @@
+[package]
+name = "cue_tui_core"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+cue_editor = {path = "../editor"}
+
+color-eyre = "0.6.5"
+ratatui = "0.30.2"
+
+[lints]
+workspace = true

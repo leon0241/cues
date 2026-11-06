@@ -2,9 +2,11 @@
 //!
 //! Handles the creation of new cues
 
-use crate::model::{
-    cue::{AudioCue, Cue, CueType, TargetCue},
-    cuestack::CueStack,
+use crate::{
+    cues::{
+        cue::{AudioCue, Cue, CueType, TargetCue},
+        cuestack::CueStack,
+    },
     editor::{ComboState, Editor},
     keymaps::{CreateCmd, Message},
 };

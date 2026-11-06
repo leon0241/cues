@@ -2,8 +2,8 @@
 //!
 //! Combining Editor and Cuestack to pass through functions easier.
 
-use crate::model::cuestack::CueStack;
-use crate::model::editor::Editor;
+use crate::cues::cuestack::CueStack;
+use crate::editor::Editor;
 
 /// Combined Model to reference
 ///
@@ -120,7 +120,7 @@ impl Model {
     /// # Examples
     ///
     /// ```
-    /// use cues::model::{full_model::Model, cuestack::CueStack};
+    /// use cues::{model::full_model::Model, cues::cuestack::CueStack};
     ///
     /// let mut model = Model::new();
     /// let new_cuestack = CueStack::new();
