@@ -84,7 +84,9 @@ pub struct Main {
 impl Main {
     #[must_use]
     pub fn init(space: Rect) -> Self {
-        let [_left, middle, _right] = space.layout(
+        let [main, info_area] =
+            space.layout(&Layout::vertical([Constraint::Fill(1), Constraint::Max(10)]).spacing(1));
+        let [_left, cues, _right] = main.layout(
             &Layout::horizontal([
                 Constraint::Percentage(5),
                 Constraint::Fill(1),
@@ -92,9 +94,6 @@ impl Main {
             ])
             .spacing(1),
         );
-
-        let [cues, info_area] =
-            middle.layout(&Layout::vertical([Constraint::Fill(1), Constraint::Max(10)]).spacing(1));
 
         let info: CueInfo = CueInfo::init(info_area);
 

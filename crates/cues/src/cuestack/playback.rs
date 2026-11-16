@@ -9,7 +9,7 @@ use crate::{
     cuestack::CueStack,
 };
 
-use cue_audio::audio_file::PlayableCue;
+use cue_audio::audio_file::playable::PlayableCue;
 use cue_keymaps::keymaps::PlaybackCmd;
 
 impl CueStack {

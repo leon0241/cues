@@ -67,8 +67,13 @@ impl Widgets {
 
     #[must_use]
     pub fn status_line(text: &str, mode: Mode) -> Line<'_> {
-        let mode_span = Span::from(text).bold();
-        // let mode_span = Span::from(text).bold().patch_style(mode.style());
+        let style = match mode {
+            Mode::Insert => Style::new().bg(Color::Blue).fg(Color::Black),
+            Mode::Normal => Style::new().bg(Color::Green).fg(Color::Black),
+            Mode::Visual => Style::new().bg(Color::Magenta).fg(Color::Black),
+        };
+
+        let mode_span = Span::from(text).bold().patch_style(style);
 
         Line::from_iter([mode_span]).bg(Color::Black)
     }

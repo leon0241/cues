@@ -12,7 +12,7 @@ use crate::{
 use cue_tui_core::widgets::Widgets;
 use ratatui::{
     Frame,
-    layout::Position,
+    layout::{Position, Rect},
     widgets::{Row, Table},
 };
 
@@ -46,12 +46,18 @@ pub fn view(model: &mut Model, frame: &mut Frame) {
 
     frame.render_widget(cue_name, layout.main.info.cue_name);
 
-    // frame.render_widget(paragraph, frame.area());
-    // frame.render_widget(mode, layout.status_line);
     frame.render_widget(title, layout.tab_bar);
     frame.render_widget(command_line, layout.status_bar.command_line);
     frame.render_widget(status_line, layout.status_bar.status_line);
 
+    set_cursor(editor, frame, layout.status_bar.input_buffer);
+
+    frame.render_widget(input_buffer, layout.status_bar.input_buffer);
+
+    frame.render_stateful_widget(table, layout.main.cues, &mut cuestack.current_state);
+}
+
+fn set_cursor(editor: &Editor, frame: &mut Frame, input_buffer_area: Rect) {
     match editor.mode() {
         // Hide the cursor. `Frame` does this by default, so we don't need to do anything here
         Mode::Normal | Mode::Visual => {}
@@ -64,14 +70,10 @@ pub fn view(model: &mut Model, frame: &mut Frame) {
             frame.set_cursor_position(Position::new(
                 // Draw the cursor at the current position in the input field.
                 // This position can be controlled via the left and right arrow key
-                layout.status_bar.input_buffer.x.wrapping_add(idx),
+                input_buffer_area.x.wrapping_add(idx),
                 // Move one line down, from the border to the input line
-                layout.status_bar.input_buffer.y,
+                input_buffer_area.y,
             ));
         }
     }
-
-    frame.render_widget(input_buffer, layout.status_bar.input_buffer);
-
-    frame.render_stateful_widget(table, layout.main.cues, &mut cuestack.current_state);
 }
