@@ -1,9 +1,15 @@
+//! Waveform Widget
+//!
+//! A horizontally scrolling implementation of a Ratatui List
+
+// Allow unused import of `ratatui::List` to -steal- reference the source code
+#[allow(unused_imports)]
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
     style::{Color, Style},
     text::{Text, ToText},
-    widgets::{Block, BlockExt, Cell, StatefulWidget, Widget},
+    widgets::{Block, BlockExt, Cell, List, StatefulWidget, Widget},
 };
 
 pub struct WaveformWidget<'a> {
@@ -38,6 +44,7 @@ impl WaveformState {
         self.offset
     }
 
+    #[must_use]
     pub const fn offset_mut(&mut self) -> &mut usize {
         &mut self.offset
     }
@@ -109,10 +116,13 @@ impl StatefulWidget for &WaveformWidget<'_> {
             return;
         }
 
-        let width: usize = 50;
+        // Width of the area
+        let width: usize = waveform_area.width.into();
 
+        // Selected cue, or first cue if nothing selected
         let selected = state.selected().unwrap_or(0);
 
+        // Indexes that are currently visible on the screen
         let (first_visible_index, last_visible_index) =
             self.calculate_offset(selected, state.offset, width);
 
@@ -215,27 +225,32 @@ impl WaveformWidget<'_> {
 /// Rendering Methods
 impl WaveformWidget<'_> {
     fn calculate_offset(&self, selected: usize, offset: usize, width: usize) -> (usize, usize) {
-        let max_length = self.samples.len();
         // Find the workable space
+        let max_length = self.samples.len();
 
         // Smallest out of offset vs or sample length - width
         let mut first_visible_index = offset.min(max_length.saturating_sub(width));
         // Smallest out of offset + width vs the sample length
         let mut last_visible_index = offset.saturating_add(width).min(max_length);
 
+        // Add the padding (shouldn't ever saturate)
         let scrollable_right = selected.saturating_add(self.scroll_padding);
+        // Take away the padding (will saturate at 0)
         let scrollable_left = selected.saturating_sub(self.scroll_padding);
 
         // If there is space to scroll to the right
         if scrollable_right > last_visible_index && scrollable_right < max_length {
+            // Add one to both the start and the end
             first_visible_index = first_visible_index.saturating_add(1);
             last_visible_index = last_visible_index.saturating_add(1);
         // If there is space to scroll to the left
         } else if scrollable_left < first_visible_index && scrollable_right > 0 {
+            // Take one to both the start and the end
             first_visible_index = first_visible_index.saturating_sub(1);
             last_visible_index = last_visible_index.saturating_sub(1);
         }
 
+        // Return new (or unchanged) values
         (first_visible_index, last_visible_index)
     }
 }

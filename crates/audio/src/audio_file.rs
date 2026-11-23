@@ -13,13 +13,14 @@ use std::{
 };
 
 // use cue_cues::audio_cue::PlayableCue;
-use crate::{audio_config::AudioDevice, audio_file::file_editing::AudioFileSettings};
+use crate::{
+    audio_config::AudioDevice, audio_file::file_editing::AudioFileSettings, waveform::Waveform,
+};
 
 /// Audio File
 ///
 /// Contains all the rodio logic required to play
 /// audio file cues.
-#[derive(Clone)]
 #[allow(dead_code)]
 pub struct AudioFile {
     name: String,
@@ -28,6 +29,7 @@ pub struct AudioFile {
     player: Arc<Player>,
     now_playing: Arc<AtomicU16>,
     settings: AudioFileSettings,
+    waveform: Waveform,
 }
 
 // Manual implementation of Debug as Player doesn't impl it.
@@ -68,6 +70,8 @@ impl AudioFile {
 
         let now_playing: Arc<AtomicU16> = Arc::new(AtomicU16::new(0));
 
+        let waveform: Waveform = Waveform::new(&path);
+
         Ok(Self {
             name: name.into(),
             file_path: path,
@@ -75,6 +79,7 @@ impl AudioFile {
             player,
             now_playing,
             settings: AudioFileSettings::default(),
+            waveform,
         })
     }
 
@@ -99,6 +104,7 @@ impl AudioFile {
             player: Arc::new(Player::new().0),
             now_playing,
             settings: AudioFileSettings::default(),
+            waveform: Waveform::default(),
         }
     }
 
@@ -161,5 +167,18 @@ impl AudioFile {
     pub fn try_read(&mut self) -> color_eyre::Result<()> {
         self.bytes = std::fs::read(self.file_path.clone())?.into();
         Ok(())
+    }
+
+    #[must_use]
+    pub const fn waveform(&self) -> &Waveform {
+        &self.waveform
+    }
+
+    pub const fn waveform_mut(&mut self) -> &mut Waveform {
+        &mut self.waveform
+    }
+
+    pub fn set_waveform(&mut self, waveform: Waveform) {
+        self.waveform = waveform;
     }
 }

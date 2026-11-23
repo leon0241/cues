@@ -7,12 +7,24 @@ pub struct Waveform {
     wave_string: Vec<Vec<char>>,
 }
 
+impl Default for Waveform {
+    fn default() -> Self {
+        Self {
+            points: Vec::default(),
+            current_sample_size: 250,
+            wave_string: Vec::default(),
+        }
+    }
+}
+
 impl Waveform {
     #[must_use]
-    pub fn new(audio_path: &Path) -> Self {
+    pub fn new(audio_path: &str) -> Self {
         let options = WaveformOptions::new(250);
 
-        let generated = generate_u8(audio_path, &options);
+        let path: &Path = Path::new(audio_path);
+
+        let generated = generate_u8(path, &options);
         let points = match generated {
             Ok(v) => v.0,
             // TODO: actually learn how errors work
