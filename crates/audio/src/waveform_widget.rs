@@ -2,6 +2,11 @@
 //!
 //! A horizontally scrolling implementation of a Ratatui List
 
+use std::sync::{
+    Arc,
+    atomic::{AtomicUsize, Ordering},
+};
+
 // Allow unused import of `ratatui::List` to -steal- reference the source code
 #[allow(unused_imports)]
 use ratatui::{
@@ -101,8 +106,8 @@ impl WaveformState {
     }
 
     #[must_use]
-    pub const fn timestamp(&self) -> usize {
-        self.timestamp
+    pub const fn timestamp(&self) -> &usize {
+        &self.timestamp
     }
 
     pub const fn timestamp_mut(&mut self) -> &mut usize {
@@ -198,7 +203,7 @@ impl WaveformWidget<'_> {
 
             self.render_strip_cells(buf, strip, row_area);
 
-            if state.timestamp() == state.offset().saturating_add(col_idx) {
+            if *state.timestamp() == state.offset().saturating_add(col_idx) {
                 buf.set_style(row_area, Style::new().bg(Color::Magenta).fg(Color::Black));
             }
 

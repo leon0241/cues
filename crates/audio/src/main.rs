@@ -6,6 +6,8 @@
 // Indications to how zoomed a track is relative to time in secs
 // Adding time indicators or ticks to the graph
 
+use std::time::Duration;
+
 use cue_audio::audio_config::AudioDevice;
 use cue_audio::audio_file::AudioFile;
 use cue_audio::waveform::Waveform;
@@ -29,6 +31,8 @@ fn main() -> color_eyre::Result<()> {
 
     let mut audio_file = AudioFile::new("Boom", audio_path, &audio_device)?;
 
+    let duration = audio_file.timestamp();
+
     // Mutable reference to AudioFile's Waveform
     let wav: &mut Waveform = audio_file.waveform_mut();
     wav.regenerate_with_samples(samples);
@@ -40,6 +44,8 @@ fn main() -> color_eyre::Result<()> {
 
     ratatui::run(|terminal| {
         loop {
+            waveform_state.set_timestamp(wav.pos_from_time(duration));
+
             terminal.draw(|frame| render(frame, &mut waveform_state, wav))?;
 
             if let Some(key) = event::read()?.as_key_press_event() {

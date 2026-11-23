@@ -1,10 +1,11 @@
 use audio_waveform::{WaveformOptions, generate_from_u8_samples, generate_u8};
-use std::path::Path;
+use std::{path::Path, time::Duration};
 
 pub struct Waveform {
     points: Vec<u8>,
     current_sample_size: usize,
     wave_string: Vec<Vec<char>>,
+    duration: f64,
 }
 
 impl Default for Waveform {
@@ -13,6 +14,7 @@ impl Default for Waveform {
             points: Vec::default(),
             current_sample_size: 250,
             wave_string: Vec::default(),
+            duration: 0.0,
         }
     }
 }
@@ -24,15 +26,13 @@ impl Waveform {
 
         let path: &Path = Path::new(audio_path);
 
-        let generated = generate_u8(path, &options);
-        let points = match generated {
-            Ok(v) => v.0,
-            // TODO: actually learn how errors work
-            Err(_v) => Vec::default(),
-        };
+        let generated = generate_u8(path, &options).ok();
+
+        let (points, duration) = generated.unwrap_or_else(|| (Vec::default(), 0.0));
 
         Self {
             points,
+            duration,
             current_sample_size: 250,
             wave_string: Vec::default(),
         }
@@ -71,6 +71,26 @@ impl Waveform {
     #[must_use]
     pub const fn waveform(&self) -> &Vec<Vec<char>> {
         &self.wave_string
+    }
+
+    #[must_use]
+    pub const fn pos_from_time(&self, position: f64) -> usize {
+        #[allow(clippy::cast_precision_loss)]
+        #[allow(clippy::as_conversions)]
+        let ss_multiplier = self.duration / self.current_sample_size as f64;
+
+        // 5 / 10 = "one tick is " 0.5 "seconds"
+        //
+        // 3.5 / 0.5
+
+        let relative_position = position / ss_multiplier;
+
+        #[allow(clippy::cast_possible_truncation)]
+        #[allow(clippy::cast_sign_loss)]
+        #[allow(clippy::as_conversions)]
+        let a = relative_position.round() as usize;
+
+        a
     }
 }
 
