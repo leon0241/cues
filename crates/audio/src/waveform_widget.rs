@@ -24,6 +24,7 @@ pub struct WaveformWidget<'a> {
 pub struct WaveformState {
     pub offset: usize,
     pub selected: Option<usize>,
+    pub timestamp: usize,
 }
 
 impl WaveformState {
@@ -36,6 +37,12 @@ impl WaveformState {
     #[must_use]
     pub const fn with_selected(mut self, selected: Option<usize>) -> Self {
         self.selected = selected;
+        self
+    }
+
+    #[must_use]
+    pub const fn with_timestamp(mut self, timestamp: usize) -> Self {
+        self.timestamp = timestamp;
         self
     }
 
@@ -83,14 +90,33 @@ impl WaveformState {
         self.select(Some(usize::MAX));
     }
 
-    pub fn scroll_down_by(&mut self, amount: u16) {
+    pub fn select_left_by(&mut self, amount: u16) {
         let selected = self.selected.unwrap_or_default();
         self.select(Some(selected.saturating_add(amount.into())));
     }
 
-    pub fn scroll_up_by(&mut self, amount: u16) {
+    pub fn select_right_by(&mut self, amount: u16) {
         let selected = self.selected.unwrap_or_default();
         self.select(Some(selected.saturating_sub(amount.into())));
+    }
+
+    #[must_use]
+    pub const fn timestamp(&self) -> usize {
+        self.timestamp
+    }
+
+    pub const fn timestamp_mut(&mut self) -> &mut usize {
+        &mut self.timestamp
+    }
+
+    pub const fn set_timestamp(&mut self, timestamp: usize) {
+        self.timestamp = timestamp;
+    }
+
+    pub const fn timestamp_on_selected(&mut self) {
+        if let Some(i) = self.selected {
+            self.timestamp = i;
+        }
     }
 }
 
@@ -171,6 +197,10 @@ impl WaveformWidget<'_> {
             };
 
             self.render_strip_cells(buf, strip, row_area);
+
+            if state.timestamp() == state.offset().saturating_add(col_idx) {
+                buf.set_style(row_area, Style::new().bg(Color::Magenta).fg(Color::Black));
+            }
 
             if let Some(s) = state.selected()
                 && s == state.offset().saturating_add(col_idx)

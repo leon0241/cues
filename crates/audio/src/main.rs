@@ -1,4 +1,10 @@
-// use audio_waveform_render::{RenderOptions, render_svg};
+// WHAT TODO:
+// Make timestamp an arc (or waveform state?)
+// Somehow increase timestamp as a track plays
+// Arc clone reference the timestamp on each loop
+// Time divided by the zoom of the state
+// Indications to how zoomed a track is relative to time in secs
+// Adding time indicators or ticks to the graph
 
 use cue_audio::audio_config::AudioDevice;
 use cue_audio::audio_file::AudioFile;
@@ -23,10 +29,15 @@ fn main() -> color_eyre::Result<()> {
 
     let mut audio_file = AudioFile::new("Boom", audio_path, &audio_device)?;
 
+    // Mutable reference to AudioFile's Waveform
     let wav: &mut Waveform = audio_file.waveform_mut();
     wav.regenerate_with_samples(samples);
 
-    let mut waveform_state = WaveformState::default().with_selected(Some(0));
+    // Waveform State selecting Some(0)
+    let mut waveform_state = WaveformState::default()
+        .with_selected(Some(0))
+        .with_timestamp(0);
+
     ratatui::run(|terminal| {
         loop {
             terminal.draw(|frame| render(frame, &mut waveform_state, wav))?;
