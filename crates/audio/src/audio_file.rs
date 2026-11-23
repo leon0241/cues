@@ -31,7 +31,6 @@ pub struct AudioFile {
     file_path: String,
     bytes: Arc<[u8]>,
     player: Arc<Player>,
-    timestamp: Arc<f64>,
     now_playing: Arc<AtomicU16>,
     settings: AudioFileSettings,
     waveform: Waveform,
@@ -85,7 +84,6 @@ impl AudioFile {
             now_playing,
             settings: AudioFileSettings::default(),
             waveform,
-            timestamp: Arc::new(0.0),
         })
     }
 
@@ -111,7 +109,6 @@ impl AudioFile {
             now_playing,
             settings: AudioFileSettings::default(),
             waveform: Waveform::default(),
-            timestamp: Arc::new(0.0),
         }
     }
 
@@ -147,9 +144,9 @@ impl AudioFile {
         Ok(())
     }
 
-    pub fn timestamp(&mut self) -> f64 {
-        self.timestamp = self.player.get_pos().as_secs_f64().into();
-        *self.timestamp
+    /// Returns the Timestamp as an F64
+    pub fn timestamp(&mut self) -> Duration {
+        self.player.get_pos()
     }
 
     /// Returns the audio file path

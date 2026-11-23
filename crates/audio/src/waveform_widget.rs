@@ -77,30 +77,30 @@ impl WaveformState {
         }
     }
 
-    pub fn select_next(&mut self) {
+    pub fn scroll_next(&mut self) {
         let next = self.selected.map_or(0, |i| i.saturating_add(1));
         self.select(Some(next));
     }
 
-    pub fn select_previous(&mut self) {
+    pub fn scroll_previous(&mut self) {
         let previous = self.selected.map_or(usize::MAX, |i| i.saturating_sub(1));
         self.select(Some(previous));
     }
 
-    pub const fn select_first(&mut self) {
+    pub const fn scroll_first(&mut self) {
         self.select(Some(0));
     }
 
-    pub const fn select_last(&mut self) {
+    pub const fn scroll_last(&mut self) {
         self.select(Some(usize::MAX));
     }
 
-    pub fn select_left_by(&mut self, amount: u16) {
+    pub fn scroll_left_by(&mut self, amount: u16) {
         let selected = self.selected.unwrap_or_default();
         self.select(Some(selected.saturating_add(amount.into())));
     }
 
-    pub fn select_right_by(&mut self, amount: u16) {
+    pub fn scroll_right_by(&mut self, amount: u16) {
         let selected = self.selected.unwrap_or_default();
         self.select(Some(selected.saturating_sub(amount.into())));
     }
@@ -121,6 +121,22 @@ impl WaveformState {
     pub const fn timestamp_on_selected(&mut self) {
         if let Some(i) = self.selected {
             self.timestamp = i;
+        }
+    }
+
+    pub const fn recalibrate_add(&mut self, to_add: usize) {
+        let half = to_add.saturating_div(2);
+        self.offset = self.offset.saturating_add(half);
+        if let Some(i) = self.selected {
+            self.selected = Some(i.saturating_add(half));
+        }
+    }
+
+    pub const fn recalibrate_sub(&mut self, to_sub: usize) {
+        let half = to_sub.saturating_div(2);
+        self.offset = self.offset.saturating_sub(half);
+        if let Some(i) = self.selected {
+            self.selected = Some(i.saturating_sub(half));
         }
     }
 }

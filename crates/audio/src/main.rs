@@ -13,6 +13,7 @@ use cue_audio::audio_file::AudioFile;
 use cue_audio::waveform::Waveform;
 
 use cue_audio::waveform_widget::{WaveformState, WaveformWidget};
+use num_traits::ToPrimitive;
 use ratatui::Frame;
 use ratatui::crossterm::event::{self, KeyCode};
 use ratatui::layout::{Constraint, Layout, Rect};
@@ -24,40 +25,66 @@ fn main() -> color_eyre::Result<()> {
 
     let mut samples: usize = 100;
 
-    let audio_path = "/mnt/data/Documents/git/cues/project/audio/boom.wav";
+    let audio_path = "/mnt/data/Documents/git/cues/project/audio/test.wav";
 
     let mut audio_device: AudioDevice = AudioDevice::default();
     audio_device.set_default_sink()?;
 
     let mut audio_file = AudioFile::new("Boom", audio_path, &audio_device)?;
 
-    let duration = audio_file.timestamp();
-
-    // Mutable reference to AudioFile's Waveform
-    let wav: &mut Waveform = audio_file.waveform_mut();
-    wav.regenerate_with_samples(samples);
-
     // Waveform State selecting Some(0)
     let mut waveform_state = WaveformState::default()
         .with_selected(Some(0))
         .with_timestamp(0);
 
+    let max_sample_size = audio_file.waveform_mut().max_samples();
+
     ratatui::run(|terminal| {
         loop {
-            waveform_state.set_timestamp(wav.pos_from_time(duration));
+            let duration: Duration = audio_file.timestamp();
 
-            terminal.draw(|frame| render(frame, &mut waveform_state, wav))?;
-
-            if let Some(key) = event::read()?.as_key_press_event() {
+            // Non blocking event read
+            if event::poll(Duration::from_millis(500))?
+                && let event::Event::Key(key) = event::read()?
+                && key.kind == event::KeyEventKind::Press
+            {
                 match key.code {
-                    KeyCode::Char('h') | KeyCode::Left => waveform_state.select_previous(),
-                    KeyCode::Char('l') | KeyCode::Right => waveform_state.select_next(),
-                    KeyCode::Char('j') | KeyCode::Up => samples = samples.saturating_add(10),
-                    KeyCode::Char('k') | KeyCode::Down => samples = samples.saturating_sub(10),
+                    KeyCode::Char(' ') => audio_file.play_file()?,
+
+                    KeyCode::Char('h') | KeyCode::Left => waveform_state.scroll_previous(),
+                    KeyCode::Char('l') | KeyCode::Right => waveform_state.scroll_next(),
+                    KeyCode::Char('j') | KeyCode::Up => {
+                        samples = samples
+                            .saturating_add(10)
+                            .clamp(10, max_sample_size.saturating_sub(1));
+                    }
+                    KeyCode::Char('k') | KeyCode::Down => {
+                        samples = samples
+                            .saturating_sub(10)
+                            .clamp(10, max_sample_size.saturating_sub(1));
+                    }
+
                     KeyCode::Char('q') | KeyCode::Esc => break Ok(()),
                     _ => {}
                 }
             }
+
+            let wav: &mut Waveform = audio_file.waveform_mut();
+            // Mutable reference to AudioFile's Waveform
+
+            // Timestamp relative position
+            let relative_position: usize = wav.relative_position(&duration).to_usize().unwrap_or(0);
+
+            // Regenerate waveform if has been zoomed
+            if samples != wav.samples() {
+                wav.regenerate_with_samples(samples);
+            }
+
+            // Set the timestamp based on the percentage
+            waveform_state.set_timestamp(relative_position);
+
+            // Finally Draw
+            terminal.draw(|frame| render(frame, &mut waveform_state, wav))?;
         }
     })
 }
@@ -94,3 +121,28 @@ pub fn render_wave(
 
     frame.render_stateful_widget(waveform_widget, area, waveform_state);
 }
+
+// TODO: remove this
+// 50 [20 - 30] 25
+// 60 [25 - 35] 30
+// 70 [30 - 40] 35
+
+// 50 [20 - 30] 30
+// 60 [25 - 35] 35
+// 70 [30 - 40] 40
+
+// 50 [0 - 10] 5
+// 60 [5 - 15] 10
+// 70 [10 - 20] 15
+
+// 50 [0 - 10] 0
+// 60 [0 - 10] 0
+// 70 [0 - 10] 0
+
+// 50 [0 - 10] 10
+// 60 [10 - 20] 15
+// 70 [15 - 25] 20
+
+// 50 [0 - 10] 3
+// 60 [3 - 13] 8
+// 70 [8 - 18] 13

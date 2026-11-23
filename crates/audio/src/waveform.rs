@@ -1,20 +1,23 @@
 use audio_waveform::{WaveformOptions, generate_from_u8_samples, generate_u8};
+use num_traits::ToPrimitive;
 use std::{path::Path, time::Duration};
 
 pub struct Waveform {
-    points: Vec<u8>,
+    points_upper: Vec<u8>,
+    points_current: Vec<u8>,
     current_sample_size: usize,
     wave_string: Vec<Vec<char>>,
-    duration: f64,
+    total_duration: Duration,
 }
 
 impl Default for Waveform {
     fn default() -> Self {
         Self {
-            points: Vec::default(),
+            points_upper: Vec::default(),
+            points_current: Vec::default(),
             current_sample_size: 250,
             wave_string: Vec::default(),
-            duration: 0.0,
+            total_duration: Duration::default(),
         }
     }
 }
@@ -22,48 +25,55 @@ impl Default for Waveform {
 impl Waveform {
     #[must_use]
     pub fn new(audio_path: &str) -> Self {
-        let options = WaveformOptions::new(250);
+        let options = WaveformOptions::new(500);
 
         let path: &Path = Path::new(audio_path);
 
         let generated = generate_u8(path, &options).ok();
 
-        let (points, duration) = generated.unwrap_or_else(|| (Vec::default(), 0.0));
+        let (points_upper, duration_f64) = generated.unwrap_or_else(|| (Vec::default(), 0.0));
+
+        let total_duration = Duration::from_secs_f64(duration_f64);
 
         Self {
-            points,
-            duration,
-            current_sample_size: 250,
+            points_current: points_upper.clone(),
+            points_upper,
+            total_duration,
+            current_sample_size: 500,
             wave_string: Vec::default(),
         }
+    }
+
+    #[must_use]
+    pub const fn samples(&self) -> usize {
+        self.current_sample_size
+    }
+
+    pub const fn set_sample_size(&mut self, size: usize) {
+        self.current_sample_size = size;
+    }
+
+    #[must_use]
+    pub const fn max_samples(&self) -> usize {
+        self.points_upper.len()
     }
 
     pub fn regenerate_with_samples(&mut self, samples: usize) {
         let options = WaveformOptions::new(samples);
 
-        let generated = generate_from_u8_samples(&self.points, &options);
+        if samples < self.points_upper.len() {
+            self.points_current = generate_from_u8_samples(&self.points_upper, &options);
+        }
 
         self.current_sample_size = samples;
-
-        self.points = generated;
     }
 
     pub fn generate_waveform_string(&mut self, height: usize) -> &Vec<Vec<char>> {
         self.wave_string = self
-            .points
+            .points_current
             .iter()
             .map(|point| block_percentage(*point, height).chars().rev().collect())
             .collect();
-
-        // self.wave_string = (0..height)
-        //     .map(|col| {
-        //         verti
-        //             .iter()
-        //             .map(|row| row.get(col).copied().unwrap_or(' '))
-        //             .collect::<String>()
-        //     })
-        //     .collect();
-        //
 
         &self.wave_string
     }
@@ -73,24 +83,22 @@ impl Waveform {
         &self.wave_string
     }
 
+    /// Given a Duration, find the Position in the track based on sample size
     #[must_use]
-    pub const fn pos_from_time(&self, position: f64) -> usize {
-        #[allow(clippy::cast_precision_loss)]
-        #[allow(clippy::as_conversions)]
-        let ss_multiplier = self.duration / self.current_sample_size as f64;
+    pub fn relative_position(&self, timestamp: &Duration) -> f64 {
+        // like it should always unwrap
+        let sample_size_f64: f64 = self.current_sample_size.to_f64().unwrap_or(f64::MAX);
 
-        // 5 / 10 = "one tick is " 0.5 "seconds"
-        //
-        // 3.5 / 0.5
+        // Percentage of the way through
+        let progress_f64: f64 = timestamp.div_duration_f64(self.total_duration);
 
-        let relative_position = position / ss_multiplier;
+        // That ratio in total number of sample ticks
+        progress_f64 * sample_size_f64
+    }
 
-        #[allow(clippy::cast_possible_truncation)]
-        #[allow(clippy::cast_sign_loss)]
-        #[allow(clippy::as_conversions)]
-        let a = relative_position.round() as usize;
-
-        a
+    #[must_use]
+    pub const fn total_duration(&self) -> Duration {
+        self.total_duration
     }
 }
 
