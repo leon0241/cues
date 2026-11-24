@@ -1,3 +1,7 @@
+//! # Audio File - Playable Cue Settings
+//!
+//! Methods for playback within an `AudioFile`.
+
 use num_traits::ToPrimitive;
 use rodio::Player;
 use std::sync::{

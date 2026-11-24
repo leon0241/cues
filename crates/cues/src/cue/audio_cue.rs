@@ -18,7 +18,7 @@ pub enum AudioCue {
     #[default]
     Empty,
     /// Populated with an audio file
-    Populated(AudioFile),
+    Populated(Box<AudioFile>),
 }
 
 impl AudioCue {

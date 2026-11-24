@@ -37,10 +37,12 @@ fn main() -> color_eyre::Result<()> {
         .with_selected(Some(0))
         .with_timestamp(0);
 
-    let max_sample_size = audio_file.waveform_mut().max_samples();
+    // not idx at 0 so sub one
+    let max_sample_size = audio_file.waveform_mut().max_samples().saturating_sub(1);
 
     ratatui::run(|terminal| {
         loop {
+            // Current timestamp
             let duration: Duration = audio_file.timestamp();
 
             // Non blocking event read
@@ -50,18 +52,13 @@ fn main() -> color_eyre::Result<()> {
             {
                 match key.code {
                     KeyCode::Char(' ') => audio_file.play_file()?,
-
                     KeyCode::Char('h') | KeyCode::Left => waveform_state.scroll_previous(),
                     KeyCode::Char('l') | KeyCode::Right => waveform_state.scroll_next(),
                     KeyCode::Char('j') | KeyCode::Up => {
-                        samples = samples
-                            .saturating_add(10)
-                            .clamp(10, max_sample_size.saturating_sub(1));
+                        samples = samples.saturating_add(10).clamp(10, max_sample_size);
                     }
                     KeyCode::Char('k') | KeyCode::Down => {
-                        samples = samples
-                            .saturating_sub(10)
-                            .clamp(10, max_sample_size.saturating_sub(1));
+                        samples = samples.saturating_sub(10).clamp(10, max_sample_size);
                     }
 
                     KeyCode::Char('q') | KeyCode::Esc => break Ok(()),
@@ -75,36 +72,11 @@ fn main() -> color_eyre::Result<()> {
             // Timestamp relative position
             let relative_position: usize = wav.relative_position(&duration).to_usize().unwrap_or(0);
 
-            // Regenerate waveform if has been zoomed
-            if samples != wav.samples() {
-                let old_selected = waveform_state.selected().unwrap_or(0);
-                let ratio = waveform_state
-                    .selected()
-                    .unwrap_or(0)
-                    .to_f64()
-                    .unwrap_or(0.0)
-                    / wav.samples().to_f64().unwrap_or(1.0);
-
-                let new_position = ratio * samples.to_f64().unwrap_or(0.0);
-
-                let new_selected = new_position.round().to_usize().unwrap_or(0);
-
-                // total_sample_size.div(selected) * new_sample_size
-                wav.regenerate_with_samples(samples);
-                waveform_state.select(Some(new_selected));
-
-                // new position is bigger (further right)
-                if old_selected < new_selected {
-                    waveform_state.add_offset(new_selected.saturating_sub(old_selected));
-                }
-                // new position is smaller (further left)
-                else if old_selected > new_selected {
-                    waveform_state.sub_offset(old_selected.saturating_sub(new_selected));
-                }
-            }
-
             // Set the timestamp based on the percentage
             waveform_state.set_timestamp(relative_position);
+
+            // rejig the waveform state based on zoom state and other factors
+            recalibrate(samples, wav, &mut waveform_state);
 
             // Finally Draw
             terminal.draw(|frame| render(frame, &mut waveform_state, wav))?;
@@ -145,33 +117,33 @@ pub fn render_wave(
     frame.render_stateful_widget(waveform_widget, area, waveform_state);
 }
 
-// TODO: remove this
-// 50 [20 - 30] 25
-// 60 [25 - 35] 30
-// 70 [30 - 40] 35
+// change the selected according to zoom
+fn recalibrate(samples: usize, wav: &mut Waveform, waveform_state: &mut WaveformState) {
+    // Regenerate waveform if has been zoomed
+    if samples != wav.samples() {
+        let old_selected = waveform_state.selected().unwrap_or_default();
 
-// 50 [20 - 30] 30
-// 60 [25 - 35] 35
-// 70 [30 - 40] 40
+        let ratio = waveform_state
+            .selected()
+            .unwrap_or_default()
+            .to_f64()
+            .unwrap_or_default()
+            / wav.samples().to_f64().unwrap_or(1.0);
 
-// 50 [0 - 10] 5
-// 60 [5 - 15] 10
-// 70 [10 - 20] 15
+        let new_position = ratio * samples.to_f64().unwrap_or_default();
 
-// x + 5
+        let new_selected = new_position.round().to_usize().unwrap_or_default();
 
-// 50 [0 - 10] 0
-// 60 [0 - 10] 0
-// 70 [0 - 10] 0
+        wav.regenerate_with_samples(samples);
+        waveform_state.select(Some(new_selected));
 
-// 50 [0 - 10] 10
-// 60 [10 - 20] 15
-// 70 [15 - 25] 20
-
-// 111222333444555666777888999000
-// 11223344556677889900
-// 1234567890
-
-// 50 [0 - 10] 3
-// 60 [3 - 13] 8
-// 70 [8 - 18] 13
+        // new position is bigger (further right)
+        if old_selected < new_selected {
+            waveform_state.add_offset(new_selected.saturating_sub(old_selected));
+        }
+        // new position is smaller (further left)
+        else if old_selected > new_selected {
+            waveform_state.sub_offset(old_selected.saturating_sub(new_selected));
+        }
+    }
+}

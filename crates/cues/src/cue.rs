@@ -49,7 +49,7 @@ impl Time {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::Time;
+    /// use crate::model::cue::Time;
     ///
     /// let time = Time::new(0.0);
     /// ```
@@ -650,7 +650,8 @@ mod tests {
         let mut cue = Cue::default();
 
         if let CueType::Audio(cue_type) = cue.cue_type_mut() {
-            *cue_type = AudioCue::Populated(AudioFile::unchecked_new("name", "/file/path"));
+            *cue_type =
+                AudioCue::Populated(Box::new(AudioFile::unchecked_new("name", "/file/path")));
         }
 
         assert_eq!(cue.get_target(), Some("/file/path"));
@@ -688,7 +689,8 @@ mod tests {
         let mut cue = Cue::default();
 
         if let CueType::Audio(cue_type) = cue.cue_type_mut() {
-            *cue_type = AudioCue::Populated(AudioFile::unchecked_new("name", "/file/path"));
+            *cue_type =
+                AudioCue::Populated(Box::new(AudioFile::unchecked_new("name", "/file/path")));
         }
 
         assert_eq!(cue.get_target_str(), "");

@@ -2,11 +2,6 @@
 //!
 //! A horizontally scrolling implementation of a Ratatui List
 
-use std::sync::{
-    Arc,
-    atomic::{AtomicUsize, Ordering},
-};
-
 // Allow unused import of `ratatui::List` to -steal- reference the source code
 #[allow(unused_imports)]
 use ratatui::{
@@ -155,7 +150,7 @@ impl StatefulWidget for &WaveformWidget<'_> {
             return;
         }
 
-        // Width of the area
+        // Width of the area [this is not zero indexed]
         let width: usize = waveform_area.width.into();
 
         // Selected cue, or first cue if nothing selected
@@ -166,15 +161,14 @@ impl StatefulWidget for &WaveformWidget<'_> {
             self.calculate_offset(selected, state.offset, width);
 
         state.offset = first_visible_index;
-        state.selected = Some(selected.min(last_visible_index.saturating_sub(1)));
+        state.selected = Some(selected.min(last_visible_index));
 
         // Slice from offset plus the width
         let visible_box = self
             .samples
-            .get(first_visible_index..last_visible_index)
+            .get(first_visible_index..=last_visible_index)
             .map_or_default(|f| f);
 
-        // let transposed = transpose_samples(visible_box);
         self.render_columns(waveform_area, buf, state, visible_box);
     }
 }
@@ -198,6 +192,7 @@ impl WaveformWidget<'_> {
         state: &WaveformState,
         values: &[Vec<char>],
     ) {
+        // iter per column
         for (col_idx, strip) in values.iter().enumerate() {
             let x = area.x.saturating_add(col_idx.try_into().unwrap_or(50));
 
@@ -211,8 +206,15 @@ impl WaveformWidget<'_> {
 
             self.render_strip_cells(buf, strip, row_area);
 
+            if col_idx < 10 || col_idx > values.iter().len().saturating_sub(11) {
+                buf.set_style(row_area, Style::new().bg(Color::Gray));
+            }
+
             if *state.timestamp() == state.offset().saturating_add(col_idx) {
-                buf.set_style(row_area, Style::new().bg(Color::Magenta).fg(Color::Black));
+                buf.set_style(
+                    row_area,
+                    Style::new().bg(Color::Magenta).fg(Color::LightMagenta),
+                );
             }
 
             if let Some(s) = state.selected()
@@ -267,53 +269,43 @@ impl WaveformWidget<'_> {
 
 /// Rendering Methods
 impl WaveformWidget<'_> {
-    fn recalibrate(&self) {}
-
     fn calculate_offset(&self, selected: usize, offset: usize, width: usize) -> (usize, usize) {
-        // Find the workable space
-        let max_length = self.samples.len();
+        // Turn absolute numbers into zero-indexed ones
+        let [max_length, width_zero_idx, padding_zero_idx] =
+            [self.samples.len(), width, self.scroll_padding].map(|f| f.saturating_sub(1));
 
         // Smallest out of offset vs or sample length - width
-        let mut first_visible_index = offset.min(max_length.saturating_sub(width));
+        let mut first_visible_index = offset.min(max_length.saturating_sub(width_zero_idx));
         // Smallest out of offset + width vs the sample length
-        let mut last_visible_index = offset.saturating_add(width).min(max_length);
+        let mut last_visible_index = offset.saturating_add(width_zero_idx).min(max_length);
 
-        // Add the padding (shouldn't ever saturate)
-        let scrollable_right = selected.saturating_add(self.scroll_padding);
+        // Add the padding (clamp to max length)
+        let scrollable_right = selected
+            .saturating_add(padding_zero_idx)
+            .clamp(0, max_length);
         // Take away the padding (will saturate at 0)
-        let scrollable_left = selected.saturating_sub(self.scroll_padding);
+        let scrollable_left = selected.saturating_sub(padding_zero_idx);
 
         // If there is space to scroll to the right
-        if scrollable_right > last_visible_index && scrollable_right < max_length {
+        // if scrollable = max length then it's capped out. this can happen if near the
+        // end and zoomed in
+        if scrollable_right > last_visible_index && scrollable_right <= max_length {
+            // the amount to scroll is difference between the scrollable and the last
+            // visible index
+            let diff = scrollable_right.saturating_sub(last_visible_index);
             // Add one to both the start and the end
-            first_visible_index = first_visible_index.saturating_add(1);
-            last_visible_index = last_visible_index.saturating_add(1);
+            first_visible_index = first_visible_index.saturating_add(diff);
+            last_visible_index = last_visible_index.saturating_add(diff);
         // If there is space to scroll to the left
-        } else if scrollable_left < first_visible_index && scrollable_right > 0 {
-            // Take one to both the start and the end
-            first_visible_index = first_visible_index.saturating_sub(1);
-            last_visible_index = last_visible_index.saturating_sub(1);
-        }
+        } else if scrollable_left < first_visible_index {
+            // the amount to scroll is difference between the scrollable and the first
+            let diff = first_visible_index.saturating_sub(scrollable_left);
 
+            // Take one to both the start and the end
+            first_visible_index = first_visible_index.saturating_sub(diff);
+            last_visible_index = last_visible_index.saturating_sub(diff);
+        }
         // Return new (or unchanged) values
         (first_visible_index, last_visible_index)
     }
 }
-
-// /// Turns strips of vertical samples to horizontal samples
-// /// to render as a list to the ratatui widget
-// fn transpose_samples(vertical_samples: &[Vec<char>]) -> Vec<String> {
-//     let height: usize = vertical_samples.first().iter().len();
-//
-//     let mut transposed: Vec<String> = (0..height)
-//         .map(|col| {
-//             vertical_samples
-//                 .iter()
-//                 .map(|row| row.get(col).copied().unwrap_or(' '))
-//                 .collect::<String>()
-//         })
-//         .collect();
-//
-//     transposed.reverse();
-//     transposed
-// }

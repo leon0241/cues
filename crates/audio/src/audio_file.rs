@@ -6,13 +6,10 @@ pub mod file_editing;
 pub mod playable;
 
 use color_eyre::eyre::eyre;
-use rodio::{Decoder, Player};
+use rodio::{Decoder, Player, Source};
 use std::{
     io::Cursor,
-    sync::{
-        Arc,
-        atomic::{AtomicU16, AtomicUsize},
-    },
+    sync::{Arc, atomic::AtomicU16},
     time::Duration,
 };
 
@@ -26,6 +23,7 @@ use crate::{
 /// Contains all the rodio logic required to play
 /// audio file cues.
 #[allow(dead_code)]
+#[derive(Clone)]
 pub struct AudioFile {
     name: String,
     file_path: String,
@@ -74,7 +72,12 @@ impl AudioFile {
 
         let now_playing: Arc<AtomicU16> = Arc::new(AtomicU16::new(0));
 
-        let waveform: Waveform = Waveform::new(&path);
+        // Attempt to decode without attaching a player to find any problems
+        let try_decode = Decoder::try_from(Cursor::new(bytes.clone()))?;
+
+        let duration = try_decode.total_duration().unwrap_or(Duration::new(0, 0));
+
+        let waveform: Waveform = Waveform::new(&path, duration);
 
         Ok(Self {
             name: name.into(),
@@ -178,15 +181,25 @@ impl AudioFile {
         Ok(())
     }
 
+    /// Accessor for the Waveform of the Audio File (Immutable)
+    ///
+    /// This is an immutable reference, for a mutable reference use `waveform_mut()`.
     #[must_use]
     pub const fn waveform(&self) -> &Waveform {
         &self.waveform
     }
 
+    /// Accessor for the Waveform of the Audio File (Mutable)
+    ///
+    /// This is a mutable reference, for an immutable reference use `waveform()`.
     pub const fn waveform_mut(&mut self) -> &mut Waveform {
         &mut self.waveform
     }
 
+    /// Sets a waveform
+    ///
+    /// Maybe the better way to increase sample size in the future but currently mostly
+    /// unimplemented.
     pub fn set_waveform(&mut self, waveform: Waveform) {
         self.waveform = waveform;
     }
