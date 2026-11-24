@@ -49,7 +49,7 @@ impl Time {
     ///
     /// # Examples
     /// ```
-    /// use crate::model::cue::Time;
+    /// use cue_cues::cue::Time;
     ///
     /// let time = Time::new(0.0);
     /// ```
@@ -69,7 +69,7 @@ impl Time {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::Time;
+    /// use cue_cues::cue::Time;
     ///
     /// let time = Time::new(0.0);
     ///
@@ -125,7 +125,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{Cue, FollowState, CueType, AudioCue};
+    /// use cue_cues::cue::{Cue, FollowState, CueType, AudioCue};
     ///
     /// let cue = Cue::new("1", "Test", 3.0, FollowState::None, CueType::Audio(AudioCue::default()));
     /// ```
@@ -157,7 +157,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{Cue, CueType, AudioCue, TargetCue};
+    /// use cue_cues::cue::{Cue, CueType, AudioCue, TargetCue};
     ///
     /// let audio_cue = Cue::default_from_type(CueType::Targetable(TargetCue::default()));
     /// ```
@@ -176,7 +176,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::Cue;
+    /// use cue_cues::cue::Cue;
     ///
     /// let new_cue = Cue::default();
     ///
@@ -215,7 +215,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{Cue, CueType, AudioCue, TargetCue};
+    /// use cue_cues::cue::{Cue, CueType, AudioCue, TargetCue};
     ///
     /// let mut audio_cue = Cue::default_from_type(CueType::Audio(AudioCue::default()));
     ///
@@ -239,7 +239,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{Cue, CueType, AudioCue, TargetCue};
+    /// use cue_cues::cue::{Cue, CueType, AudioCue, TargetCue};
     ///
     /// let mut audio_cue = Cue::default_from_type(CueType::Audio(AudioCue::default()));
     ///
@@ -260,7 +260,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{Cue, CueType, AudioCue, TargetCue};
+    /// use cue_cues::cue::{Cue, CueType, AudioCue, TargetCue};
     ///
     /// let mut audio_cue = Cue::default_from_type(CueType::Audio(AudioCue::default()));
     /// let mut fade_cue = Cue::default_from_type(CueType::Targetable(TargetCue::default()));
@@ -286,7 +286,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{Cue, CueType, TargetCue};
+    /// use cue_cues::cue::{Cue, CueType, TargetCue};
     ///
     /// let cue = Cue::default_from_type(CueType::Targetable(TargetCue::default()));
     ///
@@ -303,7 +303,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{Cue, CueType, TargetCue};
+    /// use cue_cues::cue::{Cue, CueType, TargetCue};
     ///
     /// let cue = Cue::default_from_type(CueType::Targetable(TargetCue::default()));
     ///
@@ -319,7 +319,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::Cue;
+    /// use cue_cues::cue::Cue;
     ///
     /// let cue = Cue::default();
     ///
@@ -336,7 +336,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::Cue;
+    /// use cue_cues::cue::Cue;
     ///
     /// let mut cue = Cue::default();
     /// cue.set_name("label");
@@ -352,7 +352,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::Cue;
+    /// use cue_cues::cue::Cue;
     ///
     /// let cue = Cue::default();
     ///
@@ -370,7 +370,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::Cue;
+    /// use cue_cues::cue::Cue;
     ///
     /// let mut cue = Cue::default();
     ///
@@ -387,7 +387,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{Cue, PlayState};
+    /// use cue_cues::cue::{Cue, PlayState};
     ///
     /// let mut cue = Cue::default();
     ///
@@ -405,7 +405,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{Cue, PlayState};
+    /// use cue_cues::cue::{Cue, PlayState};
     ///
     /// let mut cue = Cue::default();
     ///
@@ -421,7 +421,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{Cue, Time};
+    /// use cue_cues::cue::{Cue, Time};
     ///
     /// let cue = Cue::default();
     ///
@@ -438,7 +438,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::Cue;
+    /// use cue_cues::cue::Cue;
     ///
     /// let mut cue = Cue::default();
     ///
@@ -454,7 +454,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{Cue, Time};
+    /// use cue_cues::cue::{Cue, Time};
     ///
     /// let cue = Cue::default();
     ///
@@ -471,7 +471,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::Cue;
+    /// use cue_cues::cue::Cue;
     ///
     /// let mut cue = Cue::default();
     ///
@@ -487,7 +487,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{Cue, FollowState};
+    /// use cue_cues::cue::{Cue, FollowState};
     ///
     /// let cue = Cue::default();
     ///
@@ -504,7 +504,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{Cue, FollowState};
+    /// use cue_cues::cue::{Cue, FollowState};
     ///
     /// let mut cue = Cue::default();
     ///
@@ -520,7 +520,7 @@ impl Cue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{Cue, CueColumn};
+    /// use cue_cues::cue::{Cue, CueColumn};
     ///
     /// let mut cue = Cue::default();
     ///

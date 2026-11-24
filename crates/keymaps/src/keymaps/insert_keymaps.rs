@@ -17,7 +17,7 @@ use crate::keymaps::{EditorCmd, InputCmd, Message};
 ///
 /// # Examples
 /// ```
-/// use cues::model::keymaps::insert_keymaps::init_imaps;
+/// use cue_keymaps::keymaps::insert_keymaps::init_imaps;
 ///
 /// let imaps = init_imaps();
 /// ```
@@ -46,7 +46,7 @@ pub fn init_imaps() -> HashMap<KeyCode, Message> {
 /// # Examples
 /// ```
 /// use ratatui::crossterm::event::KeyCode;
-/// use cues::model::keymaps::insert_keymaps::insert_char_map;
+/// use cue_keymaps::keymaps::insert_keymaps::insert_char_map;
 ///
 /// let i_char_maps = insert_char_map(KeyCode::Char('a'));
 /// ```

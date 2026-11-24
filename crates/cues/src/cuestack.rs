@@ -37,7 +37,7 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
+    /// use cue_cues::cuestack::CueStack;
     ///
     /// let cuestack = CueStack::new();
     /// ```
@@ -54,7 +54,7 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
+    /// use cue_cues::cuestack::CueStack;
     ///
     /// let mut cuestack = CueStack::default();
     /// cuestack.set_default_sink();
@@ -67,8 +67,8 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
-    /// use cues::model::cue::{Cue, FollowState, CueType, AudioCue};
+    /// use cue_cues::cuestack::CueStack;
+    /// use cue_cues::cue::{Cue, FollowState, CueType, AudioCue};
     ///
     /// let mut cuestack = CueStack::default();
     ///
@@ -91,7 +91,7 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
+    /// use cue_cues::cuestack::CueStack;
     ///
     /// let mut cuestack = CueStack::default();
     /// assert!(matches!(cuestack.current_type(), None));
@@ -109,7 +109,7 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
+    /// use cue_cues::cuestack::CueStack;
     ///
     /// let mut cuestack = CueStack::default();
     /// assert!(matches!(cuestack.current_target(), None));
@@ -137,9 +137,9 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
-    /// use cues::model::keymaps::PlaybackCmd;
-    /// use cues::model::cue::{Cue, FollowState, CueType, AudioCue};
+    /// use cue_cues::cuestack::CueStack;
+    /// use cue_keymaps::keymaps::PlaybackCmd;
+    /// use cue_cues::cue::{Cue, FollowState, CueType, AudioCue};
     ///
     /// let mut cuestack = CueStack::default();
     ///

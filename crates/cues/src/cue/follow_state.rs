@@ -26,7 +26,7 @@ impl FollowState {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::FollowState;
+    /// use cue_cues::cue::FollowState;
     ///
     /// assert_eq!(FollowState::Follow.icon(), "");
     /// ```
@@ -45,7 +45,7 @@ impl FollowState {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::FollowState;
+    /// use cue_cues::cue::FollowState;
     ///
     /// assert_eq!(FollowState::Follow.as_str(), "Follow");
     /// ```

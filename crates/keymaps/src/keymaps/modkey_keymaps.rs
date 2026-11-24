@@ -45,7 +45,7 @@ fn gen_mod_maps(mod_key: fn(CueCmd) -> ModKeyCmd) -> HashMap<KeyCode, Message> {
 ///
 /// # Examples
 /// ```
-/// use cues::model::keymaps::modkey_keymaps::init_yank_maps;
+/// use cue_keymaps::keymaps::modkey_keymaps::init_yank_maps;
 ///
 /// let ymaps = init_yank_maps();
 /// ```
@@ -68,7 +68,7 @@ pub fn init_yank_maps() -> HashMap<KeyCode, Message> {
 ///
 /// # Examples
 /// ```
-/// use cues::model::keymaps::modkey_keymaps::init_delete_maps;
+/// use cue_keymaps::keymaps::modkey_keymaps::init_delete_maps;
 ///
 /// let dmaps = init_delete_maps();
 /// ```
@@ -91,7 +91,7 @@ pub fn init_delete_maps() -> HashMap<KeyCode, Message> {
 ///
 /// # Examples
 /// ```
-/// use cues::model::keymaps::modkey_keymaps::init_change_maps;
+/// use cue_keymaps::keymaps::modkey_keymaps::init_change_maps;
 ///
 /// let cmaps = init_change_maps();
 /// ```
@@ -113,7 +113,7 @@ pub fn init_change_maps() -> HashMap<KeyCode, Message> {
 ///
 /// # Examples
 /// ```
-/// use cues::model::keymaps::modkey_keymaps::init_create_maps;
+/// use cue_keymaps::keymaps::modkey_keymaps::init_create_maps;
 ///
 /// let omaps = init_create_maps();
 /// ```

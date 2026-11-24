@@ -11,7 +11,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
+    /// use cue_editor::editor::Editor;
     ///
     /// let new_editor = Editor::new();
     ///
@@ -28,7 +28,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
+    /// use cue_editor::editor::Editor;
     ///
     /// let mut new_editor = Editor::new();
     ///
@@ -44,7 +44,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
+    /// use cue_editor::editor::Editor;
     ///
     /// let mut new_editor = Editor::new();
     ///
@@ -67,7 +67,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
+    /// use cue_editor::editor::Editor;
     ///
     /// let mut new_editor = Editor::new();
     ///
@@ -85,7 +85,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
+    /// use cue_editor::editor::Editor;
     ///
     /// let mut new_editor = Editor::new();
     ///
@@ -114,7 +114,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
+    /// use cue_editor::editor::Editor;
     ///
     /// let mut new_editor = Editor::new();
     ///
@@ -133,7 +133,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
+    /// use cue_editor::editor::Editor;
     ///
     /// let mut new_editor = Editor::new();
     ///
@@ -152,7 +152,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
+    /// use cue_editor::editor::Editor;
     ///
     /// let mut new_editor = Editor::new();
     ///
@@ -186,7 +186,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
+    /// use cue_editor::editor::Editor;
     ///
     /// let mut new_editor = Editor::new();
     ///

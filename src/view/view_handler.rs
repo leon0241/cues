@@ -9,6 +9,7 @@ use crate::{
     tui_core::layout::Sections,
 };
 
+use cue_cues::cue::AudioCue::{self, Populated};
 use cue_tui_core::widgets::Widgets;
 use ratatui::{
     Frame,
@@ -43,6 +44,20 @@ pub fn view(model: &mut Model, frame: &mut Frame) {
     let input_buffer_text: &str = editor.input_buffer();
 
     let input_buffer = Widgets::input_buffer(input_buffer_text);
+
+    if let Some(i) = current_cue {
+        let cue = i.0;
+        match cue.cue_type() {
+            cue_cues::cue::CueType::Audio(audio_cue) => match audio_cue {
+                AudioCue::Populated(audio_file) => {
+                    let waveform = audio_file.waveform();
+                    let waveform_state = audio_file.waveform_state();
+                }
+                AudioCue::Empty => {}
+            },
+            cue_cues::cue::CueType::Targetable(_) => {}
+        }
+    }
 
     frame.render_widget(cue_name, layout.main.info.cue_name);
 

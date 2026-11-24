@@ -45,7 +45,7 @@ impl CueColumn {
     /// # Examples
     ///
     /// ```
-    /// use cues::model::cue::CueColumn;
+    /// use cue_cues::cue::CueColumn;
     /// let column = CueColumn::from_index(5);
     /// assert_eq!(column, Some(CueColumn::PreWait));
     /// ```
@@ -73,7 +73,7 @@ impl CueColumn {
     /// # Examples
     ///
     /// ```
-    /// use cues::model::cue::CueColumn;
+    /// use cue_cues::cue::CueColumn;
     /// let idx = CueColumn::to_index(CueColumn::PreWait);
     /// assert_eq!(idx, 5);
     /// ```

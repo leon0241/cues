@@ -10,8 +10,8 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
-    /// use cues::model::cue::Cue;
+    /// use cue_cues::cuestack::CueStack;
+    /// use cue_cues::cue::Cue;
     ///
     /// let mut cuestack = CueStack::default();
     /// let cue_to_add = Cue::default();
@@ -39,7 +39,7 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
+    /// use cue_cues::cuestack::CueStack;
     ///
     /// let mut cuestack = CueStack::default();
     /// assert_eq!(cuestack.get_row_idx(), None);
@@ -64,7 +64,7 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
+    /// use cue_cues::cuestack::CueStack;
     ///
     /// let mut cuestack = CueStack::default();
     /// assert!(matches!(cuestack.get_current_cue(), None));
@@ -95,7 +95,7 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
+    /// use cue_cues::cuestack::CueStack;
     ///
     /// let mut cuestack = CueStack::default();
     /// assert_eq!(cuestack.get_current_column(), None);
@@ -112,8 +112,8 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
-    /// use cues::model::cue::Cue;
+    /// use cue_cues::cuestack::CueStack;
+    /// use cue_cues::cue::Cue;
     ///
     /// let mut cuestack = CueStack::default();
     ///
@@ -140,8 +140,8 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
-    /// use cues::model::cue::Cue;
+    /// use cue_cues::cuestack::CueStack;
+    /// use cue_cues::cue::Cue;
     ///
     /// let mut cuestack = CueStack::default();
     ///
@@ -173,8 +173,8 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
-    /// use cues::model::cue::{Cue, CueColumn};
+    /// use cue_cues::cuestack::CueStack;
+    /// use cue_cues::cue::{Cue, CueColumn};
     ///
     /// let mut cuestack = CueStack::default();
     ///
@@ -203,7 +203,7 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
+    /// use cue_cues::cuestack::CueStack;
     ///
     /// let mut cuestack = CueStack::default();
     ///
@@ -227,8 +227,8 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
-    /// use cues::model::cue::CueColumn;
+    /// use cue_cues::cuestack::CueStack;
+    /// use cue_cues::cue::CueColumn;
     ///
     /// let mut cuestack = CueStack::default();
     ///
@@ -264,7 +264,7 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
+    /// use cue_cues::cuestack::CueStack;
     ///
     /// let mut cuestack = CueStack::default();
     ///
@@ -284,7 +284,7 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
+    /// use cue_cues::cuestack::CueStack;
     ///
     /// let mut cuestack = CueStack::default();
     ///
@@ -317,7 +317,7 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
+    /// use cue_cues::cuestack::CueStack;
     ///
     /// let mut cuestack = CueStack::default();
     ///
@@ -337,8 +337,8 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
-    /// use cues::model::cue::CueColumn;
+    /// use cue_cues::cuestack::CueStack;
+    /// use cue_cues::cue::CueColumn;
     ///
     /// let mut cuestack = CueStack::default();
     ///
@@ -370,7 +370,7 @@ impl CueStack {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cuestack::CueStack;
+    /// use cue_cues::cuestack::CueStack;
     ///
     /// let mut cuestack = CueStack::default();
     ///

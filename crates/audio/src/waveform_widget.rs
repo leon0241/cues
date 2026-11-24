@@ -20,7 +20,7 @@ pub struct WaveformWidget<'a> {
     scroll_padding: usize,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct WaveformState {
     pub offset: usize,
     pub selected: Option<usize>,

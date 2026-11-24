@@ -146,8 +146,8 @@ impl TargetType {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::TargetType;
-    /// use cues::model::keymaps::PlaybackCmd;
+    /// use cue_keymaps::keymaps::TargetType;
+    /// use cue_keymaps::keymaps::PlaybackCmd;
     ///
     /// assert!(matches!(TargetType::Fade.action(), PlaybackCmd::FadeStopCue))
     /// ```

@@ -22,7 +22,8 @@ impl TargetCue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{TargetCue, TargetType};
+    /// use cue_cues::cue::TargetCue;
+    /// use cue_keymaps::keymaps::TargetType;
     ///
     /// let new_cue = TargetCue::new(TargetType::Fade, "3");
     /// ```
@@ -38,7 +39,8 @@ impl TargetCue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::{TargetCue, TargetType};
+    /// use cue_cues::cue::TargetCue;
+    /// use cue_keymaps::keymaps::TargetType;
     ///
     /// let new_cue = TargetCue::default_from_type(TargetType::Fade);
     /// ```
@@ -54,7 +56,8 @@ impl TargetCue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::target_cue::{TargetCue, TargetType};
+    /// use cue_cues::cue::TargetCue;
+    /// use cue_keymaps::keymaps::TargetType;
     ///
     /// let new_cue: TargetCue = TargetCue::new(TargetType::Fade, "1");
     /// assert_eq!(new_cue.target().unwrap_or_default(), "1");
@@ -68,7 +71,8 @@ impl TargetCue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::target_cue::{TargetCue, TargetType};
+    /// use cue_cues::cue::TargetCue;
+    /// use cue_keymaps::keymaps::TargetType;
     ///
     /// let mut new_cue: TargetCue = TargetCue::new(TargetType::Fade, "1");
     /// new_cue.set_target("2");
@@ -82,7 +86,8 @@ impl TargetCue {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::cue::target_cue::{TargetCue, TargetType};
+    /// use cue_cues::cue::TargetCue;
+    /// use cue_keymaps::keymaps::TargetType;
     ///
     /// let mut new_cue: TargetCue = TargetCue::new(TargetType::Fade, "1");
     /// assert!(matches!(new_cue.target_type(), TargetType::Fade));

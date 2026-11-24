@@ -14,7 +14,7 @@ use crate::keymaps::{EditorCmd, Message};
 ///
 /// # Examples
 /// ```
-/// use cues::model::keymaps::vline_keymaps::init_vlmaps;
+/// use cue_keymaps::keymaps::vline_keymaps::init_vlmaps;
 ///
 /// let vlmaps = init_vlmaps();
 /// ```

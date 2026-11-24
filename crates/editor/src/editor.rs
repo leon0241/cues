@@ -40,7 +40,7 @@ impl ComboState {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::ComboState;
+    /// use cue_editor::editor::ComboState;
     ///
     /// assert_eq!(ComboState::Yank.as_str(), "Yank");
     /// ```
@@ -93,8 +93,8 @@ impl Clipboard {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Clipboard;
-    /// use cues::model::cue::Cue;
+    /// use cue_editor::editor::Clipboard;
+    /// use cue_cues::cue::Cue;
     ///
     /// Clipboard::from_cue(Cue::default());
     /// ```
@@ -107,8 +107,8 @@ impl Clipboard {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Clipboard;
-    /// use cues::model::cue::CopiedCell;
+    /// use cue_editor::editor::Clipboard;
+    /// use cue_cues::cue::CopiedCell;
     ///
     /// Clipboard::from_cell(CopiedCell::default());
     /// ```
@@ -138,7 +138,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
+    /// use cue_editor::editor::Editor;
     ///
     /// let new_editor = Editor::new();
     /// ```
@@ -151,7 +151,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::{Editor, Mode};
+    /// use cue_editor::editor::{Editor, Mode};
     ///
     /// let new_editor = Editor::new();
     ///
@@ -166,7 +166,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::{Editor, Mode};
+    /// use cue_editor::editor::{Editor, Mode};
     ///
     /// let mut new_editor = Editor::new();
     ///
@@ -180,7 +180,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::{Editor, RunningState};
+    /// use cue_editor::editor::{Editor, RunningState};
     ///
     /// let new_editor = Editor::new();
     ///
@@ -195,7 +195,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::{Editor, RunningState};
+    /// use cue_editor::editor::{Editor, RunningState};
     ///
     /// let mut new_editor = Editor::new();
     ///
@@ -209,7 +209,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::{Editor, ComboState};
+    /// use cue_editor::editor::{Editor, ComboState};
     ///
     /// let new_editor = Editor::new();
     ///
@@ -224,7 +224,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::{Editor, ComboState};
+    /// use cue_editor::editor::{Editor, ComboState};
     ///
     /// let mut new_editor = Editor::new();
     ///
@@ -238,8 +238,8 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
-    /// use cues::keymaps::KeyMaps;
+    /// use cue_editor::editor::Editor;
+    /// use cue_keymaps::keymaps::KeyMaps;
     ///
     /// let new_editor = Editor::new();
     ///
@@ -256,7 +256,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
+    /// use cue_editor::editor::Editor;
     ///
     /// let mut new_editor = Editor::new();
     ///
@@ -271,7 +271,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
+    /// use cue_editor::editor::Editor;
     ///
     /// let mut new_editor = Editor::new();
     ///
@@ -285,7 +285,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
+    /// use cue_editor::editor::Editor;
     ///
     /// let mut new_editor = Editor::new();
     ///
@@ -299,8 +299,8 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
-    /// use cues::model::cue::Cue;
+    /// use cue_editor::editor::Editor;
+    /// use cue_cues::cue::Cue;
     ///
     /// let mut new_editor = Editor::new();
     ///
@@ -314,8 +314,8 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Editor;
-    /// use cues::model::cue::CopiedCell;
+    /// use cue_editor::editor::Editor;
+    /// use cue_cues::cue::CopiedCell;
     ///
     /// let mut new_editor = Editor::new();
     ///
@@ -329,7 +329,7 @@ impl Editor {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::{Editor, Clipboard};
+    /// use cue_editor::editor::{Editor, Clipboard};
     ///
     /// let mut new_editor = Editor::new();
     ///

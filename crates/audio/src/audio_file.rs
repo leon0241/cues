@@ -16,6 +16,7 @@ use std::{
 // use cue_cues::audio_cue::PlayableCue;
 use crate::{
     audio_config::AudioDevice, audio_file::file_editing::AudioFileSettings, waveform::Waveform,
+    waveform_widget::WaveformState,
 };
 
 /// Audio File
@@ -32,6 +33,7 @@ pub struct AudioFile {
     now_playing: Arc<AtomicU16>,
     settings: AudioFileSettings,
     waveform: Waveform,
+    waveform_state: WaveformState,
 }
 
 // Manual implementation of Debug as Player doesn't impl it.
@@ -79,6 +81,10 @@ impl AudioFile {
 
         let waveform: Waveform = Waveform::new(&path, duration);
 
+        let waveform_state = WaveformState::default()
+            .with_selected(Some(0))
+            .with_timestamp(0);
+
         Ok(Self {
             name: name.into(),
             file_path: path,
@@ -87,6 +93,7 @@ impl AudioFile {
             now_playing,
             settings: AudioFileSettings::default(),
             waveform,
+            waveform_state,
         })
     }
 
@@ -112,6 +119,7 @@ impl AudioFile {
             now_playing,
             settings: AudioFileSettings::default(),
             waveform: Waveform::default(),
+            waveform_state: WaveformState::default(),
         }
     }
 
@@ -144,6 +152,8 @@ impl AudioFile {
             Decoder::try_from(Cursor::new(self.bytes.clone()))?;
 
         self.player.append(source);
+
+        // TODO: ASYNC THIS GUY TO UPDATE TIMESTAMPS
         Ok(())
     }
 
@@ -202,5 +212,10 @@ impl AudioFile {
     /// unimplemented.
     pub fn set_waveform(&mut self, waveform: Waveform) {
         self.waveform = waveform;
+    }
+
+    #[must_use]
+    pub const fn waveform_state(&self) -> &WaveformState {
+        &self.waveform_state
     }
 }

@@ -15,7 +15,7 @@ use crate::keymaps::{ComboCmd, EditorCmd, Message, ModKeyCmd, NavigationCmd, Pla
 ///
 /// # Examples
 /// ```
-/// use cues::model::keymaps::normal_keymaps::init_nmaps;
+/// use cue_keymaps::keymaps::normal_keymaps::init_nmaps;
 ///
 /// let nmaps = init_nmaps();
 /// ```

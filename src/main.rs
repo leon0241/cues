@@ -8,8 +8,7 @@ use cues::{
 
 use color_eyre::Result;
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     // Color_eyre error handling
     color_eyre::install()?;
 

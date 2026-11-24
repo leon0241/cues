@@ -24,7 +24,7 @@ impl Mode {
     ///
     /// # Examples
     /// ```
-    /// use cues::model::editor::Mode;
+    /// use cue_editor::editor::Mode;
     ///
     /// assert_eq!(Mode::Normal.as_str(), " NORMAL ");
     /// ```
