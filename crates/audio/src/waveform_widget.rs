@@ -124,20 +124,12 @@ impl WaveformState {
         }
     }
 
-    pub const fn recalibrate_add(&mut self, to_add: usize) {
-        let half = to_add.saturating_div(2);
-        self.offset = self.offset.saturating_add(half);
-        if let Some(i) = self.selected {
-            self.selected = Some(i.saturating_add(half));
-        }
+    pub const fn add_offset(&mut self, to_add: usize) {
+        self.offset = self.offset.saturating_add(to_add);
     }
 
-    pub const fn recalibrate_sub(&mut self, to_sub: usize) {
-        let half = to_sub.saturating_div(2);
-        self.offset = self.offset.saturating_sub(half);
-        if let Some(i) = self.selected {
-            self.selected = Some(i.saturating_sub(half));
-        }
+    pub const fn sub_offset(&mut self, to_sub: usize) {
+        self.offset = self.offset.saturating_sub(to_sub);
     }
 }
 
@@ -275,6 +267,8 @@ impl WaveformWidget<'_> {
 
 /// Rendering Methods
 impl WaveformWidget<'_> {
+    fn recalibrate(&self) {}
+
     fn calculate_offset(&self, selected: usize, offset: usize, width: usize) -> (usize, usize) {
         // Find the workable space
         let max_length = self.samples.len();

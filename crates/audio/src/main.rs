@@ -77,7 +77,30 @@ fn main() -> color_eyre::Result<()> {
 
             // Regenerate waveform if has been zoomed
             if samples != wav.samples() {
+                let old_selected = waveform_state.selected().unwrap_or(0);
+                let ratio = waveform_state
+                    .selected()
+                    .unwrap_or(0)
+                    .to_f64()
+                    .unwrap_or(0.0)
+                    / wav.samples().to_f64().unwrap_or(1.0);
+
+                let new_position = ratio * samples.to_f64().unwrap_or(0.0);
+
+                let new_selected = new_position.round().to_usize().unwrap_or(0);
+
+                // total_sample_size.div(selected) * new_sample_size
                 wav.regenerate_with_samples(samples);
+                waveform_state.select(Some(new_selected));
+
+                // new position is bigger (further right)
+                if old_selected < new_selected {
+                    waveform_state.add_offset(new_selected.saturating_sub(old_selected));
+                }
+                // new position is smaller (further left)
+                else if old_selected > new_selected {
+                    waveform_state.sub_offset(old_selected.saturating_sub(new_selected));
+                }
             }
 
             // Set the timestamp based on the percentage
@@ -135,6 +158,8 @@ pub fn render_wave(
 // 60 [5 - 15] 10
 // 70 [10 - 20] 15
 
+// x + 5
+
 // 50 [0 - 10] 0
 // 60 [0 - 10] 0
 // 70 [0 - 10] 0
@@ -142,6 +167,10 @@ pub fn render_wave(
 // 50 [0 - 10] 10
 // 60 [10 - 20] 15
 // 70 [15 - 25] 20
+
+// 111222333444555666777888999000
+// 11223344556677889900
+// 1234567890
 
 // 50 [0 - 10] 3
 // 60 [3 - 13] 8
