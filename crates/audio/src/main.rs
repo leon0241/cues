@@ -6,6 +6,7 @@
 // Indications to how zoomed a track is relative to time in secs
 // Adding time indicators or ticks to the graph
 
+use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
 use cue_audio::audio_config::AudioDevice;
@@ -38,7 +39,10 @@ fn main() -> color_eyre::Result<()> {
         .with_timestamp(0);
 
     // not idx at 0 so sub one
-    let max_sample_size = audio_file.waveform_mut().max_samples().saturating_sub(1);
+    let max_sample_size = audio_file
+        .waveform()
+        .read()
+        .map_or(0, |f| f.max_samples().saturating_sub(1));
 
     ratatui::run(|terminal| {
         loop {
@@ -66,26 +70,28 @@ fn main() -> color_eyre::Result<()> {
                 }
             }
 
-            let wav: &mut Waveform = audio_file.waveform_mut();
-            // Mutable reference to AudioFile's Waveform
+            // read da guy
+            let wav: Arc<RwLock<Waveform>> = audio_file.waveform();
 
             // Timestamp relative position
-            let relative_position: usize = wav.relative_position(&duration).to_usize().unwrap_or(0);
+            let relative_position: usize = wav.read().map_or(0, |f| {
+                f.relative_position(&duration).to_usize().unwrap_or(0)
+            });
 
             // Set the timestamp based on the percentage
             waveform_state.set_timestamp(relative_position);
 
             // rejig the waveform state based on zoom state and other factors
-            recalibrate(samples, wav, &mut waveform_state);
+            recalibrate(samples, &wav, &mut waveform_state);
 
             // Finally Draw
-            terminal.draw(|frame| render(frame, &mut waveform_state, wav))?;
+            terminal.draw(|frame| render(frame, &mut waveform_state, &wav))?;
         }
     })
 }
 
 /// Render the UI with various lists.
-fn render(frame: &mut Frame, waveform_state: &mut WaveformState, waveform: &mut Waveform) {
+fn render(frame: &mut Frame, waveform_state: &mut WaveformState, wav: &Arc<RwLock<Waveform>>) {
     let constraints = [
         Constraint::Length(1),
         Constraint::Fill(1),
@@ -100,7 +106,12 @@ fn render(frame: &mut Frame, waveform_state: &mut WaveformState, waveform: &mut 
     ]);
     frame.render_widget(title.centered(), top);
 
-    render_wave(frame, first, waveform_state, waveform);
+    let waveform_string: Vec<Vec<char>> = wav.write().map_or_else(
+        |_e| Vec::default(),
+        |mut f| f.generate_waveform_string(first.height.into()).clone(),
+    );
+
+    render_wave(frame, first, waveform_state, &waveform_string);
 }
 
 /// Render a list.
@@ -108,19 +119,18 @@ pub fn render_wave(
     frame: &mut Frame,
     area: Rect,
     waveform_state: &mut WaveformState,
-    waveform: &mut Waveform,
+    waveform: &[Vec<char>],
 ) {
-    let string = waveform.generate_waveform_string(area.height.into());
-
-    let waveform_widget = WaveformWidget::new(string.clone());
+    let waveform_widget = WaveformWidget::new(waveform);
 
     frame.render_stateful_widget(waveform_widget, area, waveform_state);
 }
 
 // change the selected according to zoom
-fn recalibrate(samples: usize, wav: &mut Waveform, waveform_state: &mut WaveformState) {
+fn recalibrate(samples: usize, wav: &Arc<RwLock<Waveform>>, waveform_state: &mut WaveformState) {
+    let old_samples = wav.read().map_or(0, |f| f.samples());
     // Regenerate waveform if has been zoomed
-    if samples != wav.samples() {
+    if samples != old_samples {
         let old_selected = waveform_state.selected().unwrap_or_default();
 
         let ratio = waveform_state
@@ -128,13 +138,15 @@ fn recalibrate(samples: usize, wav: &mut Waveform, waveform_state: &mut Waveform
             .unwrap_or_default()
             .to_f64()
             .unwrap_or_default()
-            / wav.samples().to_f64().unwrap_or(1.0);
+            / old_samples.to_f64().unwrap_or(1.0);
 
         let new_position = ratio * samples.to_f64().unwrap_or_default();
 
         let new_selected = new_position.round().to_usize().unwrap_or_default();
 
-        wav.regenerate_with_samples(samples);
+        if let Ok(mut w) = wav.try_write() {
+            w.regenerate_with_samples(samples);
+        }
         waveform_state.select(Some(new_selected));
 
         // new position is bigger (further right)

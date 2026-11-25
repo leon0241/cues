@@ -62,6 +62,7 @@ impl PlayableCue for AudioFile {
     fn play_cue(&self) -> color_eyre::Result<()> {
         // Arc reference to now_playing. Can be read for parallel changes during a fade
         self.now_playing.store(1, Ordering::Release);
+
         self.play_file()?;
         Ok(())
     }

@@ -2,6 +2,11 @@
 //!
 //! A horizontally scrolling implementation of a Ratatui List
 
+use std::sync::{
+    Arc,
+    atomic::{AtomicUsize, Ordering},
+};
+
 // Allow unused import of `ratatui::List` to -steal- reference the source code
 #[allow(unused_imports)]
 use ratatui::{
@@ -24,7 +29,7 @@ pub struct WaveformWidget<'a> {
 pub struct WaveformState {
     pub offset: usize,
     pub selected: Option<usize>,
-    pub timestamp: usize,
+    pub timestamp: Arc<AtomicUsize>,
 }
 
 impl WaveformState {
@@ -41,8 +46,8 @@ impl WaveformState {
     }
 
     #[must_use]
-    pub const fn with_timestamp(mut self, timestamp: usize) -> Self {
-        self.timestamp = timestamp;
+    pub fn with_timestamp(mut self, timestamp: usize) -> Self {
+        self.timestamp = Arc::new(AtomicUsize::new(timestamp));
         self
     }
 
@@ -101,23 +106,25 @@ impl WaveformState {
     }
 
     #[must_use]
-    pub const fn timestamp(&self) -> &usize {
+    pub const fn timestamp(&self) -> &Arc<AtomicUsize> {
         &self.timestamp
     }
 
-    pub const fn timestamp_mut(&mut self) -> &mut usize {
-        &mut self.timestamp
+    #[must_use]
+    pub fn timestamp_arc(&self) -> Arc<AtomicUsize> {
+        self.timestamp.clone()
     }
 
-    pub const fn set_timestamp(&mut self, timestamp: usize) {
-        self.timestamp = timestamp;
+    pub fn set_timestamp(&self, timestamp: usize) {
+        let arc_clone_timestamp = self.timestamp.clone();
+        arc_clone_timestamp.store(timestamp, Ordering::Release);
     }
-
-    pub const fn timestamp_on_selected(&mut self) {
-        if let Some(i) = self.selected {
-            self.timestamp = i;
-        }
-    }
+    //
+    // pub const fn timestamp_on_selected(&mut self) {
+    //     if let Some(i) = self.selected {
+    //         self.timestamp = i;
+    //     }
+    // }
 
     pub const fn add_offset(&mut self, to_add: usize) {
         self.offset = self.offset.saturating_add(to_add);
@@ -175,9 +182,9 @@ impl StatefulWidget for &WaveformWidget<'_> {
 
 impl WaveformWidget<'_> {
     #[must_use]
-    pub fn new(samples: Vec<Vec<char>>) -> Self {
+    pub fn new(samples: &[Vec<char>]) -> Self {
         Self {
-            samples,
+            samples: samples.to_vec(),
             block: None,
             style: Style::default(),
             bounds: (0, 0),
@@ -210,7 +217,7 @@ impl WaveformWidget<'_> {
                 buf.set_style(row_area, Style::new().bg(Color::Gray));
             }
 
-            if *state.timestamp() == state.offset().saturating_add(col_idx) {
+            if state.timestamp().load(Ordering::Acquire) == state.offset().saturating_add(col_idx) {
                 buf.set_style(
                     row_area,
                     Style::new().bg(Color::Magenta).fg(Color::LightMagenta),

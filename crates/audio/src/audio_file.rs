@@ -6,11 +6,15 @@ pub mod file_editing;
 pub mod playable;
 
 use color_eyre::eyre::eyre;
+use num_traits::ToPrimitive;
 use rodio::{Decoder, Player, Source};
 use std::{
     io::Cursor,
-    sync::{Arc, atomic::AtomicU16},
-    time::Duration,
+    sync::{
+        Arc, RwLock,
+        atomic::{AtomicU16, Ordering},
+    },
+    time::{Duration, Instant},
 };
 
 // use cue_cues::audio_cue::PlayableCue;
@@ -32,7 +36,7 @@ pub struct AudioFile {
     player: Arc<Player>,
     now_playing: Arc<AtomicU16>,
     settings: AudioFileSettings,
-    waveform: Waveform,
+    waveform: Arc<RwLock<Waveform>>,
     waveform_state: WaveformState,
 }
 
@@ -92,7 +96,7 @@ impl AudioFile {
             player,
             now_playing,
             settings: AudioFileSettings::default(),
-            waveform,
+            waveform: Arc::new(RwLock::new(waveform)),
             waveform_state,
         })
     }
@@ -118,7 +122,7 @@ impl AudioFile {
             player: Arc::new(Player::new().0),
             now_playing,
             settings: AudioFileSettings::default(),
-            waveform: Waveform::default(),
+            waveform: Arc::new(RwLock::new(Waveform::default())),
             waveform_state: WaveformState::default(),
         }
     }
@@ -150,6 +154,22 @@ impl AudioFile {
         // Decode that sound file into a source
         let source: Decoder<Cursor<Arc<[u8]>>> =
             Decoder::try_from(Cursor::new(self.bytes.clone()))?;
+
+        let start = Instant::now();
+
+        let timestamp_arc = self.waveform_state.timestamp_arc();
+
+        let waveform = self.waveform.clone();
+
+        let source = source.periodic_access(Duration::from_millis(50), move |_src| {
+            let elapsed_time = start.elapsed();
+
+            let relative_position = waveform.read().map_or(0, |f| {
+                f.relative_position(&elapsed_time).to_usize().unwrap_or(0)
+            });
+
+            timestamp_arc.store(relative_position, Ordering::Release);
+        });
 
         self.player.append(source);
 
@@ -191,27 +211,22 @@ impl AudioFile {
         Ok(())
     }
 
-    /// Accessor for the Waveform of the Audio File (Immutable)
+    /// Arc Accessor for the Waveform of the Audio File (Immutable)
     ///
     /// This is an immutable reference, for a mutable reference use `waveform_mut()`.
     #[must_use]
-    pub const fn waveform(&self) -> &Waveform {
-        &self.waveform
-    }
-
-    /// Accessor for the Waveform of the Audio File (Mutable)
-    ///
-    /// This is a mutable reference, for an immutable reference use `waveform()`.
-    pub const fn waveform_mut(&mut self) -> &mut Waveform {
-        &mut self.waveform
+    pub fn waveform(&self) -> Arc<RwLock<Waveform>> {
+        self.waveform.clone()
     }
 
     /// Sets a waveform
     ///
     /// Maybe the better way to increase sample size in the future but currently mostly
     /// unimplemented.
+    ///
+    /// probably avoid this
     pub fn set_waveform(&mut self, waveform: Waveform) {
-        self.waveform = waveform;
+        self.waveform = Arc::new(RwLock::new(waveform));
     }
 
     #[must_use]
